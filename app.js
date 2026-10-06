@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU013) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU014) */
 (() => {
   'use strict';
 
@@ -130,7 +130,7 @@
       <section class="panel">
         <div class="panel-h">
           <h2>${esc(cat.name)}</h2>
-          <span class="actions">${sizeCtl()}<a class="btn" href="#/c/${cat.id}/add">+ ایڈ کتب</a></span>
+          <span class="actions">${sizeCtl()}<button class="btn ghost small share-btn" type="button" data-share-cat="${cat.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>بھیجیں</button><a class="btn" href="#/c/${cat.id}/add">+ ایڈ کتب</a></span>
         </div>
         <div class="panel-b" id="catb">
           <div class="cat-sum">
@@ -189,6 +189,7 @@
             <button class="btn ghost small" data-act="del-no" type="button">رہنے دیں</button></span></div>` : ''}
           <div class="actions">
             <a class="btn" href="#/c/${cat.id}/edit/${b.id}">ترمیم کریں</a>
+            <button class="btn ghost share-btn" type="button" data-share-book="${b.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>یہ کتاب بھیجیں</button>
             <button class="btn ghost" data-act="del" type="button">حذف کریں</button>
           </div>
         </div>
@@ -411,6 +412,15 @@
   });
   window.addEventListener('hashchange', () => setTimeout(updateDock, 0));
   gq.addEventListener('input', updateDock);
+
+  // ---------- بھیجنا (share.js) ----------
+  window.MA_SHARE = { data: () => ({ books: db.books, cats: CATS }), toast };
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-share-cat],[data-share-book],#btnShare'); if (!t || !window.MA_SHARE_UI) return;
+    if (t.dataset.shareCat) window.MA_SHARE_UI.open({ cat: t.dataset.shareCat });
+    else if (t.dataset.shareBook) window.MA_SHARE_UI.open({ books: [t.dataset.shareBook] });
+    else window.MA_SHARE_UI.open({});
+  });
 
   route();
   updateDock();
