@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU001) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU004) */
 (() => {
   'use strict';
 
@@ -76,161 +76,206 @@
 
   function renderBar(active) {
     $('bar').innerHTML =
-      `<li><a class="home ${!active ? 'on' : ''}" href="#/">تمام فنون <span class="count">${num(db.books.length)}</span></a></li>` +
-      CATS.map(c => `<li><a href="#/c/${c.id}" class="${active === c.id ? 'on' : ''}">${esc(c.name)} <span class="count">${num(booksOf(c.id).length)}</span></a></li>`).join('');
+      `<li><a class="spine home ${!active ? 'on' : ''}" href="#/" style="--sp:${PAL[0]}">${badge(db.books.length)}<span class="sp-label">تمام فنون</span></a></li>` +
+      CATS.map((c, i) => `<li><a href="#/c/${c.id}" class="spine ${active === c.id ? 'on' : ''}" style="--sp:${PAL[(i + 1) % PAL.length]}">${badge(booksOf(c.id).length)}<span class="sp-label">${esc(c.name)}</span></a></li>`).join('');
   }
 
+  // جِلدوں کے ہلکے رنگ
+  const PAL = ['#cfe3d6', '#ecdcb8', '#efd5cd', '#d3e0ea', '#ddd6ea', '#dfe3c4', '#f0e2c6', '#cfe0dd'];
+
   // ---------- صفحات ----------
+  const badge = n => `<span class="badge${n ? '' : ' zero'}">${num(n)}</span>`;
+  const ICON_BOOK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.6 4 5v13c3-.4 6 0 8 1.5 2-1.5 5-1.9 8-1.5V5c-3-.4-6 0-8 1.5z"/><path d="M12 6.5v13"/></svg>';
+
+  // ہوم: فنون کے کارڈ، کونے پر کتب کی تعداد
   function pageHome() {
     view.innerHTML = `
       <section class="panel">
-        <div class="panel-h"><h2>فنون</h2><span class="crumb">کسی فن پر کلک کریں</span></div>
+        <div class="panel-h"><h2>فنون</h2><span class="crumb">کسی فن پر ٹچ کریں</span></div>
         <div class="panel-b">
-          <div class="grid">
-            ${CATS.map(c => `<a class="tile" href="#/c/${c.id}">${esc(c.name)} <span class="count">${num(booksOf(c.id).length)}</span></a>`).join('')}
+          <div class="shelf">
+            ${CATS.map((c, i) => `<a class="spine big" href="#/c/${c.id}" style="--sp:${PAL[(i + 1) % PAL.length]}">${badge(booksOf(c.id).length)}<span class="sp-label">${esc(c.name)}</span></a>`).join('')}
           </div>
         </div>
       </section>`;
   }
 
-  const ICON_ADD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M12 8v6M9 11h6"/></svg>';
-  const ICON_LIST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>';
-
-  function catShell(cat, mode, body) {
-    const n = booksOf(cat.id).length;
+  // فن کا صفحہ: اس فن کی ساری کتب کارڈوں میں
+  function pageCat(cat, q = '') {
+    const all = booksOf(cat.id);
+    const qq = q.trim();
+    const list = qq ? all.filter(b => [b.name, b.author, b.publisher].some(v => (v || '').includes(qq))) : all;
+    const priceShown = showCatPrice.has(cat.id);
     view.innerHTML = `
       <section class="panel">
         <div class="panel-h">
           <h2>${esc(cat.name)}</h2>
-          <span class="crumb">اس فن کی کتب: ${num(n)}</span>
+          <a class="btn" href="#/c/${cat.id}/add">+ ایڈ کتب</a>
         </div>
-        <div class="panel-b">
-          <div class="options">
-            <a class="opt ${mode === 'add' || mode === 'edit' ? 'on' : ''}" href="#/c/${cat.id}/add">${ICON_ADD}<span>ایڈ کتب<small>نئی کتاب کا اندراج</small></span></a>
-            <a class="opt ${mode === 'index' ? 'on' : ''}" href="#/c/${cat.id}/index">${ICON_LIST}<span>وزٹ انڈیکس<small>اس فن کی مکمل فہرست</small></span></a>
+        <div class="panel-b" id="catb">
+          <div class="cat-sum">
+            <span>کل کتب: <b>${num(all.length)}</b></span>
+            <span>کل اجزاء: <b>${num(sum(all, 'parts'))}</b></span>
+            <span class="cat-price">
+              <button class="btn gold small" data-act="price" type="button">${priceShown ? 'کل قیمت چھپائیں' : 'اس فن کی کل قیمت'}</button>
+              ${priceShown ? `<span class="price-out">${money(sum(all, 'price'))}</span>` : ''}
+            </span>
+          </div>
+          ${all.length ? `
+            ${all.length > 6 ? `<input class="search" id="q" type="search" placeholder="نام، مصنف یا مکتبہ سے تلاش…" aria-label="تلاش" value="${esc(q)}">` : ''}
+            <div class="shelf books">
+              ${list.map(b => `<a class="spine big book" href="#/c/${cat.id}/b/${b.id}" style="--sp:${PAL[(all.indexOf(b) + CATS.indexOf(cat)) % PAL.length]}">
+                  <span class="sp-no">${num(all.indexOf(b) + 1)}</span>
+                  <span class="sp-label">${esc(b.name)}</span>
+                  ${b.author ? `<span class="sp-sub">${esc(b.author)}</span>` : ''}
+                </a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
+            </div>` : `
+            <div class="empty"><b>اس فن میں ابھی کوئی کتاب درج نہیں</b>اوپر «ایڈ کتب» دبا کر پہلی کتاب شامل کریں۔</div>`}
+        </div>
+      </section>`;
+
+    const qi = $('q');
+    if (qi) qi.addEventListener('input', () => {
+      const pos = qi.selectionStart; pageCat(cat, qi.value);
+      const n = $('q'); n.focus(); n.setSelectionRange(pos, pos);
+    });
+    $('catb').addEventListener('click', e => {
+      const b = e.target.closest('[data-act="price"]'); if (!b) return;
+      priceShown ? showCatPrice.delete(cat.id) : showCatPrice.add(cat.id);
+      pageCat(cat, q);
+    });
+  }
+
+  // کتاب کی تفصیل
+  function pageBook(cat, id, confirmDel = false) {
+    const all = booksOf(cat.id);
+    const b = all.find(x => x.id === id);
+    if (!b) { location.hash = `#/c/${cat.id}`; return; }
+    const row = (k, v) => `<div class="d-row"><dt>${k}</dt><dd>${v}</dd></div>`;
+    view.innerHTML = `
+      <section class="panel">
+        <div class="panel-h">
+          <a class="back" href="#/c/${cat.id}">→ ${esc(cat.name)}</a>
+          <span class="crumb">کتاب نمبر ${num(all.indexOf(b) + 1)}</span>
+        </div>
+        <div class="panel-b detail" id="detb">
+          <h2 class="d-title">${esc(b.name)}</h2>
+          <dl>
+            ${row('کتاب کا نام', esc(b.name))}
+            ${row('مصنف', esc(b.author) || '—')}
+            ${row('مکتبہ', esc(b.publisher) || '—')}
+            ${row('تعداد اجزاء', num(b.parts))}
+            ${row('قیمت', money(b.price))}
+            ${row('فن', esc(cat.name))}
+          </dl>
+          ${confirmDel ? `<div class="confirm"><span>«${esc(b.name)}» کو فہرست سے حذف کر دیں؟</span>
+            <span class="actions"><button class="btn danger small" data-act="del-yes" type="button">ہاں، حذف کریں</button>
+            <button class="btn ghost small" data-act="del-no" type="button">رہنے دیں</button></span></div>` : ''}
+          <div class="actions">
+            <a class="btn" href="#/c/${cat.id}/edit/${b.id}">ترمیم کریں</a>
+            <button class="btn ghost" data-act="del" type="button">حذف کریں</button>
           </div>
         </div>
-      </section>
-      ${body || ''}`;
+      </section>`;
+    $('detb').addEventListener('click', e => {
+      const t = e.target.closest('[data-act]'); if (!t) return;
+      if (t.dataset.act === 'del') pageBook(cat, id, true);
+      if (t.dataset.act === 'del-no') pageBook(cat, id);
+      if (t.dataset.act === 'del-yes') {
+        const i = db.books.findIndex(x => x.id === id);
+        if (i > -1) { const [gone] = db.books.splice(i, 1); save(); toast(`«${gone.name}» حذف ہو گئی`); }
+        refreshCounts(cat.id); location.hash = `#/c/${cat.id}`;
+      }
+    });
   }
+
+  // ایڈ / ترمیم — پاپ اپ فارم (MCS ایپ کے انداز پر)
+  const LAST_KEY = 'maktaba-aziz-last';
+  const ZOOM_KEY = 'maktaba-aziz-form-zoom';
+  const lsGet = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const uniq = k => [...new Set(db.books.map(b => (b[k] || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ur'));
 
   function pageAdd(cat, editId) {
     const b = editId ? db.books.find(x => x.id === editId && x.cat === cat.id) : null;
-    if (editId && !b) { location.hash = `#/c/${cat.id}/index`; return; }
-    catShell(cat, b ? 'edit' : 'add', `
-      <section class="panel">
-        <div class="panel-h"><h2>${b ? 'کتاب میں ترمیم' : 'ایڈ کتب'}</h2><span class="crumb">${esc(cat.name)}</span></div>
-        <div class="panel-b">
-          <form class="add" id="addForm" novalidate>
-            <div class="field"><label for="f-name">کتاب کا نام</label><input id="f-name" required autocomplete="off" value="${esc(b?.name)}"></div>
-            <div class="field"><label for="f-author">مصنف</label><input id="f-author" autocomplete="off" value="${esc(b?.author)}"></div>
-            <div class="field"><label for="f-publisher">مکتبہ</label><input id="f-publisher" autocomplete="off" value="${esc(b?.publisher)}"></div>
-            <div class="row2">
-              <div class="field"><label for="f-parts">تعداد اجزاء</label><input id="f-parts" inputmode="numeric" autocomplete="off" value="${b ? ur(b.parts ?? '') : ''}"></div>
-              <div class="field"><label for="f-price">قیمت (روپے)</label><input id="f-price" inputmode="decimal" autocomplete="off" value="${b ? ur(b.price ?? '') : ''}"></div>
-            </div>
-            <p class="err" id="f-err" role="alert"></p>
-            <div class="actions">
-              <button class="btn" type="submit">${b ? 'تبدیلی محفوظ کریں' : 'کتاب محفوظ کریں'}</button>
-              <a class="btn ghost" href="#/c/${cat.id}/index">انڈیکس دیکھیں</a>
-            </div>
-          </form>
-        </div>
-      </section>`);
+    if (editId && !b) { location.hash = `#/c/${cat.id}`; return; }
+    // پس منظر میں اس فن کی کتب
+    if (b) pageBook(cat, b.id); else pageCat(cat);
+    const back = b ? `#/c/${cat.id}/b/${b.id}` : `#/c/${cat.id}`;
+    const last = (() => { try { return JSON.parse(lsGet(LAST_KEY, '{}')) || {}; } catch (e) { return {}; } })();
+    let zoom = Number(lsGet(ZOOM_KEY, 100)) || 100;
 
-    $('f-name').focus();
+    document.getElementById('sheet')?.remove();
+    const wrap = document.createElement('div');
+    wrap.id = 'sheet';
+    wrap.className = 'sheet-wrap';
+    wrap.innerHTML = `
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+        <div class="sheet-h">
+          <h2 id="sheet-t">${b ? 'کتاب میں ترمیم کریں' : 'نئی کتاب شامل کریں'}</h2>
+          <div class="sheet-tools">
+            <div class="zoom"><button type="button" data-z="-10" aria-label="حروف چھوٹے">A−</button><span id="zv">${ur(zoom)}٪</span><button type="button" data-z="10" aria-label="حروف بڑے">A+</button></div>
+            <button type="button" class="x" id="sheetClose" aria-label="بند کریں">✕</button>
+          </div>
+        </div>
+        <form id="addForm" class="sheet-b" novalidate style="font-size:${zoom}%">
+          <div class="frow"><label for="f-name">کتاب کا نام</label><input id="f-name" autocomplete="off" value="${esc(b?.name)}" placeholder="مثلاً تفسیر ابن کثیر"></div>
+          <div class="frow"><label for="f-cat">فن</label>
+            <select id="f-cat">${CATS.map(c => `<option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+          <div class="frow"><label for="f-author">مصنف</label><input id="f-author" list="dl-author" autocomplete="off" value="${esc(b?.author)}" placeholder="لکھیں یا فہرست سے چنیں"></div>
+          <div class="frow"><label for="f-publisher">مکتبہ</label><input id="f-publisher" list="dl-pub" autocomplete="off" value="${esc(b ? b.publisher : (last.publisher || ''))}" placeholder="لکھیں یا فہرست سے چنیں"></div>
+          ${!b && last.publisher ? `<p class="hint">مکتبہ پچھلے اندراج سے خود بھر جاتا ہے، چاہیں تو بدل دیں۔</p>` : ''}
+          <div class="frow"><label for="f-parts">تعداد اجزاء</label><input id="f-parts" inputmode="numeric" autocomplete="off" value="${b ? ur(b.parts ?? '') : ''}" placeholder="مثلاً ۴"></div>
+          <div class="frow"><label for="f-price">قیمت (روپے)</label><input id="f-price" inputmode="decimal" autocomplete="off" value="${b ? ur(b.price ?? '') : ''}" placeholder="مثلاً ۳۲۰۰"></div>
+          <datalist id="dl-author">${uniq('author').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
+          <datalist id="dl-pub">${uniq('publisher').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
+          <p class="err" id="f-err" role="alert"></p>
+          <button class="btn save" type="submit">💾 ${b ? 'تبدیلی محفوظ کریں' : 'محفوظ کریں'}</button>
+          ${!b ? `<p class="hint center">محفوظ کرنے کے بعد فارم اگلی کتاب کے لیے کھلا رہے گا۔</p>` : ''}
+        </form>
+      </div>`;
+    document.body.appendChild(wrap);
+    document.body.classList.add('noscroll');
+
+    const close = () => { wrap.remove(); document.body.classList.remove('noscroll'); document.removeEventListener('keydown', onKey); if (location.hash !== back) location.hash = back; };
+    const onKey = e => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    $('sheetClose').addEventListener('click', close);
+    wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
+    wrap.querySelectorAll('[data-z]').forEach(btn => btn.addEventListener('click', () => {
+      zoom = Math.min(150, Math.max(80, zoom + Number(btn.dataset.z)));
+      $('addForm').style.fontSize = zoom + '%'; $('zv').textContent = ur(zoom) + '٪'; lsSet(ZOOM_KEY, zoom);
+    }));
+    setTimeout(() => $('f-name').focus(), 50);
+
     $('addForm').addEventListener('submit', e => {
       e.preventDefault();
       const name = $('f-name').value.trim();
       const parts = parseNum($('f-parts').value);
       const price = parseNum($('f-price').value);
+      const newCat = $('f-cat').value;
       const err = $('f-err');
       if (!name) { err.textContent = 'کتاب کا نام لکھنا ضروری ہے۔'; $('f-name').focus(); return; }
       if (Number.isNaN(parts)) { err.textContent = 'تعداد اجزاء میں صرف ہندسے لکھیں۔'; $('f-parts').focus(); return; }
       if (Number.isNaN(price)) { err.textContent = 'قیمت میں صرف ہندسے لکھیں۔'; $('f-price').focus(); return; }
-      const rec = {
-        name,
-        author: $('f-author').value.trim(),
-        publisher: $('f-publisher').value.trim(),
-        parts: parts ?? 1,
-        price: price ?? 0
-      };
+      const rec = { name, cat: newCat, author: $('f-author').value.trim(), publisher: $('f-publisher').value.trim(), parts: parts ?? 1, price: price ?? 0 };
+      lsSet(LAST_KEY, JSON.stringify({ publisher: rec.publisher }));
       if (b) {
-        Object.assign(b, rec); save(); refreshCounts(cat.id);
-        toast('تبدیلی محفوظ ہو گئی'); location.hash = `#/c/${cat.id}/index`;
+        Object.assign(b, rec); save();
+        wrap.remove(); document.body.classList.remove('noscroll'); document.removeEventListener('keydown', onKey);
+        toast('تبدیلی محفوظ ہو گئی');
+        location.hash = `#/c/${newCat}/b/${b.id}`;
       } else {
-        db.books.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), cat: cat.id, added: new Date().toISOString(), ...rec });
+        db.books.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), added: new Date().toISOString(), ...rec });
         save(); toast(`«${name}» محفوظ ہو گئی`);
-        pageAdd(cat); refreshCounts(cat.id);
-      }
-    });
-  }
-
-  function pageIndex(cat, q = '', pendingDel = null) {
-    const all = booksOf(cat.id);
-    const qq = q.trim();
-    const list = qq ? all.filter(b => [b.name, b.author, b.publisher].some(v => (v || '').includes(qq))) : all;
-    const priceShown = showCatPrice.has(cat.id);
-    const delBook = pendingDel && all.find(b => b.id === pendingDel);
-
-    let body;
-    if (!all.length) {
-      body = `<div class="empty"><b>اس فن میں ابھی کوئی کتاب درج نہیں</b>«ایڈ کتب» پر کلک کر کے پہلی کتاب شامل کریں۔</div>`;
-    } else {
-      body = `
-        ${delBook ? `<div class="confirm"><span>«${esc(delBook.name)}» کو فہرست سے حذف کر دیں؟</span>
-          <span class="actions"><button class="btn danger small" data-act="del-yes" data-id="${delBook.id}" type="button">ہاں، حذف کریں</button>
-          <button class="btn ghost small" data-act="del-no" type="button">رہنے دیں</button></span></div>` : ''}
-        <div class="tools">
-          <input class="search" id="q" type="search" placeholder="نام، مصنف یا مکتبہ سے تلاش…" aria-label="تلاش" value="${esc(q)}">
-          <a class="btn small" href="#/c/${cat.id}/add">+ نئی کتاب</a>
-        </div>
-        <div class="tbl"><table>
-          <thead><tr><th>نمبر</th><th>کتاب کا نام</th><th>مصنف</th><th>مکتبہ</th><th>اجزاء</th><th>قیمت</th><th></th></tr></thead>
-          <tbody>
-            ${list.map(b => `<tr>
-              <td class="n">${num(all.indexOf(b) + 1)}</td>
-              <td class="t">${esc(b.name)}</td>
-              <td>${esc(b.author) || '—'}</td>
-              <td>${esc(b.publisher) || '—'}</td>
-              <td class="n">${num(b.parts)}</td>
-              <td class="n">${num(b.price)}</td>
-              <td class="act"><a class="iconbtn" href="#/c/${cat.id}/edit/${b.id}">ترمیم</a><button class="iconbtn del" data-act="del" data-id="${b.id}" type="button">حذف</button></td>
-            </tr>`).join('') || `<tr><td colspan="7" class="n">تلاش سے کوئی کتاب نہیں ملی</td></tr>`}
-          </tbody>
-          <tfoot><tr><td></td><td>کل: ${num(list.length)} کتب</td><td></td><td></td><td class="n">${num(sum(list, 'parts'))}</td><td class="n">${priceShown ? num(sum(list, 'price')) : ''}</td><td></td></tr></tfoot>
-        </table></div>
-        <div class="totals">
-          <button class="btn gold" data-act="price" type="button">${priceShown ? 'کل قیمت چھپائیں' : 'اس فن کی کل قیمت'}</button>
-          ${priceShown ? `<span class="price-out">کل قیمت: ${money(sum(list, 'price'))}</span>` : ''}
-        </div>`;
-    }
-
-    catShell(cat, 'index', `
-      <section class="panel">
-        <div class="panel-h"><h2>انڈیکس — ${esc(cat.name)}</h2><span class="crumb">کل کتب: ${num(all.length)} · کل اجزاء: ${num(sum(all, 'parts'))}</span></div>
-        <div class="panel-b" id="idx">${body}</div>
-      </section>`);
-
-    const qi = $('q');
-    if (qi) {
-      qi.addEventListener('input', () => {
-        const pos = qi.selectionStart;
-        pageIndex(cat, qi.value);
-        const n = $('q'); n.focus(); n.setSelectionRange(pos, pos);
-      });
-    }
-    $('idx').addEventListener('click', e => {
-      const btn = e.target.closest('[data-act]');
-      if (!btn) return;
-      const act = btn.dataset.act;
-      if (act === 'price') { priceShown ? showCatPrice.delete(cat.id) : showCatPrice.add(cat.id); pageIndex(cat, q); }
-      if (act === 'del') pageIndex(cat, q, btn.dataset.id);
-      if (act === 'del-no') pageIndex(cat, q);
-      if (act === 'del-yes') {
-        const i = db.books.findIndex(b => b.id === btn.dataset.id);
-        if (i > -1) { const [gone] = db.books.splice(i, 1); save(); toast(`«${gone.name}» حذف ہو گئی`); }
-        refreshCounts(cat.id); pageIndex(cat, q);
+        refreshCounts(cat.id); pageCat(cat);
+        // اگلی کتاب کے لیے خانے خالی، مکتبہ باقی
+        ['f-name', 'f-author', 'f-parts', 'f-price'].forEach(id => { $(id).value = ''; });
+        err.textContent = '';
+        const opt = $('dl-pub');
+        if (rec.publisher && ![...opt.options].some(o => o.value === rec.publisher)) opt.insertAdjacentHTML('beforeend', `<option value="${esc(rec.publisher)}">`);
+        if (rec.author) $('dl-author').insertAdjacentHTML('beforeend', `<option value="${esc(rec.author)}">`);
+        $('f-name').focus();
       }
     });
   }
@@ -239,14 +284,15 @@
 
   // ---------- راستے ----------
   function route() {
+    if (!/\/(add|edit)/.test(location.hash) && document.getElementById('sheet')) { document.getElementById('sheet').remove(); document.body.classList.remove('noscroll'); }
     const parts = location.hash.replace(/^#\/?/, '').split('/');
     if (parts[0] === 'c' && catById(parts[1])) {
       const cat = catById(parts[1]);
       renderBar(cat.id);
       if (parts[2] === 'add') pageAdd(cat);
       else if (parts[2] === 'edit' && parts[3]) pageAdd(cat, parts[3]);
-      else if (parts[2] === 'index') pageIndex(cat);
-      else catShell(cat, null, '');
+      else if (parts[2] === 'b' && parts[3]) pageBook(cat, parts[3]);
+      else pageCat(cat);
     } else {
       renderBar(null); pageHome();
     }
