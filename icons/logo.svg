@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- عارضی لوگو: ہلکا کاغذی پس منظر، سنہری ستارہ اور کھلی کتاب -->
+  <rect width="512" height="512" rx="96" fill="#fbf6ea"/>
+  <rect x="28" y="28" width="456" height="456" rx="76" fill="none" stroke="#b8913a" stroke-width="6"/>
+  <rect x="44" y="44" width="424" height="424" rx="64" fill="none" stroke="#b8913a" stroke-width="2"/>
+  <g transform="translate(256 190)" fill="#b8913a">
+    <rect x="-62" y="-62" width="124" height="124"/>
+    <rect x="-62" y="-62" width="124" height="124" transform="rotate(45)"/>
+    <circle r="44" fill="#fbf6ea"/>
+    <circle r="30" fill="#b8913a"/>
+  </g>
+  <g fill="none" stroke="#4f8a72" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M256 330c-34-22-82-30-130-26v96c48-4 96 4 130 26"/>
+    <path d="M256 330c34-22 82-30 130-26v96c-48-4-96 4-130 26"/>
+    <path d="M256 330v96"/>
+  </g>
+</svg>

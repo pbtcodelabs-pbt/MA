@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#faf7f0">
+<meta name="description" content="مکتبۃ العزیز — تفصیلی فہرستِ کتب، دارالعلوم ختمِ نبوت عارف والا">
+<title>مکتبۃ العزیز</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icons/logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/jnn-kasheeda-title.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="masthead-in">
+      <img class="logo" src="icons/logo.svg" alt="مکتبۃ العزیز کا لوگو" width="58" height="58">
+      <h1 class="name">مکتبـــۃ العـــزیـــز</h1>
+      <div class="ornament" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l3 5.5 6-1-1 6L23 12l-5 3 1 6-6-1-3 5-3-5-6 1 1-6-5-3 3-.5-1-6 6 1z"/></svg>
+      </div>
+      <p class="sub">تفصیلی فہرستِ کتب</p>
+      <p class="inst">دارالعلوم ختمِ نبوت، عارف والا</p>
+    </div>
+  </header>
+
+  <!-- کل موجود کتب اور کل قیمت -->
+  <section class="summary" aria-label="خلاصہ">
+    <div class="facts">
+      <div class="fact"><b id="sumTitles">۰</b><span>کل کتب</span></div>
+      <div class="fact"><b id="sumParts">۰</b><span>کل اجزاء</span></div>
+    </div>
+    <div class="actions">
+      <span class="price-out" id="sumPrice" hidden></span>
+      <button class="btn gold" id="btnSumPrice" type="button">تمام کتب کی کل قیمت</button>
+    </div>
+  </section>
+
+  <div class="app">
+    <nav class="bar" aria-label="فنون">
+      <h2>فنون</h2>
+      <ul id="bar"></ul>
+    </nav>
+    <main id="view"></main>
+  </div>
+
+  <details class="backup">
+    <summary>بیک اپ (ڈیٹا محفوظ کریں / واپس لائیں)</summary>
+    <p>کتب کا ڈیٹا اسی براؤزر میں محفوظ ہوتا ہے۔ وقتاً فوقتاً بیک اپ فائل ڈاؤن لوڈ کر لیا کریں۔</p>
+    <div class="actions">
+      <button class="btn ghost small" id="btnExport" type="button">بیک اپ فائل ڈاؤن لوڈ کریں</button>
+      <label class="btn ghost small" for="importFile">بیک اپ فائل سے واپس لائیں</label>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+    </div>
+  </details>
+
+  <footer>مکتبۃ العزیز — دارالعلوم ختمِ نبوت، عارف والا · <span class="v">MA610TU001</span></footer>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
