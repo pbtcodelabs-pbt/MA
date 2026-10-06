@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU006) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU007) */
 (() => {
   'use strict';
 
@@ -85,9 +85,9 @@
 
   // کھڑی موٹی کتاب: سامنے جِلد (نام کے ساتھ)، ایک طرف صفحات، دوسری طرف پشت
   const book3d = (label, color, extra = '') =>
-    `<span class="b3" style="--c:${color}"><span class="b3-in">` +
-    `<span class="b3-back"></span><span class="b3-spine"></span><span class="b3-pages"></span><span class="b3-top"></span>` +
-    `<span class="b3-cover">${extra}<span class="b3-label">${label}</span></span></span></span>`;
+    `<span class="bkx" style="--c:${color}">` +
+    `<span class="bkx-back"></span><span class="bkx-pages"></span>` +
+    `<span class="bkx-cover">${extra}<span class="bkx-label">${label}</span></span></span>`;
 
   // کتابوں کا سائز (چھوٹا/بڑا) — یاد رہتا ہے
   let bookScale = Number((() => { try { return localStorage.getItem('maktaba-aziz-book-scale'); } catch (e) { return null; } })()) || 1;
@@ -142,7 +142,7 @@
           ${all.length ? `
             ${all.length > 6 ? `<input class="search" id="q" type="search" placeholder="نام، مصنف یا مکتبہ سے تلاش…" aria-label="تلاش" value="${esc(q)}">` : ''}
             <div class="shelf books">
-              ${list.map(b => `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + CATS.indexOf(cat)) % PAL.length], `<span class="b3-no">${num(all.indexOf(b) + 1)}</span>`)}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
+              ${list.map(b => `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + CATS.indexOf(cat)) % PAL.length], `<span class="bkx-no">${num(all.indexOf(b) + 1)}</span>`)}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
             </div>` : `
             <div class="empty"><b>اس فن میں ابھی کوئی کتاب درج نہیں</b>اوپر «ایڈ کتب» دبا کر پہلی کتاب شامل کریں۔</div>`}
         </div>

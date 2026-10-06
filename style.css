@@ -615,3 +615,72 @@ body.is-home .bar{display:none}
 .bk::after{left:22%;right:10%;bottom:4px;height:7px;transform:skewX(-20deg)}
 .bar .b3{--w:calc(50px * var(--bs));--h:calc(68px * var(--bs));--t:calc(11px * var(--bs))}
 .bar .b3-label{font-size:calc(10.5px * var(--bs))}
+
+/* ===== MA610TU007: سیدھی کھڑی کتاب (ہر فون پر ایک جیسی) =====
+   دائیں طرف جِلد بندی، بائیں طرف صفحات اور پچھلا گتا */
+.bkx{
+  --w:calc(60px * var(--bs));--h:calc(84px * var(--bs));--t:calc(11px * var(--bs));
+  position:relative;display:block;width:calc(var(--w) + var(--t));height:var(--h);
+  transition:transform .2s ease;
+}
+.bkx > span{position:absolute;display:block}
+.bk:hover .bkx,.bk.on .bkx{transform:translateY(-4px)}
+/* پچھلا گتا — صفحات کے پیچھے بائیں کنارے پر */
+.bkx-back{
+  left:0;top:calc(var(--h) * .03);height:calc(var(--h) * .94);width:calc(var(--t) + 4px);
+  background:var(--c);filter:brightness(.62);
+  clip-path:polygon(0 3%,100% 0,100% 100%,0 97%);border-radius:2px 0 0 2px;
+}
+/* صفحات — بائیں طرف سفید اوراق */
+.bkx-pages{
+  left:calc(2px * var(--bs));top:calc(var(--h) * .045);height:calc(var(--h) * .91);width:calc(var(--t) - 1px);
+  background:
+    linear-gradient(to bottom,rgba(0,0,0,.12),transparent 12%,transparent 88%,rgba(0,0,0,.12)),
+    repeating-linear-gradient(90deg,#ffffff 0 1px,#e3ddd0 1px 1.8px);
+  clip-path:polygon(0 3%,100% 0,100% 100%,0 97%);
+}
+/* سامنے کا گتا — دائیں کنارے پر جِلد بندی */
+.bkx-cover{
+  left:var(--t);top:0;width:var(--w);height:var(--h);
+  background:
+    linear-gradient(to left,rgba(0,0,0,.38) 0,rgba(0,0,0,.12) 5%,rgba(255,255,255,.18) 7%,rgba(255,255,255,0) 11%),
+    linear-gradient(to right,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 4%),
+    linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,0) 45%),
+    var(--c);
+  border-radius:1px 4px 4px 1px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),2px 3px 6px rgba(0,0,0,.28);
+  display:grid !important;place-items:center;
+  padding:calc(6px * var(--bs)) calc(9px * var(--bs)) calc(6px * var(--bs)) calc(4px * var(--bs));
+}
+/* جِلد بندی کی نالی */
+.bkx-cover::after{
+  content:"";position:absolute;top:0;bottom:0;right:calc(var(--w) * .1);width:1.5px;
+  background:linear-gradient(to right,rgba(0,0,0,.28),rgba(255,255,255,.25));
+}
+.bkx-label{
+  position:relative;z-index:1;
+  width:calc(var(--w) - 14px * var(--bs));aspect-ratio:1/1;max-width:100%;
+  display:grid;place-items:center;border-radius:50%;
+  background:#1f3d6b;color:#fff;border:1.5px solid rgba(255,255,255,.6);
+  font-size:calc(12.5px * var(--bs));line-height:1.45;text-align:center;padding:2px;overflow-wrap:anywhere;
+  text-shadow:0 1px 1px rgba(0,0,0,.35);box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.bkx-no{position:absolute;top:calc(3px * var(--bs));left:0;right:calc(var(--w) * .1);text-align:center;color:rgba(255,255,255,.92);font-size:calc(11px * var(--bs));line-height:1.3}
+.bk::after{left:14%;right:8%;bottom:2px;height:7px;transform:none}
+.bar .bkx{--w:calc(50px * var(--bs));--h:calc(70px * var(--bs));--t:calc(9px * var(--bs))}
+.bar .bkx-label{font-size:calc(10.5px * var(--bs))}
+.shelf,.shelf.books{grid-template-columns:repeat(auto-fill,minmax(calc(78px * var(--bs)),1fr))}
+
+/* ورژن اور آن لائن/آف لائن نشان */
+.masthead-in{position:relative}
+.status{
+  position:absolute;top:8px;left:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;direction:ltr;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;
+  font:600 12px/1.4 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);background:#fff;color:var(--fg);
+}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:#2e9e5b;box-shadow:0 0 0 3px rgba(46,158,91,.18)}
+.chip.off .dot{background:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.18)}
+.chip .lbl{font-family:var(--f-body);font-weight:400;font-size:13px;line-height:1.6;direction:rtl}
+.status{position:static;justify-content:center;margin-bottom:4px}
