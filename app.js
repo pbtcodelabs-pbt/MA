@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU014) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU015) */
 (() => {
   'use strict';
 
@@ -30,6 +30,7 @@
     if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.books)) db = d; }
   } catch (e) { console.warn(e); }
   function save() {
+    try { window.dispatchEvent(new Event('ma-data-changed')); } catch (e) {}
     try { localStorage.setItem(KEY, JSON.stringify(db)); }
     catch (e) { toast('ڈیٹا محفوظ نہیں ہو سکا۔ براؤزر کی اسٹوریج بھری ہوئی ہو سکتی ہے۔'); }
   }
@@ -415,6 +416,12 @@
 
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: CATS }), toast };
+  window.MA_DRIVE_HOST = {
+    version: 'MA610TU015',
+    toast,
+    snapshot: () => ({ books: db.books }),
+    replace: d => { db = { books: d.books.filter(b => b && b.name && catById(b.cat)) }; save(); route(); }
+  };
   document.addEventListener('click', e => {
     const t = e.target.closest('[data-share-cat],[data-share-book],#btnShare'); if (!t || !window.MA_SHARE_UI) return;
     if (t.dataset.shareCat) window.MA_SHARE_UI.open({ cat: t.dataset.shareCat });

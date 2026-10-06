@@ -1,3 +1,4 @@
+[hidden]{display:none !important}
 /* مکتبۃ العزیز — ہلکا، سادہ اور باوقار تھیم
    Layout: ہلکا سرورق، دائیں طرف فنون کی مین بار (ہر فن کے ساتھ تعداد)، بائیں طرف کام کی جگہ */
 
@@ -848,12 +849,12 @@ body{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 92px)}
 @font-face{
   font-family:"Digits";
   src:local("Arial"),local("ArialMT"),local("Arial Regular"),local("Liberation Sans"),local("Roboto"),local("Helvetica");
-  unicode-range:U+0030-0039,U+002B-002E,U+0025,U+0028-0029;
+  unicode-range:U+0021-007E;
 }
 @font-face{
   font-family:"Digits";font-weight:700;
   src:local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold"),local("Roboto Bold"),local("Roboto-Bold");
-  unicode-range:U+0030-0039,U+002B-002E,U+0025,U+0028-0029;
+  unicode-range:U+0021-007E;
 }
 :root{
   --f-body:"Digits","JNN","Jameel Noori Nastaleeq","Noto Nastaliq Urdu",serif;
@@ -1079,3 +1080,41 @@ main > .panel .panel-h h2{font-size:22px;line-height:1.9}
 #verChip{font-size:11px}
 #verChip::before{font-size:11px;margin-inline-end:4px}
 @media (max-width:360px){#verChip::before{display:none}}
+
+/* ===== MA610TU015: Google Drive بیک اپ ===== */
+.chip-btn.warn{background:linear-gradient(180deg,#ffd27a,#e89a2c);color:#3a2200;border-color:#b06a12;animation:pulseWarn 2.4s ease-in-out infinite}
+.chip-btn.safe::before{content:"";width:7px;height:7px;border-radius:50%;background:#2e9e5b;display:inline-block;margin-inline-end:5px;box-shadow:0 0 0 2px rgba(46,158,91,.25)}
+@keyframes pulseWarn{0%,100%{box-shadow:0 0 0 0 rgba(232,154,44,.0)}50%{box-shadow:0 0 0 4px rgba(232,154,44,.35)}}
+@media (prefers-reduced-motion:reduce){.chip-btn.warn{animation:none}}
+.backup-box{display:grid;gap:8px;padding:10px 12px 12px}
+.drive-card{background:#fff;border:1.5px solid #e3cf98;border-radius:14px;padding:8px 12px 10px;display:grid;gap:6px;box-shadow:0 2px 0 #eadcb4}
+.drive-h{display:flex;align-items:center;gap:8px}
+.drive-h b{font-weight:400;font-size:17px;color:var(--green);flex:1}
+.tick.small{font-size:14px}
+.tick.small input{width:18px;height:18px}
+.drive-status{display:grid;gap:0}
+.drive-status .ds{font-size:15px;line-height:1.8;color:var(--fg)}
+.drive-status .ds.ok{color:#1d7a46}
+.drive-status .ds.ok::before{content:"✓ "}
+.drive-status .ds.warn{color:#a3620f}
+.drive-status small{font-size:12.5px;color:var(--muted);line-height:1.7}
+.btn.drive-go{
+  min-height:42px;border-radius:99px;font-size:16px;
+  background:linear-gradient(180deg,#f3d98a,#d7a845 55%,#b8862b);border:1.5px solid #9c7020;color:#2a1d05;
+  box-shadow:0 3px 0 #8a5f16,inset 0 1px 0 rgba(255,255,255,.6);
+}
+.btn.drive-go:disabled{opacity:.6}
+.drive-restore{display:grid;gap:6px;max-height:260px;overflow:auto;border-top:1px solid #efe4c6;padding-top:6px}
+.dr-h,.dr-wait{margin:0;font-size:14px;color:var(--muted)}
+.dr-file{display:grid;text-align:right;gap:0;border:1px solid #e3cf98;background:#fffcf4;border-radius:10px;padding:2px 12px;cursor:pointer;font-family:var(--f-body)}
+.dr-file:hover{background:var(--gold-soft)}
+.dr-file b{font-weight:400;font-size:15px;color:var(--green);line-height:1.8}
+.dr-file span{font-size:12.5px;color:var(--muted);line-height:1.6}
+.drive-client{display:grid;gap:2px}
+.drive-client label{font-size:13px;color:var(--muted)}
+.dc-row{display:flex;gap:6px}
+.dc-row input{flex:1;min-width:0;border:1.5px solid #e3cf98;border-radius:99px;padding:0 12px;min-height:38px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;background:#fffcf4}
+.drive-links{font-size:12.5px;color:var(--muted)}
+.linkish{border:0;background:none;color:var(--green);text-decoration:underline;cursor:pointer;font-family:var(--f-body);font-size:13px;padding:0}
+.local-h{margin:0;font-size:13px;color:var(--muted)}
+.backup-box .confirm{margin:0}
