@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU004) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU005) */
 (() => {
   'use strict';
 
@@ -76,12 +76,30 @@
 
   function renderBar(active) {
     $('bar').innerHTML =
-      `<li><a class="spine home ${!active ? 'on' : ''}" href="#/" style="--sp:${PAL[0]}">${badge(db.books.length)}<span class="sp-label">تمام فنون</span></a></li>` +
-      CATS.map((c, i) => `<li><a href="#/c/${c.id}" class="spine ${active === c.id ? 'on' : ''}" style="--sp:${PAL[(i + 1) % PAL.length]}">${badge(booksOf(c.id).length)}<span class="sp-label">${esc(c.name)}</span></a></li>`).join('');
+      `<li><a class="bk home ${!active ? 'on' : ''}" href="#/">${badge(db.books.length)}${book3d('تمام فنون', '#3a6ea8')}</a></li>` +
+      CATS.map((c, i) => `<li><a href="#/c/${c.id}" class="bk ${active === c.id ? 'on' : ''}">${badge(booksOf(c.id).length)}${book3d(esc(c.name), PAL[i % PAL.length])}</a></li>`).join('');
   }
 
-  // جِلدوں کے ہلکے رنگ
-  const PAL = ['#cfe3d6', '#ecdcb8', '#efd5cd', '#d3e0ea', '#ddd6ea', '#dfe3c4', '#f0e2c6', '#cfe0dd'];
+  // جِلدوں کے رنگ
+  const PAL = ['#2f7d62', '#a8433a', '#c08a2b', '#6d4c93', '#8a5a3b', '#5f7f2c', '#a33d63', '#2d6f7d'];
+
+  // کھڑی موٹی کتاب: سامنے جِلد (نام کے ساتھ)، ایک طرف صفحات، دوسری طرف پشت
+  const book3d = (label, color, extra = '') =>
+    `<span class="b3" style="--c:${color}"><span class="b3-in">` +
+    `<span class="b3-back"></span><span class="b3-spine"></span><span class="b3-pages"></span><span class="b3-top"></span>` +
+    `<span class="b3-cover">${extra}<span class="b3-label">${label}</span></span></span></span>`;
+
+  // کتابوں کا سائز (چھوٹا/بڑا) — یاد رہتا ہے
+  let bookScale = Number((() => { try { return localStorage.getItem('maktaba-aziz-book-scale'); } catch (e) { return null; } })()) || 1;
+  const applyScale = () => document.documentElement.style.setProperty('--bs', bookScale);
+  applyScale();
+  const sizeCtl = () => `<span class="sizer" aria-label="کتابوں کا سائز"><button type="button" data-bs="-0.1" aria-label="کتابیں چھوٹی">−</button><span>سائز</span><button type="button" data-bs="0.1" aria-label="کتابیں بڑی">+</button></span>`;
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-bs]'); if (!t) return;
+    bookScale = Math.round(Math.min(1.6, Math.max(0.7, bookScale + Number(t.dataset.bs))) * 10) / 10;
+    applyScale();
+    try { localStorage.setItem('maktaba-aziz-book-scale', bookScale); } catch (err) {}
+  });
 
   // ---------- صفحات ----------
   const badge = n => `<span class="badge${n ? '' : ' zero'}">${num(n)}</span>`;
@@ -91,10 +109,10 @@
   function pageHome() {
     view.innerHTML = `
       <section class="panel">
-        <div class="panel-h"><h2>فنون</h2><span class="crumb">کسی فن پر ٹچ کریں</span></div>
+        <div class="panel-h"><h2>فنون</h2>${sizeCtl()}</div>
         <div class="panel-b">
           <div class="shelf">
-            ${CATS.map((c, i) => `<a class="spine big" href="#/c/${c.id}" style="--sp:${PAL[(i + 1) % PAL.length]}">${badge(booksOf(c.id).length)}<span class="sp-label">${esc(c.name)}</span></a>`).join('')}
+            ${CATS.map((c, i) => `<a class="bk" href="#/c/${c.id}">${badge(booksOf(c.id).length)}${book3d(esc(c.name), PAL[i % PAL.length])}</a>`).join('')}
           </div>
         </div>
       </section>`;
@@ -110,7 +128,7 @@
       <section class="panel">
         <div class="panel-h">
           <h2>${esc(cat.name)}</h2>
-          <a class="btn" href="#/c/${cat.id}/add">+ ایڈ کتب</a>
+          <span class="actions">${sizeCtl()}<a class="btn" href="#/c/${cat.id}/add">+ ایڈ کتب</a></span>
         </div>
         <div class="panel-b" id="catb">
           <div class="cat-sum">
@@ -124,11 +142,7 @@
           ${all.length ? `
             ${all.length > 6 ? `<input class="search" id="q" type="search" placeholder="نام، مصنف یا مکتبہ سے تلاش…" aria-label="تلاش" value="${esc(q)}">` : ''}
             <div class="shelf books">
-              ${list.map(b => `<a class="spine big book" href="#/c/${cat.id}/b/${b.id}" style="--sp:${PAL[(all.indexOf(b) + CATS.indexOf(cat)) % PAL.length]}">
-                  <span class="sp-no">${num(all.indexOf(b) + 1)}</span>
-                  <span class="sp-label">${esc(b.name)}</span>
-                  ${b.author ? `<span class="sp-sub">${esc(b.author)}</span>` : ''}
-                </a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
+              ${list.map(b => `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + CATS.indexOf(cat)) % PAL.length], `<span class="b3-no">${num(all.indexOf(b) + 1)}</span>`)}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
             </div>` : `
             <div class="empty"><b>اس فن میں ابھی کوئی کتاب درج نہیں</b>اوپر «ایڈ کتب» دبا کر پہلی کتاب شامل کریں۔</div>`}
         </div>
@@ -286,6 +300,7 @@
   function route() {
     if (!/\/(add|edit)/.test(location.hash) && document.getElementById('sheet')) { document.getElementById('sheet').remove(); document.body.classList.remove('noscroll'); }
     const parts = location.hash.replace(/^#\/?/, '').split('/');
+    document.body.classList.toggle('is-home', !(parts[0] === 'c' && catById(parts[1])));
     if (parts[0] === 'c' && catById(parts[1])) {
       const cat = catById(parts[1]);
       renderBar(cat.id);
