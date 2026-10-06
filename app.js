@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU009) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU011) */
 (() => {
   'use strict';
 
@@ -38,7 +38,7 @@
 
   // ---------- اعداد ----------
   const UR = '۰۱۲۳۴۵۶۷۸۹';
-  const ur = v => String(v).replace(/[0-9]/g, d => UR[d]);
+  const ur = v => String(v);   // ہندسے انگریزی میں (Arial)
   const num = n => ur(Number(n || 0).toLocaleString('en-US'));
   const money = n => num(n) + ' روپے';
   function parseNum(s) {
@@ -230,24 +230,26 @@
         <div class="sheet-h">
           <h2 id="sheet-t">${b ? 'کتاب میں ترمیم کریں' : 'نئی کتاب شامل کریں'}</h2>
           <div class="sheet-tools">
-            <div class="zoom"><button type="button" data-z="-10" aria-label="حروف چھوٹے">A−</button><span id="zv">${ur(zoom)}٪</span><button type="button" data-z="10" aria-label="حروف بڑے">A+</button></div>
+            <div class="zoom"><button type="button" data-z="-10" aria-label="حروف چھوٹے">A−</button><span id="zv">${zoom}%</span><button type="button" data-z="10" aria-label="حروف بڑے">A+</button></div>
             <button type="button" class="x" id="sheetClose" aria-label="بند کریں">✕</button>
           </div>
         </div>
         <form id="addForm" class="sheet-b" novalidate style="font-size:${zoom}%">
-          <div class="frow"><label for="f-name">کتاب کا نام</label><input id="f-name" autocomplete="off" value="${esc(b?.name)}" placeholder="مثلاً تفسیر ابن کثیر"></div>
-          <div class="frow"><label for="f-cat">فن</label>
+          <div class="cap" style="--i:0"><label class="cap-l" for="f-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>کتاب کا نام</label><input id="f-name" autocomplete="off" value="${esc(b?.name)}" placeholder="مثلاً تفسیر ابن کثیر"></div>
+          <div class="cap" style="--i:1"><label class="cap-l" for="f-cat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h7v7H4zM13 6h7v7h-7zM4 15h7v5H4zM13 15h7v5h-7z"/></svg>فن</label>
             <select id="f-cat">${CATS.map(c => `<option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
-          <div class="frow"><label for="f-author">مصنف</label><input id="f-author" list="dl-author" autocomplete="off" value="${esc(b?.author)}" placeholder="لکھیں یا فہرست سے چنیں"></div>
-          <div class="frow"><label for="f-publisher">مکتبہ</label><input id="f-publisher" list="dl-pub" autocomplete="off" value="${esc(b ? b.publisher : (last.publisher || ''))}" placeholder="لکھیں یا فہرست سے چنیں"></div>
-          ${!b && last.publisher ? `<p class="hint">مکتبہ پچھلے اندراج سے خود بھر جاتا ہے، چاہیں تو بدل دیں۔</p>` : ''}
-          <div class="frow"><label for="f-parts">تعداد اجزاء</label><input id="f-parts" inputmode="numeric" autocomplete="off" value="${b ? ur(b.parts ?? '') : ''}" placeholder="مثلاً ۴"></div>
-          <div class="frow"><label for="f-price">قیمت (روپے)</label><input id="f-price" inputmode="decimal" autocomplete="off" value="${b ? ur(b.price ?? '') : ''}" placeholder="مثلاً ۳۲۰۰"></div>
+          <div class="cap" style="--i:2"><label class="cap-l" for="f-author"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>مصنف</label><input id="f-author" list="dl-author" autocomplete="off" value="${esc(b?.author)}" placeholder="لکھیں یا فہرست سے چنیں"></div>
+          <div class="cap" style="--i:3"><label class="cap-l" for="f-publisher"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l2-5h12l2 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg>مکتبہ</label><input id="f-publisher" list="dl-pub" autocomplete="off" value="${esc(b ? b.publisher : (last.publisher || ''))}" placeholder="لکھیں یا فہرست سے چنیں"></div>
+          ${!b && last.publisher ? `<p class="hint" style="--i:3">مکتبہ پچھلے اندراج سے خود بھر جاتا ہے</p>` : ''}
+          <div class="cap-row" style="--i:4">
+            <div class="cap"><label class="cap-l" for="f-parts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>اجزاء</label><input id="f-parts" class="numin" inputmode="numeric" autocomplete="off" value="${b ? (b.parts ?? '') : ''}" placeholder="4"></div>
+            <div class="cap"><label class="cap-l" for="f-price"><b class="rs" aria-hidden="true">Rs</b>قیمت</label><input id="f-price" class="numin" inputmode="decimal" autocomplete="off" value="${b ? (b.price ?? '') : ''}" placeholder="3200"></div>
+          </div>
           <datalist id="dl-author">${uniq('author').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
           <datalist id="dl-pub">${uniq('publisher').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
           <p class="err" id="f-err" role="alert"></p>
-          <button class="btn save" type="submit">💾 ${b ? 'تبدیلی محفوظ کریں' : 'محفوظ کریں'}</button>
-          ${!b ? `<p class="hint center">محفوظ کرنے کے بعد فارم اگلی کتاب کے لیے کھلا رہے گا۔</p>` : ''}
+          <button class="btn save" type="submit" style="--i:5">💾 ${b ? 'تبدیلی محفوظ کریں' : 'محفوظ کریں'}</button>
+          ${!b ? `<p class="hint center" style="--i:5">محفوظ کرنے کے بعد فارم اگلی کتاب کے لیے کھلا رہے گا</p>` : ''}
         </form>
       </div>`;
     document.body.appendChild(wrap);
@@ -260,7 +262,7 @@
     wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
     wrap.querySelectorAll('[data-z]').forEach(btn => btn.addEventListener('click', () => {
       zoom = Math.min(150, Math.max(80, zoom + Number(btn.dataset.z)));
-      $('addForm').style.fontSize = zoom + '%'; $('zv').textContent = ur(zoom) + '٪'; lsSet(ZOOM_KEY, zoom);
+      $('addForm').style.fontSize = zoom + '%'; $('zv').textContent = zoom + '%'; lsSet(ZOOM_KEY, zoom);
     }));
     setTimeout(() => $('f-name').focus(), 50);
 
@@ -291,6 +293,7 @@
         const opt = $('dl-pub');
         if (rec.publisher && ![...opt.options].some(o => o.value === rec.publisher)) opt.insertAdjacentHTML('beforeend', `<option value="${esc(rec.publisher)}">`);
         if (rec.author) $('dl-author').insertAdjacentHTML('beforeend', `<option value="${esc(rec.author)}">`);
+        $('addForm').classList.remove('saved'); void $('addForm').offsetWidth; $('addForm').classList.add('saved');
         $('f-name').focus();
       }
     });
@@ -384,5 +387,31 @@
     e.target.value = '';
   });
 
+  // ---------- نیچے کی پٹی: پیچھے / ہوم / آگے ----------
+  const nav = window.navigation;
+  function updateDock() {
+    const atHome = !location.hash || location.hash === '#/' || location.hash === '#';
+    $('navHome').classList.toggle('on', atHome && !gq.value);
+    if (nav && 'canGoBack' in nav) {
+      $('navBack').disabled = !nav.canGoBack;
+      $('navFwd').disabled = !nav.canGoForward;
+    }
+  }
+  $('navBack').addEventListener('click', () => {
+    if (document.getElementById('sheet')) { $('sheetClose').click(); return; }
+    if (nav && 'canGoBack' in nav && !nav.canGoBack) { location.hash = '#/'; return; }
+    history.back();
+  });
+  $('navFwd').addEventListener('click', () => history.forward());
+  $('navHome').addEventListener('click', () => {
+    if (gq.value) { gq.value = ''; $('gqClear').hidden = true; }
+    if (location.hash && location.hash !== '#/') location.hash = '#/';
+    else route();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  window.addEventListener('hashchange', () => setTimeout(updateDock, 0));
+  gq.addEventListener('input', updateDock);
+
   route();
+  updateDock();
 })();
