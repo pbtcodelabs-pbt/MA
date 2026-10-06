@@ -1,7 +1,7 @@
 /* مکتبۃ العزیز — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA610TU008';
+const VERSION = 'MA610TU009';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -9,8 +9,8 @@ const CORE = [
   './',
   './index.html',
   './manifest.json',
-  './style.css',
-  './app.js',
+  `./style.css?v=${VERSION}`,
+  `./app.js?v=${VERSION}`,
   './icons/logo.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -25,7 +25,7 @@ const FONTS = [
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const c = await caches.open(CACHE);
-    await c.addAll(CORE);
+    await c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })));
     // فونٹ صرف تب لائیں جب پہلے سے محفوظ نہ ہوں
     const fc = await caches.open(FONT_CACHE);
     for (const f of FONTS) {
@@ -67,7 +67,7 @@ self.addEventListener('fetch', event => {
 
   // باقی فائلیں: نیٹ ورک پہلے، ناکامی پر کیش
   event.respondWith(
-    fetch(req)
+    fetch(req, { cache: 'no-cache' })
       .then(res => {
         if (res.ok) {
           const copy = res.clone();
@@ -75,6 +75,6 @@ self.addEventListener('fetch', event => {
         }
         return res;
       })
-      .catch(() => caches.match(req).then(hit => hit || caches.match('./index.html')))
+      .catch(() => caches.match(req, { ignoreSearch: req.mode === 'navigate' }).then(hit => hit || caches.match('./index.html')))
   );
 });
