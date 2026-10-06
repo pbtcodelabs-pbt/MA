@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU007) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU008) */
 (() => {
   'use strict';
 
@@ -81,13 +81,15 @@
   }
 
   // جِلدوں کے رنگ
-  const PAL = ['#2f7d62', '#a8433a', '#c08a2b', '#6d4c93', '#8a5a3b', '#5f7f2c', '#a33d63', '#2d6f7d'];
+  const PAL = ['#8e2f2a', '#1f3f73', '#7a5418', '#5a3b7a', '#6e4428', '#1d5f66', '#8a2a4f', '#3c4f6e'];
 
   // کھڑی موٹی کتاب: سامنے جِلد (نام کے ساتھ)، ایک طرف صفحات، دوسری طرف پشت
+  // ترچھی کھڑی کتاب: سامنے گتا + دائیں طرف جِلد کی پشت (سنہری پٹیاں)، ورق بائیں طرف
   const book3d = (label, color, extra = '') =>
     `<span class="bkx" style="--c:${color}">` +
-    `<span class="bkx-back"></span><span class="bkx-pages"></span>` +
-    `<span class="bkx-cover">${extra}<span class="bkx-label">${label}</span></span></span>`;
+    `<span class="bkx-top"></span>` +
+    `<span class="bkx-cover">${extra}<span class="bkx-label">${label}</span></span>` +
+    `<span class="bkx-spine"></span></span>`;
 
   // کتابوں کا سائز (چھوٹا/بڑا) — یاد رہتا ہے
   let bookScale = Number((() => { try { return localStorage.getItem('maktaba-aziz-book-scale'); } catch (e) { return null; } })()) || 1;
@@ -294,10 +296,46 @@
     });
   }
 
+  // ---------- تلاش (سب کتب میں) ----------
+  const norm = t => String(t || '')
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, '')          // اعراب اور کشیدہ ہٹائیں
+    .replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/[ةۃه]/g, 'ہ').replace(/[أإآ]/g, 'ا')
+    .replace(/\s+/g, ' ').trim().toLowerCase();
+  function pageSearch(q) {
+    const words = norm(q).split(' ').filter(Boolean);
+    const hits = db.books.filter(b => {
+      const hay = norm([b.name, b.author, b.publisher, catById(b.cat)?.name].join(' '));
+      return words.every(w => hay.includes(w));
+    });
+    view.innerHTML = `
+      <section class="panel">
+        <div class="panel-h"><h2>تلاش: «${esc(q)}»</h2><span class="crumb">${num(hits.length)} کتب ملیں</span></div>
+        <div class="panel-b">
+          ${hits.length ? `<div class="results">${hits.map(b => {
+            const c = catById(b.cat), i = CATS.indexOf(c);
+            return `<a class="result" href="#/c/${b.cat}/b/${b.id}">
+              <span class="r-ico">${book3d('', PAL[i % PAL.length])}</span>
+              <span class="r-txt"><b>${esc(b.name)}</b>
+                <span>${[b.author && 'مصنف: ' + esc(b.author), b.publisher && 'مکتبہ: ' + esc(b.publisher)].filter(Boolean).join(' · ') || '—'}</span>
+                <span class="r-meta">${esc(c.name)} · اجزاء ${num(b.parts)} · ${money(b.price)}</span></span></a>`;
+          }).join('')}</div>` : `<div class="empty"><b>کوئی کتاب نہیں ملی</b>نام، مصنف، مکتبہ یا فن کا کوئی اور لفظ لکھ کر دیکھیں۔</div>`}
+        </div>
+      </section>`;
+  }
+  const gq = $('gq');
+  gq.addEventListener('input', () => {
+    const q = gq.value.trim();
+    $('gqClear').hidden = !q;
+    if (q) { document.body.classList.add('is-home'); renderBar(null); pageSearch(q); }
+    else route();
+  });
+  $('gqClear').addEventListener('click', () => { gq.value = ''; $('gqClear').hidden = true; route(); gq.focus(); });
+
   function refreshCounts(active) { renderSummary(); renderBar(active); }
 
   // ---------- راستے ----------
   function route() {
+    if (gq.value) { gq.value = ''; $('gqClear').hidden = true; }
     if (!/\/(add|edit)/.test(location.hash) && document.getElementById('sheet')) { document.getElementById('sheet').remove(); document.body.classList.remove('noscroll'); }
     const parts = location.hash.replace(/^#\/?/, '').split('/');
     document.body.classList.toggle('is-home', !(parts[0] === 'c' && catById(parts[1])));

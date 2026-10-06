@@ -684,3 +684,122 @@ body.is-home .bar{display:none}
 .chip.off .dot{background:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.18)}
 .chip .lbl{font-family:var(--f-body);font-weight:400;font-size:13px;line-height:1.6;direction:rtl}
 .status{position:static;justify-content:center;margin-bottom:4px}
+
+/* ===== MA610TU008: سبز تھیم، سنہری لکھائی، ترچھی کتاب، تلاش ===== */
+:root{
+  --blue:#14463a;--blue-2:#1f6a54;     /* اب سبز (پرانے نام برقرار) */
+  --green:#14463a;--green-2:#1f6a54;
+  --gold-1:#fff1c1;--gold-2:#e8c467;--gold-3:#b8862b;--gold-4:#8a5f16;
+  --gold-tex:linear-gradient(180deg,#fff6d5 0%,#f1d27a 28%,#c8962f 50%,#f5dc8f 70%,#a8741f 100%);
+}
+html{background:var(--green)}
+body{
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.06),transparent 40%),
+    radial-gradient(circle at 80% 70%,rgba(0,0,0,.12),transparent 45%),
+    linear-gradient(180deg,var(--green) 0%,var(--green-2) 100%) fixed;
+  background-color:var(--green);
+}
+
+/* سرورق: گہرا سبز، سنہری فریم، سنہری لکھائی */
+.masthead{background:linear-gradient(180deg,#0f3a30,#185443);border-color:var(--gold-3)}
+.masthead-in{border-color:var(--gold-2);outline-color:var(--gold-3);background:radial-gradient(ellipse at 50% 0%,rgba(232,196,103,.18),transparent 70%)}
+.name{
+  background:var(--gold-tex);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));padding-inline:.15em;
+}
+.ornament{color:var(--gold-2)}
+.ornament::before,.ornament::after{background:linear-gradient(to left,transparent,var(--gold-2),transparent)}
+.sub{background:var(--gold-tex);-webkit-background-clip:text;background-clip:text;color:transparent}
+.inst{color:#e6d6aa}
+.logo{box-shadow:0 0 0 2px var(--gold-2)}
+
+/* ورژن اور آن لائن/آف لائن — نمایاں */
+.status{gap:8px}
+.chip{background:rgba(0,0,0,.28);border-color:var(--gold-3);color:var(--gold-1);font-size:13px;padding:4px 12px}
+.chip .lbl{color:#fff;font-size:15px}
+#verChip::before{content:"ورژن";font-family:var(--f-body);font-weight:400;font-size:14px;margin-inline-end:6px;color:#e6d6aa}
+
+/* تلاش */
+.gsearch{
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + 6px);z-index:5;
+  display:flex;align-items:center;gap:8px;
+  background:#fffdf6;border:2px solid var(--gold-2);border-radius:99px;padding:0 8px 0 16px;
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
+}
+.gsearch svg{width:22px;height:22px;color:var(--gold-3);flex:none}
+.gsearch input{flex:1;min-width:0;border:0;background:transparent;font-size:18px;min-height:50px;line-height:1.9;outline:none;color:var(--fg)}
+.gsearch input::-webkit-search-cancel-button{display:none}
+.gsearch button{border:0;background:var(--soft);color:var(--fg);width:34px;height:34px;border-radius:50%;cursor:pointer;font:600 15px system-ui}
+.gsearch:focus-within{box-shadow:0 0 0 4px rgba(232,196,103,.45),0 6px 16px rgba(0,0,0,.22)}
+
+/* شیلف کے پینل سبز پر */
+main > .panel:has(.shelf),main > .panel:has(.results),main > .panel:has(.empty){background:rgba(0,0,0,.12);border-color:rgba(232,196,103,.45)}
+main > .panel:has(.results) .panel-h h2,main > .panel:has(.shelf) .panel-h h2,main > .panel:has(.empty) .panel-h h2{background:var(--gold-tex);-webkit-background-clip:text;background-clip:text;color:transparent}
+main > .panel:has(.results) .crumb{color:#e6d6aa}
+main > .panel .panel-h{border-bottom-color:rgba(232,196,103,.35)}
+.bar{background:rgba(0,0,0,.14);border-color:rgba(232,196,103,.45)}
+.bk .badge{background:var(--gold-2);color:#3a2a08}
+.bk .badge.zero{background:#fff6dc;color:#7a5f22}
+.bk.on,.bar a.bk.on{background:rgba(232,196,103,.22);box-shadow:inset 0 0 0 2px var(--gold-2)}
+footer{color:#e6d6aa}
+
+/* ---- ترچھی کھڑی کتاب: سامنے گتا + دائیں طرف جِلد کی پشت ---- */
+.bkx{
+  --w:calc(56px * var(--bs));--h:calc(80px * var(--bs));--t:calc(13px * var(--bs));
+  position:relative;display:block;width:calc(var(--w) + var(--t));height:var(--h);
+  filter:drop-shadow(2px 4px 3px rgba(0,0,0,.4));
+}
+.bkx > span{position:absolute;display:block}
+.bkx-top,.bkx-back,.bkx-pages{display:none !important}
+.bkx-cover{
+  left:0;top:0;width:var(--w);height:var(--h);
+  clip-path:polygon(0 3.5%,100% 0,100% 100%,0 96.5%);
+  border-radius:0;
+  background:
+    linear-gradient(to left,rgba(0,0,0,.30) 0,rgba(0,0,0,0) 9%),
+    linear-gradient(115deg,rgba(255,255,255,.22) 0,rgba(255,255,255,0) 38%),
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.08),transparent 50%),
+    var(--c);
+  box-shadow:none;
+  display:grid !important;place-items:center;padding:calc(8px * var(--bs)) calc(7px * var(--bs)) calc(8px * var(--bs)) calc(5px * var(--bs));
+}
+/* سنہری فریم */
+.bkx-cover::before{
+  content:"";position:absolute;inset:calc(4px * var(--bs)) calc(5px * var(--bs)) calc(4px * var(--bs)) calc(4px * var(--bs));
+  border:1px solid rgba(232,196,103,.85);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12);
+}
+.bkx-cover::after{display:none}
+.bkx-spine{
+  left:calc(var(--w) - 1px);top:0;width:var(--t);height:var(--h);
+  clip-path:polygon(0 0,100% 6%,100% 94%,0 100%);
+  background:
+    linear-gradient(to bottom,
+      transparent 9%,var(--gold-2) 9% 11%,transparent 11% 13%,var(--gold-2) 13% 14.5%,transparent 14.5%,
+      transparent 85.5%,var(--gold-2) 85.5% 87%,transparent 87% 89%,var(--gold-2) 89% 91%,transparent 91%),
+    linear-gradient(to right,rgba(0,0,0,.45),rgba(0,0,0,.15) 40%,rgba(255,255,255,.12) 60%,rgba(0,0,0,.35)),
+    var(--c);
+}
+.bkx-label{
+  width:calc(var(--w) - 14px * var(--bs));
+  background:radial-gradient(circle at 35% 30%,#2c4f85,#16305a);
+  border:1.5px solid var(--gold-2);color:#fff6d8;
+  font-size:calc(12.5px * var(--bs));
+}
+.bkx-label:empty{display:none}
+.bkx-no{right:0;color:var(--gold-1)}
+.bk::after{left:10%;right:4%;bottom:0;height:6px}
+.bar .bkx{--w:calc(48px * var(--bs));--h:calc(68px * var(--bs));--t:calc(11px * var(--bs))}
+
+/* تلاش کے نتائج */
+.results{display:grid;gap:10px}
+.result{
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;
+  background:#fffdf6;border:1px solid var(--gold-2);border-radius:12px;padding:8px 12px;text-decoration:none;color:var(--fg);
+}
+.result:hover{background:#fff6dc}
+.r-ico .bkx{--w:34px;--h:48px;--t:8px}
+.r-txt{display:grid;min-width:0}
+.r-txt b{font-weight:400;font-size:20px;color:var(--green);line-height:1.9}
+.r-txt span{font-size:15px;color:var(--muted);line-height:1.8;overflow-wrap:anywhere}
+.r-txt .r-meta{color:#7a5f22;font-size:14px}
