@@ -1,1 +1,64 @@
+# مکتبۃ العزیز — Auto Unzip (صرف MA والی zip)
+# فون سے MA610TU002.zip جیسی فائل اپلوڈ کریں، یہ خود کھول کر
+# سب فائلیں ریپو میں اپنی جگہ رکھ دے گا اور zip حذف کر دے گا۔
+# کسی دوسری ایپ کی zip (DG، FM وغیرہ) غلطی سے آئی تو رد ہو کر حذف ہو جائے گی۔
+
+name: Auto Unzip (MA only)
+
+on:
+  push:
+    branches: [main]
+    paths: ['**.zip', '**.ZIP']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-unzip
+  cancel-in-progress: false
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: MA zip kholo, baqi rad karo
+        shell: bash
+        run: |
+          set -e
+          EXP=MA
+          BAD=0
+          while IFS= read -r -d '' z; do
+            name=$(basename "$z")
+            up=$(echo "$name" | tr 'a-z' 'A-Z')
+            rm -rf /tmp/x && mkdir -p /tmp/x
+            if [[ "$up" == ${EXP}* ]] && unzip -oq "$z" -d /tmp/x; then
+              # sw.js کا ورژن بھی MA سے شروع ہونا چاہیے (غلط ایپ کی فائلیں نہ آئیں)
+              k=$(grep -o "VERSION = '[A-Za-z][A-Za-z]" /tmp/x/sw.js 2>/dev/null | head -1 | sed "s/.*'//" | tr 'a-z' 'A-Z' || true)
+              if [ -n "$k" ] && [ "$k" != "$EXP" ]; then
+                echo "::error::REJECTED $name — sw.js کا ورژن $k ہے، یہ $EXP ریپو ہے"
+                BAD=1
+              else
+                echo "OK $name"
+                rm -rf /tmp/x/.git /tmp/x/.github
+                cp -a /tmp/x/. .
+              fi
+            else
+              echo "::error::REJECTED $name — یہاں صرف $EXP سے شروع ہونے والی zip چلتی ہے"
+              BAD=1
+            fi
+            rm -f "$z"
+          done < <(find . -path ./.git -prune -o -type f -iname '*.zip' -print0)
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "auto unzip"
+            git pull --rebase
+            git push
+          fi
+          exit $BAD
 
