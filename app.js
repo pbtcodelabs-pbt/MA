@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU012) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU013) */
 (() => {
   'use strict';
 
@@ -92,7 +92,7 @@
     `<span class="bkx-spine"></span></span>`;
 
   // کتابوں کا سائز (چھوٹا/بڑا) — یاد رہتا ہے
-  let bookScale = Number((() => { try { return localStorage.getItem('maktaba-aziz-book-scale'); } catch (e) { return null; } })()) || 1;
+  let bookScale = Number((() => { try { return localStorage.getItem('maktaba-aziz-book-scale'); } catch (e) { return null; } })()) || 0.85;
   const applyScale = () => document.documentElement.style.setProperty('--bs', bookScale);
   applyScale();
   const sizeCtl = () => `<span class="sizer" aria-label="کتابوں کا سائز"><button type="button" data-bs="-0.1" aria-label="کتابیں چھوٹی">−</button><span>سائز</span><button type="button" data-bs="0.1" aria-label="کتابیں بڑی">+</button></span>`;

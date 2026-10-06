@@ -11,24 +11,33 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preload" href="fonts/jnn-kasheeda-title.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=MA610TU012">
+<link rel="stylesheet" href="style.css?v=MA610TU013">
 </head>
 <body>
 <div class="wrap">
 
   <header class="masthead">
     <div class="masthead-in">
+      <div class="mh-row">
+        <img class="logo" src="icons/logo.svg" alt="مکتبۃ العزیز کا لوگو" width="44" height="44">
+        <div class="mh-text">
+          <h1 class="name">مکتبۃ العزیز</h1>
+          <p class="sub">تفصیلی فہرستِ کتب · <span class="inst">دارالعلوم ختمِ نبوت، عارف والا</span></p>
+        </div>
+      </div>
       <div class="status">
         <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-        <span class="chip" id="verChip">MA610TU012</span>
+        <span class="chip" id="verChip">MA610TU013</span>
+        <button class="chip chip-btn" id="btnBackup" type="button" aria-expanded="false" aria-controls="backupBox">بیک اپ</button>
       </div>
-      <img class="logo" src="icons/logo.svg" alt="مکتبۃ العزیز کا لوگو" width="58" height="58">
-      <h1 class="name">مکتبۃ العزیز</h1>
-      <div class="ornament" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l3 5.5 6-1-1 6L23 12l-5 3 1 6-6-1-3 5-3-5-6 1 1-6-5-3 3-.5-1-6 6 1z"/></svg>
+      <div class="backup-box" id="backupBox" hidden>
+        <p>کتب کا ڈیٹا اسی فون کے براؤزر میں محفوظ ہوتا ہے۔ وقتاً فوقتاً بیک اپ فائل ڈاؤن لوڈ کر لیا کریں۔</p>
+        <div class="actions">
+          <button class="btn ghost small" id="btnExport" type="button">بیک اپ فائل ڈاؤن لوڈ کریں</button>
+          <label class="btn ghost small" for="importFile">بیک اپ فائل سے واپس لائیں</label>
+          <input id="importFile" type="file" accept="application/json,.json" hidden>
+        </div>
       </div>
-      <p class="sub">تفصیلی فہرستِ کتب</p>
-      <p class="inst">دارالعلوم ختمِ نبوت، عارف والا</p>
     </div>
   </header>
 
@@ -59,17 +68,9 @@
     <main id="view"></main>
   </div>
 
-  <details class="backup">
-    <summary>بیک اپ (ڈیٹا محفوظ کریں / واپس لائیں)</summary>
-    <p>کتب کا ڈیٹا اسی براؤزر میں محفوظ ہوتا ہے۔ وقتاً فوقتاً بیک اپ فائل ڈاؤن لوڈ کر لیا کریں۔</p>
-    <div class="actions">
-      <button class="btn ghost small" id="btnExport" type="button">بیک اپ فائل ڈاؤن لوڈ کریں</button>
-      <label class="btn ghost small" for="importFile">بیک اپ فائل سے واپس لائیں</label>
-      <input id="importFile" type="file" accept="application/json,.json" hidden>
-    </div>
-  </details>
 
-  <footer>مکتبۃ العزیز — دارالعلوم ختمِ نبوت، عارف والا · <span class="v">MA610TU012</span></footer>
+
+
 </div>
 
 <div class="toast" id="toast" role="status" hidden></div>
@@ -87,8 +88,13 @@
   </button>
 </nav>
 
-<script src="app.js?v=MA610TU012"></script>
+<script src="app.js?v=MA610TU013"></script>
 <script>
+// بیک اپ خانہ کھولنا/بند کرنا
+document.getElementById('btnBackup').addEventListener('click', e => {
+  const box = document.getElementById('backupBox'); box.hidden = !box.hidden;
+  e.currentTarget.setAttribute('aria-expanded', String(!box.hidden));
+});
 // آن لائن / آف لائن نشان
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
