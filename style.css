@@ -933,3 +933,37 @@ body,button,input,select,textarea{font-family:var(--f-body)}
 .sheet-b.saved .cap input{animation:capIn .3s ease both}
 @media (prefers-reduced-motion:reduce){.sheet,.sheet-b > *,.sheet-b.saved .cap input{animation:none}}
 .cap-l .rs{font:700 12px/1 Arial,Roboto,sans-serif;color:var(--gold-2)}
+
+/* ===== MA610TU012: چھوٹا تیرتا کیپسول — ابھرے ہوئے 3D بٹن ساتھ ساتھ ===== */
+body{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 84px)}
+.dock{
+  left:50%;right:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;
+  padding:6px 10px;border-radius:99px;
+  background:linear-gradient(180deg,#fffaf0,#efe2bf);
+  border:1.5px solid var(--gold-3);border-top:1.5px solid var(--gold-3);
+  box-shadow:0 2px 0 #fff inset,0 -2px 0 rgba(138,95,22,.15) inset,0 8px 20px rgba(0,0,0,.35);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+.dock button span{display:none}
+.dock-btn,.dock-home{
+  display:grid;place-items:center;padding:0;border-radius:50%;margin:0;
+  transition:transform .1s,box-shadow .1s,filter .15s;
+}
+.dock-btn{
+  width:42px;height:42px;min-height:0;justify-self:auto;
+  background:radial-gradient(circle at 35% 28%,#2f8a6c,#14463a 70%);color:var(--gold-1);
+  box-shadow:0 3px 0 #0b2d24,0 5px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(232,196,103,.5);
+}
+.dock-btn:hover{filter:brightness(1.08);background:radial-gradient(circle at 35% 28%,#2f8a6c,#14463a 70%)}
+.dock-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #0b2d24,0 2px 4px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2)}
+.dock-btn:disabled{opacity:.4;filter:grayscale(.4)}
+.dock-home{
+  width:50px;height:50px;margin-top:0;
+  background:radial-gradient(circle at 35% 28%,#fff3c4,#e8c467 48%,#b8862b);color:#3a2706;
+  box-shadow:0 4px 0 #8a5f16,0 6px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(138,95,22,.4);
+}
+.dock-home:active{transform:translateY(3px);box-shadow:0 1px 0 #8a5f16,0 2px 5px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.6)}
+.dock-home.on{box-shadow:0 4px 0 #8a5f16,0 6px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.7),0 0 0 3px rgba(255,243,196,.9)}
+.dock button:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.toast{bottom:calc(env(safe-area-inset-bottom,0px) + 82px)}
