@@ -1179,3 +1179,109 @@ main > .panel .panel-h h2{font-size:22px;line-height:1.9}
 .ma-cap.fail .mc-ico{background:var(--danger);color:#fff}
 .ma-cap.fail .mc-bar{display:none}
 .ma-cap.fail .mc-lbl{color:#7a2f25;white-space:normal}
+
+/* ===== MA610TU019: گنتی کا کیپسول، نیا فن، رپورٹس، اجراء ===== */
+/* آئیکن کے نیچے لمبا کیپسول (FM کی طرح) */
+.bk .badge{display:none}
+.bk{display:grid;justify-items:center;gap:0;padding:6px 0 2px}
+.cnt{
+  position:relative;z-index:2;margin-top:-6px;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  min-width:calc(56px * var(--bs));height:22px;padding:0 10px;border-radius:99px;
+  background:#fffdf6;border:1.5px solid var(--gold-2);color:var(--green);
+  box-shadow:0 2px 4px rgba(0,0,0,.25),inset 0 1px 0 #fff;
+  font:700 13px/1 Arial,Roboto,sans-serif;
+}
+.cnt.zero{color:#a99b7c;border-color:#d9c79a}
+.cnt i{font-style:normal;background:#c0392b;color:#fff;border-radius:99px;padding:2px 5px;font-size:10.5px;line-height:1}
+.cnt.lbl{font-family:var(--f-body);font-weight:400;font-size:12.5px;line-height:1.6;color:var(--green)}
+.cnt.out-l{font-family:var(--f-body);font-weight:400;font-size:11.5px;line-height:1.6;color:#8e2f2a;border-color:#e39a8f;max-width:calc(72px * var(--bs) + 10px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;text-align:center;padding-top:1px}
+.bar .cnt{min-width:42px;height:19px;font-size:11.5px;padding:0 7px;margin-top:-5px}
+.bk::after{display:none}
+/* خاص ٹائلیں: نیا فن، رپورٹس، اجراء */
+.bkx.sp .bkx-label{background:rgba(255,255,255,.14);border:1.5px dashed rgba(255,255,255,.7);color:#fff;width:calc(var(--w) - 16px * var(--bs))}
+.bk.add .bkx.sp .bkx-label{border-style:dashed}
+.sp-ico svg{width:calc(24px * var(--bs));height:calc(24px * var(--bs))}
+/* پڑھنے کے لیے گئی کتاب: مدھم جِلد + سرخ پٹی «جاری» */
+.bkx.out .bkx-cover,.bkx.out .bkx-spine{filter:saturate(.35) brightness(.9)}
+.bkx-rib{
+  position:absolute !important;z-index:3;top:calc(30px * var(--bs));left:-4px;right:calc(var(--t) - 6px);
+  background:linear-gradient(180deg,#d9483b,#a5281d);color:#fff;text-align:center;
+  font-size:calc(11px * var(--bs));line-height:1.7;box-shadow:0 2px 4px rgba(0,0,0,.35);transform:rotate(-8deg);
+}
+/* ہوم کا ہیڈر: خلاصہ + کل قیمت + سائز */
+.home-h{flex-wrap:nowrap}
+.hsum{display:flex;gap:12px;align-items:baseline;color:var(--gold-1);font-size:14px;white-space:nowrap}
+.hsum b{font:700 19px/1 Arial,Roboto,sans-serif;color:#fff}
+.home-h .btn.gold{min-height:30px;font-size:13.5px;padding:0 10px;white-space:nowrap}
+.home-h .actions{gap:6px;flex-wrap:nowrap}
+/* زمرہ: پڑھنے کے لیے گئی کی گنتی */
+.out-n{color:#a5281d;text-decoration:none}
+.out-n b{color:#a5281d !important}
+/* کتاب کی تفصیل: اجراء */
+.btn.lend-go{justify-content:center;min-height:46px;border-radius:99px;background:linear-gradient(180deg,#2a7d63,#14463a);border-color:#0b2d24;color:var(--gold-1);box-shadow:0 3px 0 #0b2d24}
+.loan-card{background:#fff4f1;border:1.5px solid #e39a8f;border-radius:14px;padding:8px 10px;display:grid;gap:6px}
+.lc-h{display:flex;justify-content:space-between;align-items:center}
+.lc-tag{background:#a5281d;color:#fff;border-radius:99px;padding:0 12px;font-size:14px;line-height:1.9}
+.lc-days{font:700 14px Arial,sans-serif;color:#a5281d}
+.loan-card dl{border-color:#f0c9c2}
+.loan-card a{color:var(--green)}
+.lf-book{margin:0;font-size:1.05em;color:var(--green);background:#fff;border:1px solid #e3cf98;border-radius:12px;padding:2px 12px}
+/* اجراء کی فہرست */
+.loans{display:grid;gap:8px}
+.loan-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:#fffdf6;border:1px solid #e3cf98;border-radius:12px;padding:6px 10px}
+.loan-row.late{border-color:#e39a8f;background:#fff4f1}
+.lr-book .bkx{--w:34px;--h:48px;--t:8px}
+.lr-book .bkx-rib{display:none}
+.lr-txt{display:grid;min-width:0}
+.lr-txt a{text-decoration:none;color:inherit}
+.lr-txt b{font-weight:400;font-size:17px;color:var(--green);line-height:1.8}
+.lr-txt span{font-size:14px;line-height:1.7}
+.lr-txt span a{color:var(--green);text-decoration:underline}
+.lr-txt small{font-size:12.5px;color:var(--muted)}
+.sub-h{margin:14px 0 6px;font-weight:400;font-size:18px;color:var(--gold-1)}
+.hist{display:grid;gap:4px}
+.h-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;background:rgba(255,255,255,.9);border-radius:10px;padding:2px 12px}
+.h-row b{font-weight:400;font-size:15px}
+.h-row span{font-size:13px;color:var(--muted)}
+.pk{display:grid;text-align:right;width:100%;border:1px solid #e3cf98;background:#fff;border-radius:12px;padding:4px 12px;cursor:pointer;font-family:var(--f-body)}
+.pk:hover{background:var(--gold-soft)}
+.pk b{font-weight:400;font-size:16px;color:var(--green);line-height:1.8}
+.pk small{font-size:12.5px;color:var(--muted)}
+/* رپورٹس */
+.rep-tiles{display:grid;gap:10px}
+.rep-tile{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--fg);background:#fffdf6;border:1.5px solid var(--gold-2);border-radius:14px;padding:8px 12px;box-shadow:0 3px 0 rgba(0,0,0,.18);cursor:pointer;font-family:var(--f-body);text-align:right;width:100%}
+.rep-tile:active{transform:translateY(2px);box-shadow:none}
+.rt-ico{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--c);color:var(--gold-1);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.rt-t{flex:1;display:grid;min-width:0}
+.rt-t b{font-weight:400;font-size:18px;color:var(--green);line-height:1.8}
+.rt-t small{font-size:13px;color:var(--muted);line-height:1.6}
+.rt-arr{font-size:26px;color:var(--gold-3)}
+.rep-list{display:grid;gap:6px;margin-top:10px}
+.rl{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n c" "p c";align-items:center;gap:0 10px;text-decoration:none;color:var(--fg);background:#fffdf6;border:1px solid #e3cf98;border-radius:12px;padding:2px 12px}
+.rl > b{grid-area:n;font-weight:400;font-size:16px;line-height:1.8;color:var(--green)}
+.rl .cnt{grid-area:c;margin:0}
+.rl small{grid-area:p;font-size:12.5px;color:var(--muted)}
+.rep-books{display:grid;gap:6px}
+.rb{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;text-decoration:none;color:var(--fg);background:#fffdf6;border:1px solid #e3cf98;border-radius:12px;padding:4px 10px}
+.rb.out{border-color:#e39a8f;background:#fff4f1}
+.rb-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:var(--gold-1);font:700 13px Arial,sans-serif}
+.rb-t{display:grid;min-width:0}
+.rb-t b{font-weight:400;font-size:16px;line-height:1.8}
+.rb-t small{font-size:12.5px;color:var(--muted);line-height:1.6}
+.rb-t em{font-style:normal;color:#a5281d}
+.rb-p{font-size:13px;color:#7a5f22;white-space:nowrap}
+.r-out{color:#a5281d !important;font-size:13px}
+.iconbtn{font-size:16px;vertical-align:middle;color:var(--gold-1)}
+main > .panel .panel-h h2 .iconbtn{border:0;background:none;cursor:pointer;padding:0 4px;-webkit-text-fill-color:var(--gold-1)}
+main > .panel:has(.rep-tiles),main > .panel:has(.loans),main > .panel:has(.rep-list),main > .panel:has(.rep-books){background:rgba(0,0,0,.12);border-color:rgba(232,196,103,.45)}
+main > .panel:has(.rep-tiles) .panel-h h2,main > .panel:has(.loans) .panel-h h2,main > .panel:has(.rep-list) .panel-h h2,main > .panel:has(.empty) .panel-h h2{background:var(--gold-tex);-webkit-background-clip:text;background-clip:text;color:transparent}
+main > .panel:has(.rep-books) .d-title{background:var(--gold-tex);-webkit-background-clip:text;background-clip:text;color:transparent}
+main > .panel:has(.rep-list) .back,main > .panel:has(.rep-books) .back{color:var(--gold-1)}
+/* ہوم ایک اسکرین میں */
+:root{--bs:.8}
+.shelf,.shelf.books{gap:4px 2px;padding:2px 0}
+.bk{padding:4px 0 0}
+.cnt{height:20px;margin-top:-7px}
+main > .panel .panel-h.home-h{padding:0 10px}
+.panel-b{padding:6px 8px}

@@ -11,6 +11,10 @@
   let open = new Set();
   let opts = { price: true, details: true };
   let q = '';
+  let mode = 'books';      // 'books' یا 'loans' (پڑھنے کے لیے گئی کتب)
+  let subtitle = '';       // رپورٹ کا عنوان، مثلاً «مصنف: …»
+  const dmy = iso => { if (!iso) return '—'; const [y, m, d] = String(iso).slice(0, 10).split('-'); return `${d}/${m}/${y}`; };
+  const daysSince = iso => iso ? Math.max(0, Math.floor((Date.now() - new Date(String(iso).slice(0, 10) + 'T00:00:00').getTime()) / 864e5)) : 0;
 
   function api() { return window.MA_SHARE; }
   function toast(m) { api().toast(m); }
@@ -18,8 +22,11 @@
   // ---------- انتخاب کا خانہ ----------
   function openShare(pre = {}) {
     const { books, cats } = api().data();
-    sel = new Set(pre.books || []);
     open = new Set();
+    mode = pre.mode === 'loans' ? 'loans' : 'books';
+    subtitle = pre.title || '';
+    sel = new Set(pre.books || []);
+    if (mode === 'loans') books.filter(b => b.loan).forEach(b => { sel.add(b.id); open.add(b.cat); });
     if (pre.cat) { books.filter(b => b.cat === pre.cat).forEach(b => sel.add(b.id)); open.add(pre.cat); }
     if (pre.books && pre.books.length) books.filter(b => sel.has(b.id)).forEach(b => open.add(b.cat));
     q = '';
@@ -30,15 +37,15 @@
     wrap.innerHTML = `
       <div class="sheet share" role="dialog" aria-modal="true" aria-labelledby="sh-t">
         <div class="sheet-h">
-          <h2 id="sh-t">کتب کی تفصیل بھیجیں</h2>
+          <h2 id="sh-t">${mode === 'loans' ? 'پڑھنے کے لیے گئی کتب' : subtitle ? esc(subtitle) : 'کتب کی تفصیل بھیجیں'}</h2>
           <button type="button" class="x" id="shClose" aria-label="بند کریں">✕</button>
         </div>
         <div class="sh-top">
           <input id="shQ" type="search" placeholder="کتاب، مصنف، مکتبہ یا فن…" aria-label="فہرست میں تلاش" autocomplete="off">
           <div class="sh-opts">
             <label class="tick"><input type="checkbox" id="shAll"><span>سب منتخب</span></label>
-            <label class="tick"><input type="checkbox" id="shPrice" ${opts.price ? 'checked' : ''}><span>قیمت</span></label>
-            <label class="tick"><input type="checkbox" id="shDet" ${opts.details ? 'checked' : ''}><span>مصنف و مکتبہ</span></label>
+            <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shPrice" ${opts.price ? 'checked' : ''}><span>قیمت</span></label>
+            <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shDet" ${opts.details ? 'checked' : ''}><span>مصنف و مکتبہ</span></label>
             <b class="sh-count" id="shCount"></b>
           </div>
         </div>
@@ -89,11 +96,12 @@
   }
 
   function visibleBooks() {
-    const { books, cats } = api().data();
+    const { books: all, cats } = api().data();
+    const books = mode === 'loans' ? all.filter(b => b.loan) : all;
     const words = norm(q).split(' ').filter(Boolean);
     if (!words.length) return books;
     return books.filter(b => {
-      const hay = norm([b.name, b.author, b.publisher, cats.find(c => c.id === b.cat)?.name].join(' '));
+      const hay = norm([b.name, b.author, b.publisher, cats.find(c => c.id === b.cat)?.name, b.loan?.name, b.loan?.phone].join(' '));
       return words.every(w => hay.includes(w));
     });
   }
@@ -115,7 +123,7 @@
         </div>
         ${isOpen ? `<div class="sh-books">${list.map(b => `
           <label class="tick sh-book"><input type="checkbox" data-book="${b.id}" ${sel.has(b.id) ? 'checked' : ''}>
-            <span><b>${esc(b.name)}</b>${b.author ? `<small>${esc(b.author)}</small>` : ''}</span></label>`).join('')}</div>` : ''}
+            <span><b>${esc(b.name)}</b>${mode === 'loans' && b.loan ? `<small>${esc(b.loan.name)}${b.loan.phone ? ' · ' + esc(b.loan.phone) : ''}</small>` : b.author ? `<small>${esc(b.author)}</small>` : ''}</span></label>`).join('')}</div>` : ''}
       </div>`;
     }).join('');
     $('shList').innerHTML = html || `<p class="sh-empty">${searching ? 'تلاش سے کوئی کتاب نہیں ملی' : 'ابھی کوئی کتاب درج نہیں'}</p>`;
@@ -138,7 +146,18 @@
   function buildText() {
     const g = grouped();
     const all = g.flatMap(x => x.list);
-    let t = `*مکتبۃ العزیز*\nتفصیلی فہرستِ کتب — دارالعلوم ختمِ نبوت، عارف والا\nتاریخ: ${today()}\n`;
+    let t = `*مکتبۃ العزیز*\n${headLine()}\nتاریخ: ${today()}\n`;
+    if (mode === 'loans') {
+      g.forEach(({ cat, list }) => {
+        t += `\n*${cat.name}* (${fmt(list.length)})\n`;
+        list.forEach((b, i) => {
+          const L = b.loan || {};
+          t += `${i + 1}. ${b.name} — ${L.name || '—'}${L.phone ? ' — ' + L.phone : ''} — ${dmy(L.date)} (${daysSince(L.date)} دن)\n`;
+        });
+      });
+      t += `\n*کل:* ${fmt(all.length)} کتب پڑھنے کے لیے گئی ہوئی ہیں`;
+      return t;
+    }
     g.forEach(({ cat, list }) => {
       t += `\n*${cat.name}* (${fmt(list.length)})\n`;
       list.forEach((b, i) => {
@@ -160,8 +179,19 @@
   const W = 1240, M = 50;   // A4 چوڑائی @150dpi
   const C = { green: '#14463a', green2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', cream: '#fffaf0', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#f8f2e2' };
 
+  function headLine() {
+    if (mode === 'loans') return 'پڑھنے کے لیے گئی کتب — دارالعلوم ختمِ نبوت، عارف والا';
+    if (subtitle) return `فہرستِ کتب (${subtitle}) — دارالعلوم ختمِ نبوت، عارف والا`;
+    return 'تفصیلی فہرستِ کتب — دارالعلوم ختمِ نبوت، عارف والا';
+  }
   function cols() {
     const c = [{ k: 'n', w: 70, t: 'نمبر' }, { k: 'name', w: 0, t: 'کتاب کا نام' }];
+    if (mode === 'loans') {
+      c.push({ k: 'lname', w: 230, t: 'لینے والا' }, { k: 'lphone', w: 190, t: 'موبائل' }, { k: 'ldate', w: 150, t: 'تاریخ' }, { k: 'ldays', w: 90, t: 'دن' });
+      c[1].w = W - 2 * M - c.reduce((s, x) => s + x.w, 0);
+      let x = W - M; c.forEach(col => { col.r = x; x -= col.w; });
+      return c;
+    }
     if (opts.details) c.push({ k: 'author', w: 250, t: 'مصنف' }, { k: 'publisher', w: 230, t: 'مکتبہ' });
     c.push({ k: 'parts', w: 90, t: 'اجزاء' });
     if (opts.price) c.push({ k: 'price', w: 140, t: 'قیمت (Rs)' });
@@ -196,7 +226,7 @@
       ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `76px ${TFONT}`;
       ctx.fillText('مکتبۃ العزیز', W / 2, y + 112);
       ctx.fillStyle = '#f3e6c2'; ctx.font = `30px ${FONT}`;
-      ctx.fillText('تفصیلی فہرستِ کتب — دارالعلوم ختمِ نبوت، عارف والا', W / 2, y + 168);
+      ctx.fillText(headLine(), W / 2, y + 168);
       ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.textAlign = 'right';
       ctx.fillText(`تاریخ: ${today()}`, W - M, y + 228);
       ctx.textAlign = 'left'; ctx.fillText(`کل ${fmt(all.length)} کتب`, M, y + 228);
@@ -218,7 +248,10 @@
           if (i % 2) { ctx.fillStyle = C.alt; ctx.fillRect(M, y, W - 2 * M, ROW); }
           ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M, y + ROW - .5); ctx.lineTo(W - M, y + ROW - .5); ctx.stroke();
           cc.forEach(col => {
-            let v = col.k === 'n' ? i + 1 : col.k === 'parts' ? fmt(b.parts) : col.k === 'price' ? fmt(b.price) : (b[col.k] || '—');
+            const L = b.loan || {};
+            let v = col.k === 'n' ? i + 1 : col.k === 'parts' ? fmt(b.parts) : col.k === 'price' ? fmt(b.price)
+              : col.k === 'lname' ? (L.name || '—') : col.k === 'lphone' ? (L.phone || '—') : col.k === 'ldate' ? dmy(L.date) : col.k === 'ldays' ? daysSince(L.date)
+              : (b[col.k] || '—');
             ctx.font = `${col.k === 'name' ? 27 : 23}px ${FONT}`;
             ctx.fillStyle = col.k === 'name' ? C.fg : col.k === 'n' ? C.muted : '#4a4339';
             ctx.textAlign = 'right';
@@ -232,7 +265,8 @@
       roundRect(ctx, M, y + 24, W - 2 * M, 70, 14); ctx.fill(); ctx.stroke();
       ctx.fillStyle = C.green; ctx.font = `28px ${FONT}`; ctx.textAlign = 'right';
       let t = `کل: ${fmt(all.length)} کتب   ·   ${fmt(all.reduce((s, b) => s + (+b.parts || 0), 0))} اجزاء`;
-      if (opts.price) t += `   ·   کل قیمت Rs ${fmt(all.reduce((s, b) => s + (+b.price || 0), 0))}`;
+      if (opts.price && mode !== 'loans') t += `   ·   کل قیمت Rs ${fmt(all.reduce((s, b) => s + (+b.price || 0), 0))}`;
+      if (mode === 'loans') t = `کل: ${fmt(all.length)} کتب پڑھنے کے لیے گئی ہوئی ہیں`;
       ctx.fillText(t, W - M - 24, y + 70);
     } });
     return out;
@@ -362,10 +396,10 @@
         toast(await copyText(buildText()) ? 'فہرست کاپی ہو گئی' : 'کاپی نہیں ہو سکی');
       } else if (kind === 'img') {
         btn.textContent = 'بن رہا ہے…';
-        await deliver(await poster(), `maktaba-aziz-${stamp}.png`, 'مکتبۃ العزیز — فہرستِ کتب');
+        await deliver(await poster(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.png`, 'مکتبۃ العزیز — فہرستِ کتب');
       } else if (kind === 'pdf') {
         btn.textContent = 'بن رہا ہے…';
-        await deliver(await pdf(), `maktaba-aziz-${stamp}.pdf`, 'مکتبۃ العزیز — فہرستِ کتب');
+        await deliver(await pdf(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.pdf`, 'مکتبۃ العزیز — فہرستِ کتب');
       }
     } catch (e) {
       console.warn(e);
