@@ -1,13 +1,14 @@
 {
+  "id": "/MA/",
   "name": "مکتبۃ العزیز — دارالعلوم ختم نبوت عارف والا",
   "short_name": "مکتبۃ العزیز",
   "description": "تفصیلی فہرستِ کتب — دارالعلوم ختمِ نبوت، عارف والا",
   "lang": "ur",
   "dir": "rtl",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/MA/",
+  "scope": "/MA/",
   "display": "standalone",
-  "orientation": "any",
+  "orientation": "portrait",
   "background_color": "#14463a",
   "theme_color": "#14463a",
   "icons": [

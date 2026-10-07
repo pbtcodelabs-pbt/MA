@@ -409,5 +409,5 @@
     }
   }
 
-  window.MA_SHARE_UI = { open: openShare, _test: { buildText, poster, pdf, select: ids => { ids.forEach(i => sel.add(i)); } } };
+  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT }, _test: { buildText, poster, pdf, select: ids => { ids.forEach(i => sel.add(i)); } } };
 })();

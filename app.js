@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU021) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU023) */
 (() => {
   'use strict';
 
@@ -27,12 +27,13 @@
 
   // ---------- ڈیٹا ----------
   const KEY = 'maktaba-aziz-data-v1';
-  let db = { books: [], cats: [], catNames: {}, loanLog: [] };
+  let db = { books: [], cats: [], catNames: {}, loanLog: [], progs: [] };
   function normDb(d) {
-    const o = { books: [], cats: [], catNames: {}, loanLog: [] };
+    const o = { books: [], cats: [], catNames: {}, loanLog: [], progs: [] };
     if (d && Array.isArray(d.cats)) o.cats = d.cats.filter(c => c && c.id && c.name);
     if (d && d.catNames && typeof d.catNames === 'object') o.catNames = d.catNames;
     if (d && Array.isArray(d.loanLog)) o.loanLog = d.loanLog;
+    if (d && Array.isArray(d.progs)) o.progs = d.progs.filter(p => p && p.id && p.date);
     const ids = new Set([...DEFAULT_CATS, ...o.cats].map(c => c.id));
     if (d && Array.isArray(d.books)) o.books = d.books.filter(b => b && b.name && ids.has(b.cat));
     return o;
@@ -130,6 +131,7 @@
   const SP = (color, svg) => `<span class="bkx sp" style="--c:${color}"><span class="bkx-top"></span><span class="bkx-cover"><span class="bkx-label sp-ico">${svg}</span></span><span class="bkx-spine"></span></span>`;
   const IC_PLUS = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
   const IC_REP = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
+  const IC_MIC = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>';
   const IC_LOAN = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 20c.7-3.5 3-5.5 6-5.5s5.3 2 6 5.5"/><path d="M16 8h6M19 5l3 3-3 3"/></svg>';
 
   // ہوم: فنون کی کتابیں + نیا فن، رپورٹس، اجراء
@@ -147,6 +149,7 @@
             <a class="bk special add" href="#/newcat" title="نیا فن">${SP('#c8962f', IC_PLUS)}<span class="cnt lbl">نیا فن</span></a>
             <a class="bk special" href="#/reports">${SP('#1f6a54', IC_REP)}<span class="cnt lbl">رپورٹس</span></a>
             <a class="bk special" href="#/loans">${SP('#8e2f2a', IC_LOAN)}<span class="cnt lbl">اجراء${out ? ` <i>${num(out)}</i>` : ''}</span></a>
+            <a class="bk special prog" href="#/prog">${SP('#5a3b7a', IC_MIC)}<span class="cnt lbl">پروگرام${(() => { const n = window.MA_PROG ? window.MA_PROG.soon() : 0; return n ? ` <i class="gr">${num(n)}</i>` : ''; })()}</span></a>
           </div>
         </div>
       </section>`;
@@ -605,6 +608,9 @@
       if (REP[parts[1]] && parts[2] !== undefined) pageReportDetail(parts[1], decodeURIComponent(parts[2]));
       else if (REP[parts[1]]) pageReportList(parts[1]);
       else pageReports();
+    } else if (parts[0] === 'prog') {
+      renderBar(null);
+      if (window.MA_PROG) window.MA_PROG.route(parts.slice(1)); else view.innerHTML = '';
     } else if (parts[0] === 'loans') {
       renderBar(null); pageLoans();
     } else if (parts[0] === 'newcat') {
@@ -682,10 +688,15 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA610TU021',
+    version: 'MA610TU023',
     toast,
-    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog }),
+    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs }),
     replace: d => { db = normDb(d); save(); route(); }
+  };
+  // میرے پروگرام (programs.js) کے لیے
+  window.MA_APP = {
+    db: () => db, save, toast, view, openSheet, capRow, esc, num, newId, todayIso, dmy, waNum, route,
+    icons: { I_USER, I_PHONE, I_HOME, I_CAL, I_NOTE, IC_MIC }
   };
   document.addEventListener('click', e => {
     const t = e.target.closest('[data-share-cat],[data-share-book],#btnShare'); if (!t || !window.MA_SHARE_UI) return;
