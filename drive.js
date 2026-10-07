@@ -25,7 +25,7 @@
   const saveMeta = () => { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} };
   if (meta.auto === undefined) meta.auto = true;
 
-  let token = null, tokenExp = 0, tokenClient = null, busy = false, autoTimer = null;
+  let token = null, tokenExp = 0, tokenClient = null, busy = false, autoTimer = null, progress = '';
 
   const clientId = () => (meta.clientId || DEFAULT_CLIENT_ID || '').trim();
   const pad = n => String(n).padStart(2, '0');
@@ -118,8 +118,8 @@
     };
   }
 
-  async function upload(name, content, books, existingId) {
-    const props = { appProperties: { books: String(books), app: 'maktaba-aziz' } };
+  async function upload(name, content, books, existingId, slot = 'manual') {
+    const props = { appProperties: { books: String(books), app: 'maktaba-aziz', slot } };
     if (existingId) {
       const m = multipart(props, content);
       return (await api(`${UPLOAD}/${existingId}?uploadType=multipart&fields=id`, { method: 'PATCH', ...m })).json();
@@ -129,16 +129,18 @@
   }
 
   // ---------- بیک اپ ----------
-  async function backup(interactive) {
+  // slot: 'manual' (دستی/خودکار تبدیلی پر) یا '08' / '14' / '20' (مقررہ اوقات)
+  async function backup(interactive, slot = 'manual', slotKey = null) {
     if (busy) return false;
-    busy = true; render();
+    busy = true;
+    const data = host().snapshot();
+    const n = data.books.length;
+    progress = `Drive پر ${n} کتب محفوظ ہو رہی ہیں…`; render();
     try {
       await getToken(interactive);
       if (!meta.email) await whoAmI();
       await ensureFolder();
-      const data = host().snapshot();
-      const content = JSON.stringify({ app: 'maktaba-aziz', version: host().version, savedAt: new Date().toISOString(), ...data });
-      const n = data.books.length;
+      const content = JSON.stringify({ app: 'maktaba-aziz', version: host().version, savedAt: new Date().toISOString(), slot, ...data });
       // تازہ ترین فائل
       let latestId = meta.latestId;
       if (!latestId) {
@@ -146,29 +148,72 @@
         const f = await (await api(`${DRIVE}?q=${q}&fields=files(id)`)).json();
         latestId = f.files?.[0]?.id || null;
       }
-      try { const r = await upload(LATEST_NAME, content, n, latestId); meta.latestId = r.id; }
-      catch (e) { if (latestId && /404/.test(e.message)) { const r = await upload(LATEST_NAME, content, n, null); meta.latestId = r.id; } else throw e; }
-      // روزانہ نقل
+      try { const r = await upload(LATEST_NAME, content, n, latestId, slot); meta.latestId = r.id; }
+      catch (e) { if (latestId && /404/.test(e.message)) { const r = await upload(LATEST_NAME, content, n, null, slot); meta.latestId = r.id; } else throw e; }
       const today = dayStamp();
-      const dailyName = `maktaba-aziz-${today}.json`;
-      if (meta.dailyDay === today && meta.dailyId) {
-        try { await upload(dailyName, content, n, meta.dailyId); } catch (e) { meta.dailyId = (await upload(dailyName, content, n, null)).id; }
+      if (slot === 'manual') {
+        // دن کی دستی نقل (دن میں ایک فائل، ہر بار تازہ)
+        const dailyName = `maktaba-aziz-${today}.json`;
+        if (meta.dailyDay === today && meta.dailyId) {
+          try { await upload(dailyName, content, n, meta.dailyId, slot); } catch (e) { meta.dailyId = (await upload(dailyName, content, n, null, slot)).id; }
+        } else {
+          meta.dailyId = (await upload(dailyName, content, n, null, slot)).id; meta.dailyDay = today;
+          cleanupOld().catch(() => {});
+        }
       } else {
-        meta.dailyId = (await upload(dailyName, content, n, null)).id; meta.dailyDay = today;
+        // مقررہ وقت کی الگ نقل: صبح 8، دوپہر 2، رات 8
+        const key = slotKey || `${today}-${slot}`;
+        await upload(`maktaba-aziz-${key}00.json`, content, n, null, slot);
+        meta.lastSlot = key;
         cleanupOld().catch(() => {});
       }
       meta.lastDrive = new Date().toISOString(); meta.lastBooks = n; meta.pending = false;
       saveMeta();
-      return true;
+      return n;
     } catch (e) {
       handleErr(e, interactive);
       return false;
-    } finally { busy = false; render(); }
+    } finally { busy = false; progress = ''; render(); }
   }
 
   async function cleanupOld() {
-    const files = (await listFiles()).filter(f => /^maktaba-aziz-\d{4}-\d\d-\d\d\.json$/.test(f.name)).sort((a, b) => b.name.localeCompare(a.name));
-    for (const f of files.slice(KEEP_DAILY)) await api(`${DRIVE}/${f.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trashed: true }) });
+    const cutoff = dayStamp(new Date(Date.now() - KEEP_DAILY * 864e5));
+    const files = (await listFiles()).filter(f => /^maktaba-aziz-\d{4}-\d\d-\d\d/.test(f.name) && f.name.slice(13, 23) < cutoff);
+    for (const f of files) await api(`${DRIVE}/${f.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trashed: true }) });
+  }
+
+  // ---------- مقررہ اوقات: صبح 8، دوپہر 2، رات 8 ----------
+  const SLOTS = [8, 14, 20];
+  function dueSlot() {
+    const now = new Date();
+    // آج کا سب سے آخری گزرا ہوا وقت؛ نہ ہو تو کل رات 8
+    let d = new Date(now), h = [...SLOTS].reverse().find(x => now.getHours() >= x);
+    if (h === undefined) { d = new Date(now.getTime() - 864e5); h = 20; }
+    const key = `${dayStamp(d)}-${pad(h)}`;
+    return key === meta.lastSlot ? null : { key, slot: pad(h) };
+  }
+  let slotWaiting = null;
+  async function checkSchedule() {
+    if (!meta.auto || !clientId() || !navigator.onLine || busy || !meta.email) return;
+    const due = dueSlot(); if (!due) return;
+    if (!host().snapshot().books.length) return;
+    if (token && Date.now() < tokenExp - 60000) { await backup(false, due.slot, due.key); return; }
+    // ٹوکن نہیں — اگلے ٹچ پر خاموشی سے اجازت لے کر بیک اپ (پاپ اپ بغیر ٹچ کے بلاک ہوتا ہے)
+    slotWaiting = due; render();
+  }
+  document.addEventListener('pointerdown', () => {
+    if (!slotWaiting || busy) return;
+    const slot = slotWaiting; slotWaiting = null;
+    getToken(true).then(() => backup(false, slot.slot, slot.key)).catch(() => { slotWaiting = slot; });
+  }, true);
+
+  function slotLabel(f) {
+    if (f.name === LATEST_NAME) return 'تازہ ترین بیک اپ';
+    const m = f.name.match(/^maktaba-aziz-(\d{4})-(\d\d)-(\d\d)(?:-(\d\d)00)?\.json$/);
+    if (!m) return f.name;
+    const d = `${m[3]}/${m[2]}/${m[1]}`;
+    const t = { '08': 'صبح 8 بجے', '14': 'دوپہر 2 بجے', '20': 'رات 8 بجے' }[m[4]];
+    return t ? `${d} — ${t}` : `${d} — دستی`;
   }
 
   function handleErr(e, interactive) {
@@ -196,10 +241,11 @@
       if (!meta.email) await whoAmI();
       const files = (await listFiles()).filter(f => /\.json$/.test(f.name));
       if (!files.length) { box.innerHTML = `<p class="dr-wait">اس اکاؤنٹ کی Drive میں کوئی بیک اپ نہیں ملا</p>`; return; }
-      box.innerHTML = `<p class="dr-h">کون سا بیک اپ واپس لانا ہے؟</p>` + files.slice(0, 40).map(f => `
+      files.sort((a, b) => (b.name === LATEST_NAME) - (a.name === LATEST_NAME) || b.modifiedTime.localeCompare(a.modifiedTime));
+      box.innerHTML = `<p class="dr-h">${files.length} بیک اپ فائلیں — جسے واپس لانا ہو اس پر ٹچ کریں</p>` + files.slice(0, 120).map(f => `
         <button type="button" class="dr-file" data-id="${f.id}">
-          <b>${f.name === LATEST_NAME ? 'تازہ ترین بیک اپ' : f.name.replace('maktaba-aziz-', '').replace('.json', '')}</b>
-          <span>${when(f.modifiedTime)} · ${f.appProperties?.books ?? '?'} کتب</span>
+          <span class="dr-n" dir="ltr">${f.appProperties?.books ?? '?'}<small>کتب</small></span>
+          <span class="dr-t"><b>${slotLabel(f)}</b><span>محفوظ ہوا: <bdi>${when(f.modifiedTime)}</bdi></span></span>
         </button>`).join('');
     } catch (e) { box.hidden = true; handleErr(e, true); }
   }
@@ -246,12 +292,13 @@
     if (!clientId()) {
       st.innerHTML = `<span class="ds warn">Google Drive ابھی سیٹ نہیں — نیچے Client ID درج کریں</span>`;
     } else if (busy) {
-      st.innerHTML = `<span class="ds">Drive پر محفوظ ہو رہا ہے…</span>`;
+      st.innerHTML = `<span class="ds busy">${progress || 'Drive سے رابطہ ہو رہا ہے…'}</span>`;
     } else if (!meta.lastDrive) {
       st.innerHTML = `<span class="ds warn">ابھی تک Drive پر کوئی بیک اپ نہیں ہوا</span>`;
     } else {
       st.innerHTML = `<span class="ds ${meta.pending ? 'warn' : 'ok'}">${meta.pending ? 'نئی تبدیلیاں ابھی Drive پر نہیں گئیں' : 'سب ریکارڈ Drive پر محفوظ ہے'}</span>
-        <small>آخری بیک اپ: <bdi>${when(meta.lastDrive)}</bdi>${meta.email ? ` · <bdi>${meta.email}</bdi>` : ''}</small>`;
+        <small>آخری بیک اپ: <bdi>${when(meta.lastDrive)}</bdi> · ${meta.lastBooks ?? 0} کتب${meta.email ? ` · <bdi>${meta.email}</bdi>` : ''}</small>
+        <small>خودکار بیک اپ: ہر تبدیلی پر، اور روزانہ صبح 8، دوپہر 2، رات 8 بجے${slotWaiting ? ' — <b class="due">وقت ہو گیا، کہیں بھی ٹچ کریں</b>' : ''}</small>`;
     }
     const b = $('btnDriveBackup'); if (b) b.disabled = busy;
     const a = $('driveAuto'); if (a) a.checked = !!meta.auto;
@@ -261,12 +308,13 @@
 
   function wire() {
     $('btnDriveBackup')?.addEventListener('click', async () => {
-      if (await backup(true)) toast('Google Drive پر محفوظ ہو گیا');
+      const n = await backup(true);
+      if (n !== false) toast(`✓ ${n} کتب Google Drive پر محفوظ ہو گئیں`);
     });
     $('btnDriveRestore')?.addEventListener('click', openRestore);
     $('driveRestore')?.addEventListener('click', e => {
       const f = e.target.closest('.dr-file'); if (!f) return;
-      restoreFile(f.dataset.id, f.querySelector('b').textContent);
+      restoreFile(f.dataset.id, f.querySelector('.dr-t b').textContent);
     });
     $('driveAuto')?.addEventListener('change', e => { meta.auto = e.target.checked; saveMeta(); });
     $('driveClientSave')?.addEventListener('click', () => {
@@ -283,9 +331,13 @@
     });
     window.addEventListener('ma-data-changed', onChanged);
     if (clientId() && navigator.onLine) loadGis().catch(() => {});
+    setTimeout(checkSchedule, 3000);
+    setInterval(checkSchedule, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) checkSchedule(); });
+    window.addEventListener('online', () => setTimeout(checkSchedule, 2000));
     render();
   }
 
-  window.MA_DRIVE = { backup, render, meta: () => meta };
+  window.MA_DRIVE = { backup, render, meta: () => meta, _dueSlot: () => dueSlot(), _check: () => checkSchedule() };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire); else wire();
 })();

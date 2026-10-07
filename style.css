@@ -1118,3 +1118,28 @@ main > .panel .panel-h h2{font-size:22px;line-height:1.9}
 .linkish{border:0;background:none;color:var(--green);text-decoration:underline;cursor:pointer;font-family:var(--f-body);font-size:13px;padding:0}
 .local-h{margin:0;font-size:13px;color:var(--muted)}
 .backup-box .confirm{margin:0}
+
+/* ===== MA610TU017: Drive بٹن آئیکن کے ساتھ، فائل فہرست میں گنتی ===== */
+.backup-box .drive-card .actions{display:grid;grid-template-columns:1fr;gap:8px}
+.btn.drive-go,.btn.drive-back{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border-radius:99px;font-size:15.5px;
+}
+.btn.drive-back{
+  background:linear-gradient(180deg,#ffffff,#eef6f1);color:var(--green);border:1.5px solid #8cc3a8;
+  box-shadow:0 3px 0 #b9d9c8,inset 0 1px 0 #fff;
+}
+.btn.drive-go:active,.btn.drive-back:active{transform:translateY(2px);box-shadow:none}
+.btn .gd{flex:none;background:#fff;border-radius:50%;padding:2px;width:24px;height:24px;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.btn .arr{flex:none;opacity:.8}
+.drive-status .ds.busy{color:var(--green)}
+.drive-status .ds.busy::before{content:"";display:inline-block;width:12px;height:12px;border:2px solid #b9d9c8;border-top-color:var(--green);border-radius:50%;margin-inline-end:6px;vertical-align:middle;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.drive-status .due{font-weight:400;color:#a3620f}
+.dr-file{display:flex !important;align-items:center;gap:10px;padding:4px 10px !important}
+.dr-n{flex:none;display:grid;justify-items:center;min-width:52px;background:linear-gradient(180deg,#1f6a54,#14463a);color:var(--gold-1);border-radius:10px;padding:3px 6px;font:700 18px/1.2 Arial,Roboto,sans-serif}
+.dr-n small{font-family:var(--f-body);font-weight:400;font-size:11px;line-height:1.5;color:#e6d6aa}
+.dr-t{display:grid;min-width:0;text-align:right}
+.dr-t b{font-weight:400;font-size:15px;color:var(--green);line-height:1.8}
+.dr-t span{font-size:12.5px;color:var(--muted);line-height:1.6}
+.dr-file .dr-n{color:var(--gold-1)}
+.dr-file .dr-n small{color:#e6d6aa}

@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preload" href="fonts/jnn-kasheeda-title.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=MA610TU016">
+<link rel="stylesheet" href="style.css?v=MA610TU017">
 </head>
 <body>
 <div class="wrap">
@@ -27,7 +27,7 @@
       </div>
       <div class="status">
         <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-        <span class="chip" id="verChip">MA610TU016</span>
+        <span class="chip" id="verChip">MA610TU017</span>
         <button class="chip chip-btn share-chip" id="btnShare" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>بھیجیں</button>
         <button class="chip chip-btn" id="btnBackup" type="button" aria-expanded="false" aria-controls="backupBox">بیک اپ</button>
       </div>
@@ -40,8 +40,8 @@
           </div>
           <div class="drive-status" id="driveStatus"></div>
           <div class="actions">
-            <button class="btn drive-go" id="btnDriveBackup" type="button">ابھی Drive پر محفوظ کریں</button>
-            <button class="btn ghost small" id="btnDriveRestore" type="button">Drive سے واپس لائیں</button>
+            <button class="btn drive-go" id="btnDriveBackup" type="button"><svg class="gd" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0f9d58" d="M8 3h8l7 12h-8z"/><path fill="#4285f4" d="M1 15l4 7h14l-4-7z"/><path fill="#f4b400" d="M8 3L1 15l4 7 7-12z"/></svg><span>بیک اپ — Drive پر محفوظ کریں</span><svg class="arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+            <button class="btn drive-back" id="btnDriveRestore" type="button"><svg class="gd" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0f9d58" d="M8 3h8l7 12h-8z"/><path fill="#4285f4" d="M1 15l4 7h14l-4-7z"/><path fill="#f4b400" d="M8 3L1 15l4 7 7-12z"/></svg><span>ری اسٹور — Drive سے واپس لائیں</span><svg class="arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
           </div>
           <div class="drive-restore" id="driveRestore" hidden></div>
           <div class="drive-client" id="driveClientRow">
@@ -107,9 +107,9 @@
   </button>
 </nav>
 
-<script src="app.js?v=MA610TU016"></script>
-<script src="share.js?v=MA610TU016"></script>
-<script src="drive.js?v=MA610TU016"></script>
+<script src="app.js?v=MA610TU017"></script>
+<script src="share.js?v=MA610TU017"></script>
+<script src="drive.js?v=MA610TU017"></script>
 <script>
 // بیک اپ خانہ کھولنا/بند کرنا
 document.getElementById('btnBackup').addEventListener('click', e => {
