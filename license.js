@@ -391,34 +391,38 @@
       <button type="button">🔄 ${warn ? 'ابھی تجدید کریں' : 'تجدید / سبسکرپشن لیں'}</button>`;
   }
 
-  // ----- لاگ آؤٹ اور ایپ بند -----
-  function logoutAsk() {
-    const st = status(), s = ensure();
-    devOpen = true;
-    show(`<div class="lic-box"><p class="lic-k">لاگ آؤٹ</p>
-      <p class="lic-p">اس فون سے سبسکرپشن ہٹ جائے گی اور ایپ بند ہو جائے گی۔ دوبارہ کھولنے کے لیے یہی کوڈ ڈالنا ہو گا — باقی مدت ضائع نہیں ہوتی۔</p>
-      ${s.code ? `<p class="lic-s">اپنا کوڈ محفوظ کر لیں:</p><div class="lic-code">${fmtCode(s.code)}</div><div class="lic-row"><button type="button" class="lic-b g" id="loCp">📋 کوڈ کاپی</button></div>` : ''}
-      <div class="lic-m" id="loM"></div>
-      <div class="lic-row"><button type="button" class="lic-b red" id="loGo">لاگ آؤٹ کریں</button><button type="button" class="lic-b g" id="loNo">منسوخ</button></div></div>`, false);
-    const cp = $(ov, '#loCp'); if (cp) cp.onclick = async () => { $(ov, '#loM').className = 'lic-m ok'; $(ov, '#loM').textContent = (await copy(fmtCode(s.code))) ? '✅ کوڈ کاپی ہو گیا' : 'کاپی نہیں ہو سکا'; };
-    $(ov, '#loNo').onclick = hide;
-    $(ov, '#loGo').onclick = () => { const u = ensure(); u.exp = ''; u.iss = ''; u.code = ''; save(u); hide(); refresh(true); };
+  // ----- لاگ آؤٹ (سبسکرپشن برقرار رہتی ہے) اور ایپ بند -----
+  let loggedOut = false;
+  function showLoggedOut() {
+    const st = status();
+    show(`<div class="lic-box">${emblem(true)}
+      <div class="lic-fade" style="display:grid;gap:10px">
+      <p class="lic-k">لاگ آؤٹ ہو گئے</p>
+      <p class="lic-s">سبسکرپشن فعال ہے — ${num(st.left)} دن باقی</p>
+      <div class="lic-row"><button type="button" class="lic-b" id="loIn">🔓 داخل ہوں</button><button type="button" class="lic-b g" id="loClose">⏻ ایپ بند</button></div>
+      <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
+      </div></div>`, true);
+    $(ov, '#loIn').onclick = () => { loggedOut = false; hide(); showWelcome(); card(); };
+    $(ov, '#loClose').onclick = closeApp;
+    tapCounter($(ov, '#licVer'), devAuth);
   }
+  function logout() { if (status().mode !== 'paid') return; loggedOut = true; showLoggedOut(); }
   function closeApp() {
     try { window.close(); } catch (e) {}
     try { if (navigator.app && navigator.app.exitApp) navigator.app.exitApp(); } catch (e) {}
     setTimeout(() => {
-      devOpen = true;
-      show(`<div class="lic-box"><p class="lic-k">ایپ بند کریں</p>
-        <p class="lic-p">اس ایپ کو بند کرنے کے لیے اپنے فون کا ہوم بٹن یا ریسنٹ (حالیہ ایپس) بٹن استعمال کریں۔</p>
-        <div class="lic-row"><button type="button" class="lic-b g" id="clBack">↩️ واپس ایپ میں</button></div></div>`, false);
-      $(ov, '#clBack').onclick = () => { hide(); refresh(true); };
+      if (window.MA_APP && window.MA_APP.toast) { toast('ہوم بٹن دبا کر نکل جائیں'); return; }
+      const t = document.createElement('div'); t.textContent = 'ہوم بٹن دبا کر نکل جائیں';
+      t.style.cssText = 'position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:300;background:#14463a;color:#fff;border:1px solid #e9c97a;border-radius:99px;padding:8px 18px;font-size:15px';
+      document.body.appendChild(t); setTimeout(() => t.remove(), 2200);
     }, 350);
   }
 
   // ----- جانچ -----
   function refresh() {
     if (devOpen) return;
+    if (loggedOut && status().mode === 'paid') { if (!ov || !blocking) showLoggedOut(); return; }
+    loggedOut = false;
     const st = status(), locked = st.mode === 'locked' || st.mode === 'expired';
     if (locked && (!ov || !blocking)) showGate(true);
     else if (!locked && ov && blocking) hide();
@@ -440,6 +444,6 @@
   setInterval(refresh, 30000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
   const vc = document.getElementById('verChip'); if (vc) tapCounter(vc, devAuth);
-  const bl = document.getElementById('btnLogout'); if (bl) bl.addEventListener('click', logoutAsk);
+  const bl = document.getElementById('btnLogout'); if (bl) bl.addEventListener('click', logout);
   const bc = document.getElementById('btnClose'); if (bc) bc.addEventListener('click', closeApp);
 })();
