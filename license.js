@@ -422,14 +422,35 @@
   }
   function logout() { if (status().mode !== 'paid') return; loggedOut = true; showLoggedOut(); }
   function closeApp() {
+    // 1) سیدھی کوشش: اینڈرائیڈ ریپر یا window.close
+    try { if (navigator.app && navigator.app.exitApp) { navigator.app.exitApp(); return; } } catch (e) {}
     try { window.close(); } catch (e) {}
-    try { if (navigator.app && navigator.app.exitApp) navigator.app.exitApp(); } catch (e) {}
+    // 2) کروم صرف تب بند کرنے دیتا ہے جب ہسٹری میں ایک ہی صفحہ ہو۔
+    //    اس لیے پہلے شروع والے صفحے تک واپس جاتے ہیں اور دوبارہ کوشش کرتے ہیں۔
     setTimeout(() => {
-      if (window.MA_APP && window.MA_APP.toast) { toast('ہوم بٹن دبا کر نکل جائیں'); return; }
-      const t = document.createElement('div'); t.textContent = 'ہوم بٹن دبا کر نکل جائیں';
-      t.style.cssText = 'position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:300;background:#14463a;color:#fff;border:1px solid #e9c97a;border-radius:99px;padding:8px 18px;font-size:15px';
-      document.body.appendChild(t); setTimeout(() => t.remove(), 2200);
-    }, 350);
+      if (document.hidden) return;
+      try {
+        const nv = window.navigation;
+        if (nv && nv.entries && nv.currentEntry && nv.currentEntry.index > 0) {
+          nv.traverseTo(nv.entries()[0].key);
+        } else if (history.length > 1) {
+          history.go(-(history.length - 1));
+        }
+      } catch (e) {}
+      setTimeout(() => {
+        try { window.close(); } catch (e) {}
+        // 3) پھر بھی بند نہ ہو تو صاف پردہ دکھائیں
+        setTimeout(() => { if (!document.hidden) showClosedCover(); }, 300);
+      }, 350);
+    }, 300);
+  }
+  function showClosedCover() {
+    if (document.getElementById('maClosed')) return;
+    const d = document.createElement('div'); d.id = 'maClosed';
+    d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#14463a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;font-size:20px;line-height:1.9';
+    d.innerHTML = '<div>ایپ بند ہو گئی</div><div style="font-size:16px;opacity:.85">اب فون کا ہوم بٹن یا پیچھے کا بٹن دبا کر باہر نکل جائیں</div><button type="button" id="maReopen" style="margin-top:8px;background:#e9c97a;color:#2a1d05;border:0;border-radius:99px;padding:10px 26px;font-size:17px">دوبارہ کھولیں</button>';
+    document.body.appendChild(d);
+    d.querySelector('#maReopen').onclick = () => d.remove();
   }
 
   // ----- جانچ -----
