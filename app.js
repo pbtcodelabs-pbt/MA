@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU029) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA710WE030) */
 (() => {
   'use strict';
 
@@ -661,7 +661,7 @@
 
   // ---------- بیک اپ ----------
   $('btnExport').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined }), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `maktaba-aziz-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -675,6 +675,7 @@
       const d = JSON.parse(await f.text());
       if (!d || !Array.isArray(d.books)) throw new Error('bad');
       db = normDb(d);
+      if (d.lic && window.MA_LIC) window.MA_LIC.import(d.lic);
       save(); route(); toast(`بیک اپ سے ${num(db.books.length)} کتب واپس آ گئیں`);
     } catch (err) {
       toast('یہ فائل درست بیک اپ نہیں ہے۔');
@@ -710,10 +711,10 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA610TU029',
+    version: 'MA710WE030',
     toast,
-    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs }),
-    replace: d => { db = normDb(d); save(); route(); }
+    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined }),
+    replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); }
   };
   // میرے پروگرام (programs.js) کے لیے
   window.MA_APP = {

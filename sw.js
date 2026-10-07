@@ -1,7 +1,7 @@
 /* مکتبۃ العزیز — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA610TU029';
+const VERSION = 'MA710WE030';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -15,7 +15,7 @@ const CORE = [
   `./share.js?v=${VERSION}`,
   `./drive.js?v=${VERSION}`,
   `./programs.js?v=${VERSION}`,
-  `./reminders.js?v=${VERSION}`,
+  `./license.js?v=${VERSION}`,
   './icons/logo.png',
   './icons/favicon.ico',
   './icons/icon-192.png',
