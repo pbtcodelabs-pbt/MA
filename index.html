@@ -11,8 +11,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="preload" href="fonts/jnn-kasheeda-title.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=MA610TU025">
+<link rel="preload" href="fonts/jnn-kasheeda-title3.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="style.css?v=MA610TU028">
 </head>
 <body>
 <div class="wrap">
@@ -23,12 +23,13 @@
         <img class="logo" src="icons/logo.png" alt="مکتبۃ العزیز کا لوگو" width="52" height="52">
         <div class="mh-text">
           <h1 class="name">مکتبۃ العزیز</h1>
-          <p class="sub">تفصیلی فہرستِ کتب · <span class="inst">دارالعلوم ختمِ نبوت، عارف والا</span></p>
+          <p class="patron"><span id="patronName">مولانا مفتی محمد رضوان عزیز</span></p>
+          <p class="patron2"><span>مدیر دارالعلوم ختم نبوت عارف والا</span> <a href="tel:03001355147" dir="ltr">0300-1355147</a></p>
         </div>
       </div>
       <div class="status">
         <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-        <span class="chip" id="verChip">MA610TU025</span>
+        <span class="chip" id="verChip">MA610TU028</span>
         <button class="chip chip-btn share-chip" id="btnShare" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>بھیجیں</button>
         <button class="chip chip-btn" id="btnBackup" type="button" aria-expanded="false" aria-controls="backupBox">بیک اپ</button>
       </div>
@@ -98,16 +99,27 @@
   </button>
 </nav>
 
-<script src="app.js?v=MA610TU025"></script>
-<script src="share.js?v=MA610TU025"></script>
-<script src="drive.js?v=MA610TU025"></script>
-<script src="programs.js?v=MA610TU025"></script>
+<script src="app.js?v=MA610TU028"></script>
+<script src="share.js?v=MA610TU028"></script>
+<script src="drive.js?v=MA610TU028"></script>
+<script src="programs.js?v=MA610TU028"></script>
 <script>
 // بیک اپ خانہ کھولنا/بند کرنا
 document.getElementById('btnBackup').addEventListener('click', e => {
   const box = document.getElementById('backupBox'); box.hidden = !box.hidden;
   e.currentTarget.setAttribute('aria-expanded', String(!box.hidden));
 });
+// سرپرست کا نام: چوڑائی «مکتبۃ العزیز» کے برابر
+(function () {
+  const fit = () => {
+    const h = document.querySelector('.name'), n = document.getElementById('patronName'); if (!h || !n) return;
+    const r = document.createRange(); r.selectNodeContents(h); const tw = r.getBoundingClientRect().width;
+    n.style.fontSize = ''; const base = parseFloat(getComputedStyle(n).fontSize); const nw = n.getBoundingClientRect().width;
+    if (tw && nw) n.style.fontSize = Math.min(base * tw / nw, 40) + 'px';
+  };
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(fit);
+  addEventListener('resize', fit); setTimeout(fit, 1500);
+})();
 // آن لائن / آف لائن نشان
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');

@@ -1,7 +1,7 @@
 /* مکتبۃ العزیز — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA610TU025';
+const VERSION = 'MA610TU028';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -26,7 +26,7 @@ const CORE = [
   './icons/favicon-16.png'
 ];
 const FONTS = [
-  './fonts/jnn-kasheeda-title.woff',
+  './fonts/jnn-kasheeda-title3.woff',
   './fonts/jnn-regular.woff'
 ];
 
@@ -49,6 +49,7 @@ self.addEventListener('activate', event => {
       .then(keys => Promise.all(
         keys.filter(k => k !== CACHE && k !== FONT_CACHE).map(k => caches.delete(k))
       ))
+      .then(() => caches.open(FONT_CACHE)).then(fc => fc.keys().then(ks => Promise.all(ks.filter(r => !FONTS.some(f => r.url.endsWith(f.slice(1)))).map(r => fc.delete(r)))))
       .then(() => self.clients.claim())
   );
 });
