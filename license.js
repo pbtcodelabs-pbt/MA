@@ -215,7 +215,7 @@
 
   // ----- گاہک کی اسکرین -----
   function waMsg(st, name) {
-    return `السلام علیکم! مکتبۃ العزیز کا ایک سال کا سبسکرپشن چاہیے۔\nنام: ${name || ''}\nUID: ${st.uid}` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
+    return `نام: ${name || ''}\nUID: ${st.uid}\nہمیں ایک سال کا سبسکرپشن چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
   }
   function showGate(block) {
     const st = status(), s = ensure();
@@ -279,16 +279,20 @@
     if (!m) m = u.match(/\b([A-HJ-NP-Z2-9]{4})-([A-HJ-NP-Z2-9]{4})\b/);
     return m ? m[1] + '-' + m[2] : '';
   };
-  const findName = t => { const m = String(t || '').match(/نام[\s:：=-]*([^\n\r]*)/); return m ? m[1].trim() : ''; };
+  const findName = t => {
+    const m = String(t || '').match(/^[ \t]*نام[ \t]*[:：=\-]?[ \t]*(.*)$/m);
+    const n = m ? m[1].trim() : '';
+    return /^UID\b/i.test(n) || /^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/i.test(n) ? '' : n;
+  };
   const findExp = t => { const m = String(t || '').match(/ختم[^0-9\n]*(\d{2}-\d{2}-\d{4})/); return m ? m[1] : ''; };
   const sendMsg = r => `السلام علیکم! آپ کا مکتبۃ العزیز ایکٹیویشن کوڈ:\n${r.code}\n(سبسکرپشن ختم ہونے کی تاریخ: ${dmyI(r.exp)})`;
 
   function devPanel() {
     devOpen = true;
     show(`<div class="lic-box"><p class="lic-k">ڈیولپر — کوڈ بنائیں</p>
-      <textarea class="lic-ta" id="dvMsg" placeholder="گاہک کا میسج یہاں پیسٹ کریں — نام، UID اور ختم ہونے کی تاریخ خود نکل آئے گی"></textarea>
-      <input class="lic-in t" id="dvName" placeholder="گاہک کا نام" autocomplete="off">
-      <input class="lic-in" id="dvUid" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" spellcheck="false">
+      <input class="lic-in t" id="dvName" placeholder="گاہک کا نام (ضروری)" autocomplete="off">
+      <input class="lic-in" id="dvUid" placeholder="UID: XXXX-XXXX" maxlength="9" autocomplete="off" spellcheck="false">
+      <textarea class="lic-ta" id="dvMsg" placeholder="گاہک کا میسج یہاں پیسٹ کریں — نام، UID اور ختم ہونے کی تاریخ خود نکل آئے گی۔ نام نہ ہو تو اوپر خود لکھ دیں"></textarea>
       <input class="lic-in d" id="dvCur" placeholder="موجودہ ختم (اختیاری) 31-12-2026" maxlength="10" autocomplete="off" style="text-transform:none">
       <div class="lic-row"><button type="button" class="lic-b g" id="dvPaste">📋 پیسٹ</button><button type="button" class="lic-b" id="dvGen">🔑 کوڈ بنائیں</button></div>
       <div class="lic-m" id="dvM"></div>
@@ -314,7 +318,7 @@
         <div class="n"><b>${esc(r.name) || 'بغیر نام'}</b>${status2(r)}</div>
         <div class="u">UID ${r.uid}</div><div class="c">${r.code}</div>
         <div class="d">${dmy(r.iss)} → ${dmy(r.exp)}</div>
-        <div class="lic-row"><button type="button" class="lic-b g sm" data-a="used">${r.used ? '↩️ غیر استعمال' : '✅ استعمال ہو گیا'}</button><button type="button" class="lic-b g sm" data-a="copy">📋 کاپی</button><button type="button" class="lic-b sm" data-a="wa">📤 بھیجیں</button><button type="button" class="lic-b g sm" data-a="del">🗑️</button></div></div>`).join('') || '<p class="lic-s">کوئی ریکارڈ نہیں</p>';
+        <div class="lic-row"><button type="button" class="lic-b g sm" data-a="used">${r.used ? '↩️ غیر استعمال' : '✅ استعمال ہو گیا'}</button><button type="button" class="lic-b g sm" data-a="name">✏️ نام</button><button type="button" class="lic-b g sm" data-a="copy">📋 کاپی</button><button type="button" class="lic-b sm" data-a="wa">📤 بھیجیں</button><button type="button" class="lic-b g sm" data-a="del">🗑️</button></div></div>`).join('') || '<p class="lic-s">کوئی ریکارڈ نہیں</p>';
     }
     function showResult(r, note, canForce) {
       out.innerHTML = `${note ? `<p class="lic-s">${note}</p>` : ''}<div class="lic-code">${r.code}</div><p class="lic-s">${esc(r.name) || ''} · ختم: ${dmyI(r.exp)} (${num(dayDiff(r.exp, today()) + 1)} دن)</p>
@@ -337,9 +341,10 @@
       m.className = 'lic-m';
       if (!uid) { m.textContent = 'UID درست نہیں (8 حروف: XXXX-XXXX)'; return; }
       const name = nameIn.value.trim(), t = today(), L = getL(), mine = L.filter(r => r.uid === uid);
+      if (!name) { m.textContent = 'پہلے گاہک کا نام لکھیں'; nameIn.focus(); return; }
       const pending = mine.find(r => !r.used && r.exp >= t);
       if (pending && !force) {
-        if (name && !pending.name) { pending.name = name; putL(L); }
+        if (name && pending.name !== name) { pending.name = name; putL(L); }
         m.className = 'lic-m ok'; m.textContent = 'اس UID کا کوڈ پہلے بنا ہوا ہے';
         showResult(pending, 'یہ کوڈ پہلے دیا جا چکا ہے اور استعمال کی تصدیق نہیں — وہی دوبارہ بھیجیں۔', true); renderLog(); return;
       }
@@ -347,7 +352,7 @@
       const cur = parseDmy(curIn.value); if (cur && cur >= t && cur > base) base = cur;
       const exp = base ? addDays(base, CFG.PLAN_DAYS) : addDays(t, CFG.PLAN_DAYS - 1);
       const code = await makeCode(uid, exp, t);
-      const rec = { uid, name: name || (mine.find(r => r.name) || {}).name || '', code, iss: t, exp, used: false, ts: Date.now() };
+      const rec = { uid, name, code, iss: t, exp, used: false, ts: Date.now() };
       L.unshift(rec); putL(L);
       const ok = await copy(code);
       m.className = 'lic-m ok'; m.textContent = ok ? '✅ کوڈ بن گیا اور کاپی ہو گیا' : 'کوڈ بن گیا — نیچے سے کاپی کریں';
@@ -360,6 +365,7 @@
       const code = b.closest('.lic-lr').dataset.c, L = getL(), r = L.find(x => x.code === code); if (!r) return;
       const a = b.dataset.a;
       if (a === 'used') { r.used = !r.used; putL(L); renderLog(); }
+      else if (a === 'name') { const n = prompt('گاہک کا نام', r.name || ''); if (n !== null) { const nn = n.trim(); L.forEach(x => { if (x.uid === r.uid) x.name = nn; }); putL(L); renderLog(); } }
       else if (a === 'copy') { m.className = 'lic-m ok'; m.textContent = (await copy(r.code)) ? '✅ کوڈ کاپی ہو گیا' : 'کاپی نہیں ہو سکا'; }
       else if (a === 'wa') { window.open('https://wa.me/?text=' + encodeURIComponent(sendMsg(r)), '_blank'); }
       else if (a === 'del') { if (confirm('یہ ریکارڈ حذف کریں؟')) { putL(L.filter(x => x.code !== code)); renderLog(); } }
