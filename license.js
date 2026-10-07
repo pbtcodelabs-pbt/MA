@@ -11,7 +11,7 @@
     DEV_PHONE: '923206793793',   // ڈیولپر کا واٹس ایپ نمبر (بغیر + اور بغیر 0)
     PLAN_DAYS: 365,              // ایک سال
     SECRET: '904c5bf2c13a07d515b226bbeb7cc495598b5ad186dfce35', // کوڈ بنانے کا خفیہ راز — کسی کو نہ دیں
-    PASS_HASH: '7375f5e0d35d2604d710839e00b2360cdd64e368cc384cedf8a899c3e0998095' // ڈیولپر پاسورڈ کا نشان (SHA-256)
+    PASS_HASH: 'b6aa92af90379c873f1cc947ed387a8dca52d63fa6738bd7c084698c4d260c6a' // ڈیولپر پاسورڈ کا نشان (SHA-256)
   };
 
   const KEY = 'maktaba-aziz-lic', DEVKEY = 'maktaba-aziz-lic-dev';
@@ -120,6 +120,7 @@
   .lic-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
   .lic-b{background:#e9c97a;color:#14463a;border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:16px;line-height:1.4;font-family:inherit;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
   .lic-b.g{background:transparent;color:#e9c97a;border:1.5px solid #e9c97a}
+  .lic-ver{margin:6px auto 0;padding:12px 28px;font:600 13px/1.4 ui-monospace,Menlo,Consolas,monospace;color:rgba(255,255,255,.4);letter-spacing:1px;direction:ltr;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   .lic-m{min-height:1.8em;font-size:15px;color:#ffd9a0}.lic-m.ok{color:#9be3b0}
   .lic-log{display:grid;gap:6px;text-align:start}
   .lic-lr{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.08);border-radius:10px;padding:6px 10px;direction:ltr;font:600 13px/1.5 ui-monospace,Menlo,Consolas,monospace}
@@ -155,9 +156,11 @@
       <div class="lic-row"><button type="button" class="lic-b" id="licGo">✅ فعال کریں</button><button type="button" class="lic-b g" id="licPaste">📋 پیسٹ</button></div>
       <div class="lic-m" id="licMsg"></div>
       ${block ? '' : '<button type="button" class="lic-b g" id="licClose">بند کریں</button>'}
+      <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
     </div>`, block);
     const m = $(ov, '#licMsg'), inp = $(ov, '#licIn');
     tapCounter($(ov, '#licTitle'), devAuth);
+    tapCounter($(ov, '#licVer'), devAuth);
     $(ov, '#licCopyUid').onclick = async () => { m.className = 'lic-m ok'; m.textContent = (await copy(st.uid)) ? 'UID کاپی ہو گئی' : 'کاپی نہیں ہو سکی'; };
     const go = async () => {
       m.className = 'lic-m'; m.textContent = 'جانچ ہو رہی ہے…';
