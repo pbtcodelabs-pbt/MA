@@ -213,11 +213,13 @@
     if (!m) return f.name;
     const d = `${m[3]}/${m[2]}/${m[1]}`;
     const t = { '08': 'صبح 8 بجے', '14': 'دوپہر 2 بجے', '20': 'رات 8 بجے' }[m[4]];
-    return t ? `${d} — ${t}` : `${d} — دستی`;
+    return t ? `<bdi dir="ltr">${d}</bdi> · ${t}` : `<bdi dir="ltr">${d}</bdi> · دستی`;
   }
 
+  let lastErr = '';
   function handleErr(e, interactive) {
     console.warn('drive', e);
+    lastErr = '';
     const m = e.message || '';
     if (m === 'need-consent') return;                 // خاموش کوشش — بعد میں
     if (!interactive && m === 'expired') return;
@@ -228,44 +230,51 @@
       /popup|access_denied/.test(m) ? 'Google اکاؤنٹ کی اجازت نہیں ملی' :
       /origin|invalid_client|idpiframe/.test(m) ? 'Client ID اس ویب سائٹ کے لیے درست نہیں' :
       'Drive بیک اپ نہیں ہو سکا — دوبارہ کوشش کریں';
-    toast(msg);
+    lastErr = msg;
+    if (!capActive) toast(msg);
   }
 
   // ---------- بحال کرنا ----------
   async function openRestore() {
     const box = $('driveRestore');
     box.hidden = false;
-    box.innerHTML = `<p class="dr-wait">Drive سے فہرست آ رہی ہے…</p>`;
+    box.innerHTML = `<p class="dr-wait"><span class="spin"></span>فائلیں آ رہی ہیں…</p>`;
     try {
       await getToken(true);
       if (!meta.email) await whoAmI();
       const files = (await listFiles()).filter(f => /\.json$/.test(f.name));
-      if (!files.length) { box.innerHTML = `<p class="dr-wait">اس اکاؤنٹ کی Drive میں کوئی بیک اپ نہیں ملا</p>`; return; }
+      if (!files.length) { box.innerHTML = `<p class="dr-wait">کوئی بیک اپ نہیں ملا</p>`; return; }
       files.sort((a, b) => (b.name === LATEST_NAME) - (a.name === LATEST_NAME) || b.modifiedTime.localeCompare(a.modifiedTime));
-      box.innerHTML = `<p class="dr-h">${files.length} بیک اپ فائلیں — جسے واپس لانا ہو اس پر ٹچ کریں</p>` + files.slice(0, 120).map(f => `
-        <button type="button" class="dr-file" data-id="${f.id}">
-          <span class="dr-n" dir="ltr">${f.appProperties?.books ?? '?'}<small>کتب</small></span>
-          <span class="dr-t"><b>${slotLabel(f)}</b><span>محفوظ ہوا: <bdi>${when(f.modifiedTime)}</bdi></span></span>
-        </button>`).join('');
+      box.innerHTML = files.slice(0, 120).map(f => {
+        const n = f.appProperties?.books ?? '?';
+        const lbl = f.name === LATEST_NAME ? `تازہ ترین · <bdi dir="ltr">${when(f.modifiedTime)}</bdi>` : slotLabel(f);
+        return `<button type="button" class="dr-file" data-id="${f.id}" data-n="${n}">
+          <span class="dr-n" dir="ltr">${n}<small>کتب</small></span><span class="dr-t"><b>${lbl}</b></span></button>`;
+      }).join('');
     } catch (e) { box.hidden = true; handleErr(e, true); }
   }
 
-  async function restoreFile(id, name) {
+  function askRestore(btn) {
+    const { id, n, l } = btn.dataset;
+    const box = $('driveRestore');
+    box.querySelectorAll('.dr-ask').forEach(x => x.remove());
+    btn.insertAdjacentHTML('afterend', `<div class="dr-ask"><span>${n} کتب واپس لائیں؟ فون کا موجودہ ریکارڈ بدل جائے گا</span>
+      <button type="button" class="btn danger small" data-yes="${id}">ہاں</button><button type="button" class="btn ghost small" data-no="1">نہیں</button></div>`);
+  }
+  async function restoreFile(id) {
+    closeBox(); capActive = true;
+    capStart('Drive سے ری اسٹور ہو رہا ہے…');
     try {
       await getToken(true);
       const j = await (await api(`${DRIVE}/${id}?alt=media`)).json();
       if (!j || !Array.isArray(j.books)) throw new Error('bad');
-      const box = $('driveRestore');
-      box.innerHTML = `<div class="confirm"><span>«${name}» میں ${j.books.length} کتب ہیں۔ فون کا موجودہ ریکارڈ (${host().snapshot().books.length} کتب) اس سے بدل دیا جائے؟</span>
-        <span class="actions"><button type="button" class="btn danger small" id="drYes">ہاں، واپس لائیں</button><button type="button" class="btn ghost small" id="drNo">رہنے دیں</button></span></div>`;
-      $('drNo').onclick = () => { box.hidden = true; };
-      $('drYes').onclick = () => {
-        host().replace(j);
-        meta.lastDrive = new Date().toISOString(); meta.pending = false; saveMeta();
-        box.hidden = true; render();
-        toast(`Drive سے ${j.books.length} کتب واپس آ گئیں`);
-      };
-    } catch (e) { handleErr(e, true); }
+      host().replace(j);
+      meta.lastDrive = new Date().toISOString(); meta.pending = false; meta.lastBooks = j.books.length; saveMeta(); render();
+      capEnd(true, `ری اسٹور مکمل — ${j.books.length} کتب واپس آ گئیں`);
+    } catch (e) {
+      handleErr(e, true);
+      capEnd(false, e.message === 'bad' ? 'یہ فائل درست بیک اپ نہیں' : (lastErr || 'ری اسٹور نہیں ہو سکا'));
+    } finally { capActive = false; }
   }
 
   // ---------- خودکار بیک اپ ----------
@@ -281,6 +290,44 @@
     }, AUTO_DELAY);
   }
 
+  // ---------- صفحے پر کیپسول پروگریس (0% → 100% → ✓) ----------
+  let capTimer = null, capPct = 0, capActive = false;
+  function capsule() {
+    let c = $('maCap');
+    if (!c) {
+      c = document.createElement('div'); c.id = 'maCap'; c.className = 'ma-cap'; c.setAttribute('role', 'status');
+      c.innerHTML = `<span class="mc-ico"></span><span class="mc-body"><span class="mc-lbl"></span><span class="mc-bar"><i></i></span></span><b class="mc-pct" dir="ltr">0%</b>`;
+      document.body.appendChild(c);
+    }
+    return c;
+  }
+  function capStart(label) {
+    const c = capsule(); clearInterval(capTimer); clearTimeout(c._hide);
+    c.className = 'ma-cap show'; capPct = 0;
+    c.querySelector('.mc-lbl').textContent = label;
+    c.querySelector('.mc-ico').innerHTML = DRIVE_ICO;
+    const set = () => { c.querySelector('i').style.width = capPct + '%'; c.querySelector('.mc-pct').textContent = Math.round(capPct) + '%'; };
+    set();
+    capTimer = setInterval(() => { capPct = Math.min(92, capPct + Math.max(0.6, (92 - capPct) / 14)); set(); }, 120);
+  }
+  function capEnd(ok, label) {
+    const c = capsule(); clearInterval(capTimer);
+    if (ok) { capPct = 100; c.querySelector('i').style.width = '100%'; c.querySelector('.mc-pct').textContent = '100%'; }
+    setTimeout(() => {
+      c.className = 'ma-cap show ' + (ok ? 'done' : 'fail');
+      c.querySelector('.mc-lbl').textContent = label;
+      c.querySelector('.mc-ico').innerHTML = ok ? '✓' : '✕';
+      c.querySelector('.mc-pct').textContent = ok ? '' : '';
+      c._hide = setTimeout(() => { c.className = 'ma-cap'; }, ok ? 2600 : 4000);
+    }, ok ? 250 : 0);
+  }
+  const DRIVE_ICO = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0f9d58" d="M8 3h8l7 12h-8z"/><path fill="#4285f4" d="M1 15l4 7h14l-4-7z"/><path fill="#f4b400" d="M8 3L1 15l4 7 7-12z"/></svg>';
+  function closeBox() {
+    const box = $('backupBox'); if (box) box.hidden = true;
+    $('btnBackup')?.setAttribute('aria-expanded', 'false');
+    const r = $('driveRestore'); if (r) r.hidden = true;
+  }
+
   // ---------- UI ----------
   function render() {
     const chip = $('btnBackup');
@@ -290,31 +337,35 @@
     }
     const st = $('driveStatus'); if (!st) return;
     if (!clientId()) {
-      st.innerHTML = `<span class="ds warn">Google Drive ابھی سیٹ نہیں — نیچے Client ID درج کریں</span>`;
+      st.innerHTML = `<span class="ds warn">Client ID درج کریں</span>`;
     } else if (busy) {
-      st.innerHTML = `<span class="ds busy">${progress || 'Drive سے رابطہ ہو رہا ہے…'}</span>`;
+      st.innerHTML = `<span class="ds busy">${progress || 'رابطہ ہو رہا ہے…'}</span>`;
     } else if (!meta.lastDrive) {
-      st.innerHTML = `<span class="ds warn">ابھی تک Drive پر کوئی بیک اپ نہیں ہوا</span>`;
+      st.innerHTML = `<span class="ds warn">ابھی کوئی بیک اپ نہیں ہوا</span>`;
     } else {
-      st.innerHTML = `<span class="ds ${meta.pending ? 'warn' : 'ok'}">${meta.pending ? 'نئی تبدیلیاں ابھی Drive پر نہیں گئیں' : 'سب ریکارڈ Drive پر محفوظ ہے'}</span>
-        <small>آخری بیک اپ: <bdi>${when(meta.lastDrive)}</bdi> · ${meta.lastBooks ?? 0} کتب${meta.email ? ` · <bdi>${meta.email}</bdi>` : ''}</small>
-        <small>خودکار بیک اپ: ہر تبدیلی پر، اور روزانہ صبح 8، دوپہر 2، رات 8 بجے${slotWaiting ? ' — <b class="due">وقت ہو گیا، کہیں بھی ٹچ کریں</b>' : ''}</small>`;
+      st.innerHTML = `<span class="ds ${meta.pending ? 'warn' : 'ok'}">${meta.pending ? 'نئی تبدیلیاں باقی' : 'محفوظ'} · <bdi dir="ltr">${when(meta.lastDrive)}</bdi> · ${meta.lastBooks ?? 0} کتب</span>`;
     }
     const b = $('btnDriveBackup'); if (b) b.disabled = busy;
     const a = $('driveAuto'); if (a) a.checked = !!meta.auto;
     const cf = $('driveClientRow'); if (cf) cf.hidden = !!clientId() && !$('driveClientRow').dataset.show;
     const cin = $('driveClientId'); if (cin && document.activeElement !== cin) cin.value = clientId();
+    const dl = document.querySelector('.drive-links'); if (dl) dl.hidden = !!clientId();
   }
 
   function wire() {
     $('btnDriveBackup')?.addEventListener('click', async () => {
+      closeBox(); capActive = true;
+      capStart(`Drive پر بیک اپ — ${host().snapshot().books.length} کتب`);
       const n = await backup(true);
-      if (n !== false) toast(`✓ ${n} کتب Google Drive پر محفوظ ہو گئیں`);
+      capActive = false;
+      if (n !== false) capEnd(true, `بیک اپ مکمل — ${n} کتب Drive پر محفوظ`);
+      else capEnd(false, lastErr || 'بیک اپ نہیں ہو سکا');
     });
     $('btnDriveRestore')?.addEventListener('click', openRestore);
     $('driveRestore')?.addEventListener('click', e => {
-      const f = e.target.closest('.dr-file'); if (!f) return;
-      restoreFile(f.dataset.id, f.querySelector('.dr-t b').textContent);
+      const y = e.target.closest('[data-yes]'); if (y) { restoreFile(y.dataset.yes); return; }
+      if (e.target.closest('[data-no]')) { e.target.closest('.dr-ask').remove(); return; }
+      const f = e.target.closest('.dr-file'); if (f) askRestore(f);
     });
     $('driveAuto')?.addEventListener('change', e => { meta.auto = e.target.checked; saveMeta(); });
     $('driveClientSave')?.addEventListener('click', () => {
