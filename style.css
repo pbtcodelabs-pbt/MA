@@ -1459,3 +1459,25 @@ html,body{overflow-x:hidden;max-width:100%}
 .emblem::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px dashed rgba(232,196,103,.55);pointer-events:none}
 .emblem::after{content:"";position:absolute;inset:-14px;border-radius:50%;z-index:-1;background:radial-gradient(circle,rgba(232,196,103,.28),transparent 68%);pointer-events:none}
 .emblem img{width:86%;height:86%;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
+
+/* ایم اے 039 — کمپیکٹ ہیڈر: سب کچھ ایک چھوٹے ڈبے میں */
+.masthead{padding:3px !important;margin-bottom:6px !important}
+.masthead-in{padding:5px 8px 6px !important}
+.mh-row{display:flex !important;align-items:center;justify-content:center;gap:10px;margin:0}
+.mh-text{width:auto;flex:1;min-width:0;overflow:visible}
+.emblem{width:60px !important;flex:none;margin:2px 0 !important;box-shadow:0 0 0 1.5px var(--gold-2),0 0 0 3px rgba(11,47,37,.9),0 0 0 4px var(--gold-3) !important}
+.emblem::before{inset:3px}
+.emblem::after{display:none}
+.patron{margin:0 !important}
+.patron span{font-size:21px !important}
+.patron2{font-size:12px !important;line-height:1.5 !important}
+.status{flex-wrap:wrap !important;gap:4px !important;margin:3px 0 0 !important}
+.status .chip{padding:0 7px !important;font-size:12px !important}
+#licSlot:empty{display:none}
+
+/* ہوم پیج کا سنہری میٹل لوگو */
+.emblem.gold{background:radial-gradient(circle at 32% 26%,#fff7c8 0,#f6d56c 18%,#d9a42b 46%,#a8741a 74%,#7a4e0a 100%) !important;box-shadow:0 0 0 1.5px #ffe58a,0 0 0 3px #7a4e0a,0 0 0 4.5px #f2c94e,0 3px 8px rgba(0,0,0,.5),0 0 14px rgba(255,214,110,.45) !important;overflow:hidden}
+.emblem.gold img{opacity:0}
+.emblem.gold::after{display:block !important;content:"";position:absolute;inset:9%;z-index:1;background:linear-gradient(150deg,#3a2102 0%,#7b4e08 45%,#2e1a01 100%);-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat;filter:drop-shadow(0 .8px 0 rgba(255,244,190,.95)) drop-shadow(0 -.6px 0 rgba(40,20,0,.5))}
+.emblem.gold::before{inset:0;border:0;border-radius:50%;z-index:2;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.85) 48%,rgba(255,255,255,.15) 54%,transparent 66%);background-size:260% 100%;background-position:130% 0;mix-blend-mode:soft-light;animation:emShine 3.6s ease-in-out 1s infinite}
+@keyframes emShine{0%{background-position:130% 0}60%,100%{background-position:-40% 0}}

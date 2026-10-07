@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA710WE039) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA710WE043) */
 (() => {
   'use strict';
 
@@ -711,7 +711,7 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA710WE039',
+    version: 'MA710WE043',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); }
@@ -722,7 +722,7 @@
     icons: { I_USER, I_PHONE, I_HOME, I_CAL, I_NOTE, IC_MIC }
   };
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-share-cat],[data-share-book],#btnShare'); if (!t || !window.MA_SHARE_UI) return;
+    const t = e.target.closest('[data-share-cat],[data-share-book]'); if (!t || !window.MA_SHARE_UI) return;
     if (t.dataset.shareCat) window.MA_SHARE_UI.open({ cat: t.dataset.shareCat });
     else if (t.dataset.shareBook) window.MA_SHARE_UI.open({ books: [t.dataset.shareBook] });
     else window.MA_SHARE_UI.open({});
