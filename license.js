@@ -11,10 +11,10 @@
     DEV_PHONE: '923206793793',   // ڈیولپر کا واٹس ایپ نمبر (بغیر + اور بغیر 0)
     PLAN_DAYS: 365,              // ایک سال
     SECRET: '904c5bf2c13a07d515b226bbeb7cc495598b5ad186dfce35', // کوڈ بنانے کا خفیہ راز — کسی کو نہ دیں
-    PASS_HASH: 'b6aa92af90379c873f1cc947ed387a8dca52d63fa6738bd7c084698c4d260c6a' // ڈیولپر پاسورڈ کا نشان (SHA-256)
+    PASS_HASH: '1c1c5aed8da780051eb69c626df2657e0c6fa013f4c59b759e8e99b1f8b7077e' // ڈیولپر پاسورڈ کا نشان (SHA-256)
   };
 
-  const KEY = 'maktaba-aziz-lic', DEVKEY = 'maktaba-aziz-lic-dev';
+  const KEY = 'maktaba-aziz-lic', DEVKEY = 'maktaba-aziz-lic-dev', PWKEY = 'maktaba-aziz-lic-pw';
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const pad = n => String(n).padStart(2, '0');
   const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -109,9 +109,9 @@
   css.textContent = `
   #licOv{position:fixed;inset:0;z-index:200;background:rgba(10,40,32,.99);color:#fff;display:grid;place-items:center;padding:14px;overflow:auto;direction:rtl}
   .lic-box{width:100%;max-width:420px;display:grid;gap:10px;text-align:center;margin:auto}
-  .lic-k{margin:0;color:#e9c97a;font-family:var(--f-title,serif);font-size:26px}
-  .lic-p{margin:0;font-size:16px;line-height:2}
-  .lic-s{margin:0;font-size:14px;line-height:1.9;color:#d8e6df}
+  .lic-k{margin:0;color:#e9c97a;font-family:var(--f-body,'JNN','Noto Nastaliq Urdu',serif);font-weight:400;font-size:28px;line-height:2.1;padding:6px 0}
+  .lic-p{margin:0;font-size:17px;line-height:2.2}
+  .lic-s{margin:0;font-size:15px;line-height:2.1;color:#d8e6df}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
   .lic-code{color:#9be3b0;font-size:22px;letter-spacing:2px}
   .lic-in,.lic-ta{width:100%;box-sizing:border-box;border-radius:12px;border:1.5px solid #e9c97a;background:#fff;color:#14463a;padding:10px;font-family:inherit}
@@ -120,7 +120,7 @@
   .lic-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
   .lic-b{background:#e9c97a;color:#14463a;border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:16px;line-height:1.4;font-family:inherit;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
   .lic-b.g{background:transparent;color:#e9c97a;border:1.5px solid #e9c97a}
-  .lic-ver{margin:6px auto 0;padding:12px 28px;font:600 13px/1.4 ui-monospace,Menlo,Consolas,monospace;color:rgba(255,255,255,.4);letter-spacing:1px;direction:ltr;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  .lic-ver{justify-self:center;margin:8px auto 0;padding:9px 22px;font:700 14px/1.4 ui-monospace,Menlo,Consolas,monospace;color:#e9c97a;background:rgba(255,255,255,.08);border:1px solid #e9c97a;border-radius:99px;letter-spacing:1px;direction:ltr;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
   .lic-m{min-height:1.8em;font-size:15px;color:#ffd9a0}.lic-m.ok{color:#9be3b0}
   .lic-log{display:grid;gap:6px;text-align:start}
   .lic-lr{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.08);border-radius:10px;padding:6px 10px;direction:ltr;font:600 13px/1.5 ui-monospace,Menlo,Consolas,monospace}
@@ -183,7 +183,8 @@
       <div class="lic-row"><button type="button" class="lic-b" id="dvOk">کھولیں</button><button type="button" class="lic-b g" id="dvNo">بند کریں</button></div></div>`, false);
     const go = async () => {
       let h = ''; try { h = await sha('MAKTABA|' + $(ov, '#dvPw').value); } catch (e) {}
-      if (h === CFG.PASS_HASH) devPanel(); else $(ov, '#dvM').textContent = 'پاسورڈ غلط ہے';
+      let cur = CFG.PASS_HASH; try { cur = localStorage.getItem(PWKEY) || cur; } catch (e) {}
+      if (h === cur) devPanel(); else $(ov, '#dvM').textContent = 'پاسورڈ غلط ہے';
     };
     $(ov, '#dvOk').onclick = go;
     $(ov, '#dvPw').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
@@ -207,6 +208,11 @@
       <div class="lic-m" id="dvM"></div>
       <div id="dvOut"></div>
       <div class="lic-log" id="dvLog">${log.map((r, i) => `<div class="lic-lr"><span>${r.uid} · ${r.code}</span><button type="button" data-i="${i}">کاپی</button></div>`).join('')}</div>
+      <p class="lic-s" style="margin-top:6px">پاسورڈ بدلیں</p>
+      <input class="lic-in" id="dvNew" type="password" placeholder="نیا پاسورڈ" autocomplete="off" style="text-transform:none">
+      <input class="lic-in" id="dvNew2" type="password" placeholder="نیا پاسورڈ دوبارہ" autocomplete="off" style="text-transform:none">
+      <div class="lic-row"><button type="button" class="lic-b g" id="dvPwSave">🔒 پاسورڈ محفوظ کریں</button></div>
+      <div class="lic-m" id="dvPwM"></div>
       <button type="button" class="lic-b g" id="dvClose">بند کریں</button></div>`, false);
     const msg = $(ov, '#dvMsg'), uidIn = $(ov, '#dvUid'), m = $(ov, '#dvM'), out = $(ov, '#dvOut');
     const pick = () => { const u = findUid(msg.value); if (u) uidIn.value = u; };
@@ -225,6 +231,15 @@
       $(ov, '#dvCp').onclick = async () => { m.textContent = (await copy(code)) ? '✅ کاپی ہو گیا' : 'کاپی نہیں ہو سکا'; };
     };
     $(ov, '#dvLog').onclick = async e => { const b = e.target.closest('button[data-i]'); if (!b) return; const r = getLog()[+b.dataset.i]; if (r) { m.className = 'lic-m ok'; m.textContent = (await copy(r.code)) ? '✅ کاپی ہو گیا' : 'کاپی نہیں ہو سکا'; } };
+    $(ov, '#dvPwSave').onclick = async () => {
+      const a = $(ov, '#dvNew').value, b = $(ov, '#dvNew2').value, pm = $(ov, '#dvPwM');
+      pm.className = 'lic-m';
+      if (a.length < 6) { pm.textContent = 'پاسورڈ کم از کم 6 حروف کا ہو'; return; }
+      if (a !== b) { pm.textContent = 'دونوں پاسورڈ ایک جیسے نہیں ہیں'; return; }
+      try { localStorage.setItem(PWKEY, await sha('MAKTABA|' + a)); } catch (e) { pm.textContent = 'محفوظ نہیں ہو سکا'; return; }
+      $(ov, '#dvNew').value = ''; $(ov, '#dvNew2').value = '';
+      pm.className = 'lic-m ok'; pm.textContent = '✅ نیا پاسورڈ محفوظ ہو گیا';
+    };
     $(ov, '#dvClose').onclick = () => { hide(); refresh(true); };
   }
 
