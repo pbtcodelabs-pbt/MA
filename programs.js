@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — «میرے پروگرام»: جلسوں کی دعوتیں، اشتہار، رابطہ، الٹی گنتی اور رپورٹ
+/* مکتبۃ العزیز — «شیڈیول»: جلسوں کی دعوتیں، اشتہار، رابطہ، الٹی گنتی اور رپورٹ
    ڈیٹا app.js کے db.progs میں رہتا ہے (اسی بیک اپ کے ساتھ Drive پر بھی جاتا ہے)۔ */
 (() => {
   'use strict';
@@ -83,7 +83,7 @@
     H().view.innerHTML = `
       <section class="panel prog-panel">
         <div class="panel-h prog-h">
-          <h2 class="prog-title">میرے پروگرام</h2>
+          <h2 class="prog-title">شیڈیول</h2>
           <span class="actions"><button class="btn ghost small" type="button" id="pgRep">📄 رپورٹ</button><a class="btn" href="#/prog/add">+ نیا پروگرام</a></span>
         </div>
         <div class="panel-b">
@@ -126,7 +126,7 @@
     const wa = H().waNum(p.phone);
     H().view.innerHTML = `
       <section class="panel prog-panel">
-        <div class="panel-h prog-h"><a class="back" href="#/prog">→ میرے پروگرام</a><span class="pg-left ${leftTxt(p).c}">${dayName(p.date)}</span></div>
+        <div class="panel-h prog-h"><a class="back" href="#/prog">→ شیڈیول</a><span class="pg-left ${leftTxt(p).c}">${dayName(p.date)}</span></div>
         <div class="panel-b pg-one" id="pgOne">
           ${p.title ? `<p class="po-topic">${esc(p.title)}</p>` : ''}
           <h2 class="po-place">${esc(p.place || 'پروگرام')}${p.city ? `<span>${esc(p.city)}</span>` : ''}</h2>
@@ -338,11 +338,11 @@
     document.querySelector('.pr-btns').addEventListener('click', async e => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const k = window.MA_SHARE_UI?.kit;
-      const text = `*میرے پروگرام — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
+      const text = `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی — واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'رپورٹ کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
       const old = b.textContent; b.disabled = true; b.textContent = 'بن رہی ہے…';
-      try { await k.deliver(await reportPdf(list), `mere-programs-${iso(new Date())}.pdf`, 'میرے پروگرام'); }
+      try { await k.deliver(await reportPdf(list), `mere-programs-${iso(new Date())}.pdf`, 'شیڈیول'); }
       catch (err) { console.warn(err); H().toast('PDF نہیں بن سکی، دوبارہ کوشش کریں'); }
       finally { b.disabled = false; b.textContent = old; }
     });
@@ -363,7 +363,7 @@
       ctx.fillStyle = g; k.roundRect(ctx, M, y + 10, W - 2 * M, 200, 22); ctx.fill();
       ctx.strokeStyle = C.gold2; ctx.lineWidth = 3; k.roundRect(ctx, M + 10, y + 20, W - 2 * M - 20, 180, 16); ctx.stroke();
       const tg = ctx.createLinearGradient(0, y + 30, 0, y + 120); tg.addColorStop(0, '#fff3c4'); tg.addColorStop(.5, '#e2b24e'); tg.addColorStop(1, '#a8741f');
-      ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `80px ${TFONT}`; ctx.fillText('میرے پروگرام', W / 2, y + 118);
+      ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `80px ${TFONT}`; ctx.fillText('شیڈیول', W / 2, y + 118);
       ctx.fillStyle = '#f3e6c2'; ctx.font = `30px ${FONT}`; ctx.fillText(rangeTxt(), W / 2, y + 178);
       ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.textAlign = 'right'; ctx.fillText(`رپورٹ کی تاریخ: ${dmy(iso(new Date()))}`, W - M, y + 244);
       ctx.textAlign = 'left'; ctx.fillText(`کل ${list.length} پروگرام`, M, y + 244);
@@ -395,7 +395,7 @@
       const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, PH);
       let yy = TOP; pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
       ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-      ctx.fillText(`میرے پروگرام — مکتبۃ العزیز — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
+      ctx.fillText(`شیڈیول — مکتبۃ العزیز — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
       return cv.toDataURL('image/jpeg', 0.9);
     });
     return k.makePdf(jpgs, W, PH);

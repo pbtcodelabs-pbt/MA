@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA710WE035) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA710WE038) */
 (() => {
   'use strict';
 
@@ -164,7 +164,7 @@
             <a class="bk special add" href="#/newcat" title="نیا فن">${SP('#c8962f', IC_PLUS)}<span class="cnt lbl">نیا فن</span></a>
             <a class="bk special" href="#/reports">${SP('#1f6a54', IC_REP)}<span class="cnt lbl">رپورٹس</span></a>
             <a class="bk special" href="#/loans">${SP('#8e2f2a', IC_LOAN)}<span class="cnt lbl">اجراء${out ? ` <i>${num(out)}</i>` : ''}</span></a>
-            <a class="bk special prog" href="#/prog">${SP('#5a3b7a', IC_MIC)}<span class="cnt lbl">پروگرام${(() => { const n = window.MA_PROG ? window.MA_PROG.soon() : 0; return n ? ` <i class="gr">${num(n)}</i>` : ''; })()}</span></a>
+            <a class="bk special prog" href="#/prog">${SP('#5a3b7a', IC_MIC)}<span class="cnt lbl">شیڈیول${(() => { const n = window.MA_PROG ? window.MA_PROG.soon() : 0; return n ? ` <i class="gr">${num(n)}</i>` : ''; })()}</span></a>
           </div>
         </div>
       </section>`;
@@ -711,7 +711,7 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA710WE035',
+    version: 'MA710WE038',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); }
