@@ -1290,7 +1290,7 @@ main > .panel .panel-h.home-h{padding:0 10px}
 /* MA610TU021: نیا لوگو — گول سنہری نشان */
 .mh-row .logo{width:52px;height:52px;border-radius:50%;box-shadow:0 0 0 2px var(--gold-2),0 3px 10px rgba(0,0,0,.35);background:#0b1f9a}
 
-/* ===== MA610TU023: میرے پروگرام ===== */
+/* ===== MA610TU025: میرے پروگرام ===== */
 .cnt i.gr{background:#1f6a54}
 main > .panel.prog-panel{
   position:relative;overflow:hidden;border:1.5px solid var(--gold-2);border-radius:16px;
@@ -1386,3 +1386,43 @@ main > .panel.prog-panel{
 .pr-btns{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
 .pr-btns .btn{justify-content:center}
 @media (max-width:380px){.po-cards{grid-template-columns:1fr}}
+
+/* ===== MA610TU025: ایک لائن میں کتب (1 تا 5) — کبھی دائیں بائیں باہر نہیں ===== */
+html,body{overflow-x:hidden;max-width:100%}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+.wrap,.app,main,#view,.panel,.panel-b{min-width:0;max-width:100%}
+#view .shelf,#view .shelf.books{grid-template-columns:repeat(var(--cols,5),minmax(0,1fr)) !important;gap:6px 4px}
+#view .shelf .bk{min-width:0;max-width:100%}
+.sizer{gap:1px;padding:2px 3px;direction:ltr}
+.sizer button{width:24px;height:26px;border-radius:99px;font:700 13px/1 Arial,sans-serif;padding:0;border:1px solid #e3cf98;background:#fff;color:var(--green)}
+.sizer button[data-cols="+1"],.sizer button[data-cols="-1"]{width:26px;font-size:16px;background:#f5ecd6}
+.sizer .sz-n.on{background:var(--gold-tex);border-color:#a8741f;color:#2b1d05;box-shadow:0 1px 0 #7a5418}
+.home-h .hsum{gap:8px;font-size:13px}
+.home-h .hsum b{font-size:16px}
+.home-h .btn.gold{padding:0 8px;font-size:13px}
+
+/* ===== MA610TU025: پروگرام فارم چھوٹا اور صاف، عنوان پورا ===== */
+.prog-title,.po-place{padding-inline:.35em .2em;overflow:visible}
+.prog-h{overflow:visible}
+.pf-form{gap:8px}
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
+.pf-f{display:grid;gap:0;min-width:0;background:#fff;border:1.5px solid #e3cf98;border-radius:12px;padding:2px 10px 4px;box-shadow:0 2px 0 rgba(0,0,0,.06)}
+.pf-f.full{grid-column:1 / -1}
+.pf-f:focus-within{border-color:var(--gold-3);box-shadow:0 0 0 3px rgba(232,196,103,.35)}
+.pf-f > span{font-size:12.5px;line-height:1.7;color:#7a5418}
+.pf-f input{width:100%;min-width:0;border:0;outline:0;background:transparent;padding:0;min-height:30px;font:inherit;font-size:16px;line-height:1.9;color:var(--fg)}
+.pf-f input.ltr{direction:ltr;text-align:right;font:600 16px/1.6 Arial,Roboto,sans-serif}
+.pf-f input[type=date],.pf-f input[type=time]{appearance:auto;-webkit-appearance:auto;display:block}
+.pf-f input::-webkit-calendar-picker-indicator{margin:0;opacity:.75}
+.pf-f input::placeholder{color:#b3a585}
+.pp-row{align-items:center}
+.pp-row .pp-box{display:flex;align-items:center;gap:10px;justify-items:start;padding:2px 0}
+.pp-row .pp-box img{width:56px;height:56px;max-height:none;object-fit:cover;border-radius:8px}
+.pp-row .pp-pick{min-height:38px;font-size:14px}
+.pp-row .pp-acts .btn{min-height:32px;font-size:13px}
+.pf-form .btn.save{min-height:44px}
+.pf-form .err:empty{display:none}
+.prog-h{flex-wrap:nowrap;gap:6px}
+.prog-title{font-size:29px !important;white-space:nowrap;flex:none}
+.prog-h .actions{flex-wrap:nowrap;gap:5px}
+.prog-h .actions .btn{min-height:34px;padding:0 10px;font-size:14px;white-space:nowrap}

@@ -228,39 +228,37 @@
     if (editId && !p) { location.replace('#/prog'); return; }
     if (p) pageOne(p.id); else pageList();
     const back = p ? `#/prog/p/${p.id}` : '#/prog';
-    const I = H().icons, cap = H().capRow;
     const uniq = k => [...new Set(progs().map(x => (x[k] || '').trim()).filter(Boolean))];
     let poster = p?.poster || '';
     let saved = false;
+    // چھوٹا خانہ: اوپر عنوان، نیچے لکھنے کی جگہ
+    const fld = (id, label, attrs, cls = '') => `<label class="pf-f ${cls}" for="${id}"><span>${label}</span><input id="${id}" autocomplete="off" ${attrs}></label>`;
     const { close, wrap } = H().openSheet(p ? 'پروگرام میں ترمیم' : 'نیا پروگرام', `
-      <form class="sheet-b" id="pgForm" novalidate>
-        ${cap('p-title', 'عنوان', I.IC_MIC.replace(/width="24" height="24"/, 'width="18" height="18"'), `value="${esc(p?.title || '')}" placeholder="مثلاً ختمِ نبوت کانفرنس (اختیاری)"`, 0)}
-        <div class="cap-row" style="--i:1">
-          ${cap('p-date', 'تاریخ', I.I_CAL, `type="date" class="numin" value="${esc(p?.date || '')}"`, 1)}
-          ${cap('p-time', 'وقت', '🕒 ', `type="time" class="numin" value="${esc(p?.time || '')}"`, 1)}
+      <form class="sheet-b pf-form" id="pgForm" novalidate>
+        <div class="pf-grid">
+          ${fld('p-title', 'عنوان (اختیاری)', `value="${esc(p?.title || '')}" placeholder="مثلاً ختمِ نبوت کانفرنس"`, 'full')}
+          ${fld('p-date', 'تاریخ', `type="date" class="ltr" value="${esc(p?.date || '')}"`)}
+          ${fld('p-time', 'وقت', `type="time" class="ltr" value="${esc(p?.time || '')}"`)}
+          ${fld('p-tnote', 'نماز', `list="dl-tnote" value="${esc(p ? (p.timeNote || '') : 'بعد از نماز عشاء')}" placeholder="بعد از نماز عشاء"`)}
+          ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="مثلاً کلور کوٹ"`)}
+          ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="مثلاً جامع مسجد نور"`, 'full')}
+          ${fld('p-inv', 'دعوت دینے والے', `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
+          ${fld('p-phone', 'موبائل', `class="ltr" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`)}
+          <div class="pf-f full pp-row"><span>اشتہار</span><div class="pp-box" id="ppBox"></div><input type="file" id="p-img" accept="image/*" hidden></div>
+          ${fld('p-note', 'نوٹ (اختیاری)', `value="${esc(p?.note || '')}"`, 'full')}
         </div>
-        ${cap('p-tnote', 'نماز', '🕌 ', `list="dl-tnote" value="${esc(p ? (p.timeNote || '') : 'بعد از نماز عشاء')}" placeholder="بعد از نماز عشاء"`, 2)}
-        ${cap('p-place', 'بمقام', I.I_HOME, `list="dl-place" value="${esc(p?.place || '')}" placeholder="مثلاً جامع مسجد نور"`, 3)}
-        ${cap('p-city', 'شہر', '📍 ', `list="dl-city" value="${esc(p?.city || '')}" placeholder="مثلاً کلور کوٹ"`, 4)}
-        ${cap('p-inv', 'دعوت دینے والے', I.I_USER, `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`, 5)}
-        ${cap('p-phone', 'موبائل', I.I_PHONE, `class="numin" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`, 6)}
-        <div class="cap pg-poster-in" style="--i:7"><span class="cap-l">🖼️ اشتہار</span>
-          <div class="pp-box" id="ppBox"></div>
-          <input type="file" id="p-img" accept="image/*" hidden>
-        </div>
-        ${cap('p-note', 'نوٹ', I.I_NOTE, `value="${esc(p?.note || '')}" placeholder="اختیاری"`, 8)}
         <datalist id="dl-tnote">${TIME_NOTES.map(v => `<option value="${v}">`).join('')}</datalist>
         <datalist id="dl-place">${uniq('place').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
         <datalist id="dl-city">${uniq('city').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
         <datalist id="dl-inv">${uniq('inviter').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
         <p class="err" id="p-err" role="alert"></p>
-        <button class="btn save" type="submit" style="--i:9">💾 ${p ? 'تبدیلی محفوظ کریں' : 'پروگرام محفوظ کریں'}</button>
+        <button class="btn save" type="submit">💾 ${p ? 'تبدیلی محفوظ کریں' : 'پروگرام محفوظ کریں'}</button>
       </form>`, () => { if (!saved && /\/prog\/(add|edit)/.test(location.hash)) location.replace(back); });
     wrap.querySelector('.sheet').classList.add('pg-sheet');
     const drawPoster = () => {
       $('ppBox').innerHTML = poster
         ? `<img src="${poster}" alt=""><span class="pp-acts"><button type="button" class="btn small" data-pp="pick">بدلیں</button><button type="button" class="btn ghost small" data-pp="rm">ہٹائیں</button></span>`
-        : `<button type="button" class="pp-pick" data-pp="pick">+ اشتہار کی تصویر لگائیں</button>`;
+        : `<button type="button" class="pp-pick" data-pp="pick">🖼️ + تصویر لگائیں</button>`;
     };
     drawPoster();
     $('ppBox').addEventListener('click', e => {

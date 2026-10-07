@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU023) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU025) */
 (() => {
   'use strict';
 
@@ -112,17 +112,32 @@
     `<span class="bkx-cover">${extra}<span class="bkx-label">${label}</span></span>` +
     `<span class="bkx-spine"></span></span>`;
 
-  // کتابوں کا سائز (چھوٹا/بڑا) — یاد رہتا ہے
-  let bookScale = Number((() => { try { return localStorage.getItem('maktaba-aziz-book-scale'); } catch (e) { return null; } })()) || 0.8;
-  const applyScale = () => document.documentElement.style.setProperty('--bs', bookScale);
-  applyScale();
-  const sizeCtl = () => `<span class="sizer" aria-label="کتابوں کا سائز"><button type="button" data-bs="-0.1" aria-label="کتابیں چھوٹی">−</button><span>سائز</span><button type="button" data-bs="0.1" aria-label="کتابیں بڑی">+</button></span>`;
+  // ایک لائن میں کتنی کتابیں (1 سے 5) — ہوم اور فن کے صفحے کے لیے الگ الگ یاد رہتا ہے
+  // کتاب کا سائز اسی سے خود بنتا ہے: صرف اوپر نیچے بڑی ہوتی ہے، دائیں بائیں کبھی باہر نہیں نکلتی
+  const colsKey = () => document.body.classList.contains('is-home') ? 'maktaba-aziz-cols-home' : 'maktaba-aziz-cols-cat';
+  const getCols = () => { const d = document.body.classList.contains('is-home') ? 5 : 3; try { return Number(localStorage.getItem(colsKey())) || d; } catch (e) { return d; } };
+  const sizeCtl = () => { const c = getCols(); return `<span class="sizer" aria-label="ایک لائن میں کتب"><button type="button" data-cols="+1" aria-label="کتابیں چھوٹی">−</button>${[1, 2, 3, 4, 5].map(n => `<button type="button" class="sz-n${n === c ? ' on' : ''}" data-cols="${n}" aria-label="ایک لائن میں ${n}">${n}</button>`).join('')}<button type="button" data-cols="-1" aria-label="کتابیں بڑی">+</button></span>`; };
+  function fitShelf() {
+    const c = getCols();
+    document.querySelectorAll('#view .shelf').forEach(sh => {
+      sh.style.setProperty('--cols', c);
+      const gap = parseFloat(getComputedStyle(sh).columnGap) || 0;
+      const colW = (sh.clientWidth - gap * (c - 1)) / c;
+      // کتاب کی چوڑائی = 69px × bs (جِلد 56 + پشت 13)
+      sh.style.setProperty('--bs', Math.max(0.5, Math.min(4.6, (colW - 8) / 69)).toFixed(3));
+    });
+    document.querySelectorAll('#view .sz-n').forEach(b => b.classList.toggle('on', Number(b.dataset.cols) === c));
+  }
   document.addEventListener('click', e => {
-    const t = e.target.closest('[data-bs]'); if (!t) return;
-    bookScale = Math.round(Math.min(1.6, Math.max(0.7, bookScale + Number(t.dataset.bs))) * 10) / 10;
-    applyScale();
-    try { localStorage.setItem('maktaba-aziz-book-scale', bookScale); } catch (err) {}
+    const t = e.target.closest('[data-cols]'); if (!t) return;
+    const v = t.dataset.cols;
+    let c = /^[+-]/.test(v) ? getCols() + Number(v) : Number(v);
+    c = Math.min(5, Math.max(1, c));
+    try { localStorage.setItem(colsKey(), c); } catch (err) {}
+    fitShelf();
   });
+  new ResizeObserver(() => fitShelf()).observe($('view'));
+  new MutationObserver(() => fitShelf()).observe($('view'), { childList: true });
 
   // ---------- صفحات ----------
   // آئیکن کے نیچے لمبا کیپسول: کتب کی تعداد (اور پڑھنے کے لیے گئی ہوں تو سرخ نشان)
@@ -688,7 +703,7 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA610TU023',
+    version: 'MA610TU025',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs }),
     replace: d => { db = normDb(d); save(); route(); }
