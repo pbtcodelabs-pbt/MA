@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU028) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA610TU029) */
 (() => {
   'use strict';
 
@@ -710,7 +710,7 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA610TU028',
+    version: 'MA610TU029',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs }),
     replace: d => { db = normDb(d); save(); route(); }

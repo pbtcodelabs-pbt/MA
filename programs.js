@@ -84,7 +84,7 @@
       <section class="panel prog-panel">
         <div class="panel-h prog-h">
           <h2 class="prog-title">میرے پروگرام</h2>
-          <span class="actions"><button class="btn ghost small" type="button" id="pgRep">📄 رپورٹ</button><a class="btn" href="#/prog/add">+ نیا پروگرام</a></span>
+          <span class="actions"><button class="btn ghost small" type="button" id="pgRem" aria-label="یاد دہانی">🔔</button><button class="btn ghost small" type="button" id="pgRep">📄 رپورٹ</button><a class="btn" href="#/prog/add">+ نیا پروگرام</a></span>
         </div>
         <div class="panel-b">
           <div class="pg-filters" role="tablist">${FILTERS.map(([k, t]) => `<button type="button" class="pf${F.k === k ? ' on' : ''}" data-f="${k}">${t}</button>`).join('')}</div>
@@ -101,6 +101,7 @@
     $('pgFrom')?.addEventListener('change', e => { F.from = e.target.value || F.from; saveF(); pageList(); });
     $('pgTo')?.addEventListener('change', e => { F.to = e.target.value || F.to; saveF(); pageList(); });
     $('pgRep').addEventListener('click', openReport);
+    $('pgRem').addEventListener('click', () => window.MA_REMIND && window.MA_REMIND.settings());
     // لائنوں میں «آج · گھنٹے» تازہ رہے
     stopTick(); tick = setInterval(() => { if (!document.querySelector('.pg-list')) return stopTick(); document.querySelectorAll('.pg-row[data-id]').forEach(r => { const p = progs().find(x => x.id === r.dataset.id); if (!p) return; const L = leftTxt(p); const el = r.querySelector('.pg-left'); el.textContent = L.t; el.className = 'pg-left ' + L.c; }); }, 30000);
   }
@@ -149,6 +150,7 @@
           ${confirmDel ? `<div class="confirm"><span>یہ پروگرام حذف کر دیں؟</span><span class="actions"><button class="btn danger small" data-a="del-yes" type="button">ہاں، حذف کریں</button><button class="btn ghost small" data-a="del-no" type="button">رہنے دیں</button></span></div>` : ''}
           <div class="actions po-acts">
             <a class="btn" href="#/prog/edit/${p.id}">ترمیم کریں</a>
+            <button class="btn ghost" type="button" data-a="ics">📅 کیلنڈر میں ڈالیں</button>
             <button class="btn ghost" type="button" data-a="share">بھیجیں</button>
             <button class="btn ghost" type="button" data-a="del">حذف کریں</button>
           </div>
@@ -162,6 +164,7 @@
       if (a === 'del-no') pageOne(id);
       if (a === 'del-yes') { const d = H().db(); d.progs = progs().filter(x => x.id !== id); H().save(); H().toast('پروگرام حذف ہو گیا'); location.replace('#/prog'); }
       if (a === 'share') shareOne(p);
+      if (a === 'ics' && window.MA_REMIND) window.MA_REMIND.toCalendar(p);
     });
     const draw = () => {
       const el = $('poCount'); if (!el) return stopTick();
