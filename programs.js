@@ -395,7 +395,7 @@
       const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, PH);
       let yy = TOP; pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
       ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-      ctx.fillText(`شیڈیول — مکتبۃ العزیز — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
+      ctx.fillText(`شیڈیول — ${window.MA_BRAND ? window.MA_BRAND.name() : 'مکتبۃ العزیز'} — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
       return cv.toDataURL('image/jpeg', 0.9);
     });
     return k.makePdf(jpgs, W, PH);

@@ -146,7 +146,7 @@
   function buildText() {
     const g = grouped();
     const all = g.flatMap(x => x.list);
-    let t = `*مکتبۃ العزیز*\n${headLine()}\nتاریخ: ${today()}\n`;
+    let t = `*${BN()}*\n${headLine()}\nتاریخ: ${today()}\n`;
     if (mode === 'loans') {
       g.forEach(({ cat, list }) => {
         t += `\n*${cat.name}* (${fmt(list.length)})\n`;
@@ -179,10 +179,17 @@
   const W = 1240, M = 50;   // A4 چوڑائی @150dpi
   const C = { green: '#14463a', green2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', cream: '#fffaf0', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#f8f2e2' };
 
+  // مکتبے کی پہچان (brand.js)
+  const BR = () => window.MA_BRAND;
+  const BN = () => BR() ? BR().name() : 'مکتبۃ العزیز';
+  const BP = () => BR() ? BR().place() : '';
+  const BK = () => BR() ? BR().kasheeda(BR().get().name) : true;
+  const BF = () => BR() ? BR().titleFont(BR().get().name) : TFONT;
   function headLine() {
-    if (mode === 'loans') return 'پڑھنے کے لیے گئی کتب — دارالعلوم ختمِ نبوت، عارف والا';
-    if (subtitle) return `فہرستِ کتب (${subtitle}) — دارالعلوم ختمِ نبوت، عارف والا`;
-    return 'تفصیلی فہرستِ کتب — دارالعلوم ختمِ نبوت، عارف والا';
+    const pl = BP() ? ` — ${BP()}` : '';
+    if (mode === 'loans') return `پڑھنے کے لیے گئی کتب${pl}`;
+    if (subtitle) return `فہرستِ کتب (${subtitle})${pl}`;
+    return `تفصیلی فہرستِ کتب${pl}`;
   }
   function cols() {
     const c = [{ k: 'n', w: 70, t: 'نمبر' }, { k: 'name', w: 0, t: 'کتاب کا نام' }];
@@ -223,8 +230,8 @@
       ctx.strokeStyle = C.gold2; ctx.lineWidth = 3; roundRect(ctx, M + 10, y + 20, W - 2 * M - 20, 170, 16); ctx.stroke();
       const tg = ctx.createLinearGradient(0, y + 30, 0, y + 120);
       tg.addColorStop(0, '#fff3c4'); tg.addColorStop(.5, '#e2b24e'); tg.addColorStop(1, '#a8741f');
-      ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `76px ${TFONT}`;
-      ctx.fillText('مکتبۃ العزیز', W / 2, y + 112);
+      ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `${BK() ? 76 : 60}px ${BF()}`;
+      ctx.fillText(BN(), W / 2, y + 112);
       ctx.fillStyle = '#f3e6c2'; ctx.font = `30px ${FONT}`;
       ctx.fillText(headLine(), W / 2, y + 168);
       ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.textAlign = 'right';
@@ -284,7 +291,7 @@
   }
   async function ready() {
     try {
-      await Promise.all([document.fonts.load(`30px ${FONT}`, 'کتاب 123'), document.fonts.load(`76px ${TFONT}`, 'مکتبۃ العزیز')]);
+      await Promise.all([document.fonts.load(`30px ${FONT}`, 'کتاب 123'), document.fonts.load(`76px ${BF()}`, BN())]);
       await document.fonts.ready;
     } catch (e) {}
   }
@@ -321,7 +328,7 @@
       let yy = TOP;
       pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
       ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-      ctx.fillText(`مکتبۃ العزیز — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
+      ctx.fillText(`${BN()} — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
       return cv.toDataURL('image/jpeg', 0.9);
     });
     return makePdf(jpgs, W, PH);
@@ -396,10 +403,10 @@
         toast(await copyText(buildText()) ? 'فہرست کاپی ہو گئی' : 'کاپی نہیں ہو سکی');
       } else if (kind === 'img') {
         btn.textContent = 'بن رہا ہے…';
-        await deliver(await poster(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.png`, 'مکتبۃ العزیز — فہرستِ کتب');
+        await deliver(await poster(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.png`, `${BN()} — فہرستِ کتب`);
       } else if (kind === 'pdf') {
         btn.textContent = 'بن رہا ہے…';
-        await deliver(await pdf(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.pdf`, 'مکتبۃ العزیز — فہرستِ کتب');
+        await deliver(await pdf(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.pdf`, `${BN()} — فہرستِ کتب`);
       }
     } catch (e) {
       console.warn(e);
