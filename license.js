@@ -220,14 +220,14 @@
   // ----- گاہک کی اسکرین -----
   function waMsg(st, name) {
     const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || '';
-    return `نام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nہمیں ایک سال کا سبسکرپشن چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
+    return `نام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nہمیں سبسکرپشن کوڈ چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
   }
   function showGate(block) {
     const st = status(), s = ensure();
     let line;
-    if (st.mode === 'paid') line = `سبسکرپشن فعال ہے — ${num(st.left)} دن باقی (${dmyI(st.exp)} تک)۔ ابھی تجدید کریں تو باقی دن ضائع نہیں ہوں گے، نیا سال ان کے اوپر جمع ہو گا۔`;
+    if (st.mode === 'paid') line = `سبسکرپشن فعال ہے — ${num(st.left)} دن باقی (${dmyI(st.exp)} تک)۔ ابھی تجدید کریں تو باقی دن ضائع نہیں ہوں گے، نئے دن ان کے اوپر جمع ہو جائیں گے۔`;
     else if (st.mode === 'expired') line = 'آپ کا سبسکرپشن ختم ہو گیا ہے۔ تجدید کے لیے نیا کوڈ منگوائیں۔';
-    else line = 'ایپ استعمال کرنے کے لیے ایک سال کا سبسکرپشن کوڈ درکار ہے۔';
+    else line = 'ایپ چلانے کے لیے سبسکرپشن کوڈ حاصل کریں۔';
     show(`<div class="lic-box">${block ? emblem(true) : ''}
       <div class="${block ? 'lic-fade' : ''}" style="display:grid;gap:10px">
       <p class="lic-k" id="licTitle">${block ? 'سبسکرپشن درکار ہے' : 'سبسکرپشن'}</p>
@@ -386,7 +386,7 @@
       L.unshift(rec); putL(L);
       const ok = await copy(code);
       m.className = 'lic-m ok'; m.textContent = ok ? '✅ کوڈ بن گیا اور کاپی ہو گیا' : 'کوڈ بن گیا — نیچے سے کاپی کریں';
-      showResult(rec, base ? `باقی دن جمع ہو گئے: نیا سال ${dmyI(base)} کے بعد شروع ہو گا۔` : '', false); renderLog();
+      showResult(rec, base ? `باقی دن جمع ہو گئے: نئے دن ${dmyI(base)} کے بعد شروع ہوں گے۔` : '', false); renderLog();
     }
     $(ov, '#dvGen').onclick = () => gen(false);
     findIn.addEventListener('input', renderLog);
