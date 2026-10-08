@@ -188,6 +188,31 @@
     });
   }
 
+  // ---------- ایپ بند کرنا (مین صفحے سے) ----------
+  function cover() {
+    if (document.getElementById('maBye')) return;
+    const d = document.createElement('div'); d.id = 'maBye';
+    d.style.cssText = 'position:fixed;inset:0;z-index:40000;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 30%,#1f6a54,#0b2e26);color:#fff1c1;font-family:JNN,serif;font-size:22px;line-height:2';
+    d.innerHTML = 'ایپ بند ہو گئی<br><span style="font-size:17px;opacity:.85">اب فون کا ہوم یا پیچھے والا بٹن دبائیں</span><br><button type="button" style="margin-top:14px;border:1.5px solid #e8c467;background:none;color:#f1d27a;border-radius:99px;padding:2px 18px;font:inherit;font-size:17px">دوبارہ کھولیں</button>';
+    d.querySelector('button').onclick = () => d.remove();
+    document.body.appendChild(d);
+  }
+  function exitApp() {
+    try { if (navigator.app && navigator.app.exitApp) { navigator.app.exitApp(); return; } } catch (e) {}
+    try { window.close(); } catch (e) {}
+    setTimeout(() => {
+      if (document.hidden) return;
+      try { if (history.length > 1) { try { sessionStorage.setItem('ma-exit', '1'); } catch (e) {} history.go(-(history.length - 1)); } } catch (e) {}
+      setTimeout(() => { try { window.close(); } catch (e) {} setTimeout(() => { if (!document.hidden) cover(); }, 300); }, 350);
+    }, 250);
+  }
+  window.MA_EXIT = exitApp;
+  document.addEventListener('click', e => { if (e.target.closest('[data-exit]')) { e.preventDefault(); exitApp(); } });
+  // پہلے صفحے پر واپس آ کر بند ہونے کی دوسری کوشش
+  let ex2 = false; try { ex2 = sessionStorage.getItem('ma-exit') === '1'; sessionStorage.removeItem('ma-exit'); } catch (e) {}
+  if (ex2 && !/[?&]exit=1/.test(location.search)) setTimeout(() => { try { window.close(); } catch (e) {} setTimeout(() => { if (!document.hidden) cover(); }, 400); }, 60);
+  if (/[?&]exit=1/.test(location.search) && document.querySelector('[data-exit]')) { try { history.replaceState(null, '', location.pathname); } catch (e) {} setTimeout(exitApp, 50); }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply); else apply();
   document.addEventListener('click', e => { if (e.target.closest('[data-b-edit]')) { e.preventDefault(); openEditor(); } });
 })();

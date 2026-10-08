@@ -255,6 +255,7 @@
       </div>
       <div class="lic-m" id="licMsg"></div>
       ${block ? '' : '<button type="button" class="lic-b g" id="licClose">بند کریں</button>'}
+      ${block ? '<button type="button" class="lic-b g lic-big" id="licExit">⏻ ایپ بند کریں</button>' : ''}
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
       </div>
     </div>`, block);
@@ -288,6 +289,7 @@
     };
     inp.addEventListener('input', () => { if (normCode(inp.value).length >= 16) go(); });
     const cl = $(ov, '#licClose'); if (cl) cl.onclick = hide;
+    const ex = $(ov, '#licExit'); if (ex) ex.onclick = closeApp;
   }
 
   // ----- ڈیولپر -----
@@ -489,6 +491,8 @@
   }
   function logout() { if (status().mode !== 'paid') return; loggedOut = true; showLoggedOut(); }
   function closeApp() {
+    // مکتبے کے صفحے سے: مین صفحے پر جا کر وہیں سے بند کریں (وہی ایپ کا پہلا صفحہ ہے)
+    if (!/\/(index\.html)?$/.test(location.pathname)) { location.replace('./?exit=1'); return; }
     // 1) سیدھی کوشش: اینڈرائیڈ ریپر یا window.close
     try { if (navigator.app && navigator.app.exitApp) { navigator.app.exitApp(); return; } } catch (e) {}
     try { window.close(); } catch (e) {}
