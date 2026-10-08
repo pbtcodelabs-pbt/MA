@@ -168,6 +168,7 @@
         cleanupOld().catch(() => {});
       }
       meta.lastDrive = new Date().toISOString(); meta.lastBooks = n; meta.pending = false;
+      if (window.MA_DIARY) meta.diarySig = window.MA_DIARY.sig();
       saveMeta();
       return n;
     } catch (e) {
@@ -381,6 +382,8 @@
       toast('اگلے بیک اپ پر اکاؤنٹ دوبارہ چنیں'); render();
     });
     window.addEventListener('ma-data-changed', onChanged);
+    // ڈائری میں کچھ بدلا ہو (ڈائری الگ صفحے پر ہے) تو مکتبہ کھلتے ہی بیک اپ
+    setTimeout(() => { try { if (window.MA_DIARY && meta.diarySig !== window.MA_DIARY.sig()) onChanged(); } catch (e) {} }, 2500);
     if (clientId() && navigator.onLine) loadGis().catch(() => {});
     setTimeout(checkSchedule, 3000);
     setInterval(checkSchedule, 60000);

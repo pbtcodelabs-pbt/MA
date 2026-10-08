@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA810TH075) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA810TH076) */
 (() => {
   'use strict';
 
@@ -661,7 +661,7 @@
 
   // ---------- بیک اپ ----------
   $('btnExport').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined }), null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `mera-maktaba-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -730,6 +730,7 @@
       db = normDb(d);
       if (d.lic && window.MA_LIC) window.MA_LIC.import(d.lic);
       if (d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand);
+      if (d.diary) window.MA_DIARY.set(d.diary);
       save(); route(); toast(`بیک اپ سے ${num(db.books.length)} کتب واپس آ گئیں`);
     } catch (err) {
       toast('یہ فائل درست بیک اپ نہیں ہے۔');
@@ -764,11 +765,17 @@
 
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
+  // ڈائری کا ڈیٹا (ڈائری اپنا ڈیٹا jsm_ سے شروع ہونے والی چابیوں میں رکھتی ہے)
+  window.MA_DIARY = {
+    get() { const o = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('jsm_')) o[k] = localStorage.getItem(k); } } catch (e) {} return Object.keys(o).length ? o : undefined; },
+    set(o) { if (!o || typeof o !== 'object') return; try { Object.keys(o).forEach(k => { if (k.startsWith('jsm_') && typeof o[k] === 'string') localStorage.setItem(k, o[k]); }); } catch (e) {} },
+    sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
+  };
   window.MA_DRIVE_HOST = {
-    version: 'MA810TH075',
+    version: 'MA810TH076',
     toast,
-    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined }),
-    replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); }
+    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
+    replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); }
   };
   // میرے پروگرام (programs.js) کے لیے
   window.MA_APP = {

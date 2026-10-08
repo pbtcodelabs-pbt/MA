@@ -111,7 +111,8 @@
 
   // ---------- ڈیولپر کا ریکارڈ (کس کو کون سا کوڈ دیا) ----------
   const getL = () => { try { const l = JSON.parse(localStorage.getItem(LKEY)); return Array.isArray(l) ? l : []; } catch (e) { return []; } };
-  const putL = l => { try { localStorage.setItem(LKEY, JSON.stringify(l.slice(0, 500))); } catch (e) {} };
+  // کوڈ کا ریکارڈ بدلے تو Drive بیک اپ بھی خود ہو جائے
+  const putL = l => { try { localStorage.setItem(LKEY, JSON.stringify(l.slice(0, 500))); } catch (e) {} try { window.dispatchEvent(new Event('ma-data-changed')); } catch (e) {} };
 
   // ---------- کاپی / پیسٹ ----------
   async function copy(t) {
