@@ -1,13 +1,18 @@
 /* مکتبۃ العزیز — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA710WE045';
+const VERSION = 'MA810TH046';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
 const CORE = [
   './',
   './index.html',
+  './maktaba.html',
+  './diary/',
+  './diary/index.html',
+  './diary/icon-192.png',
+  './diary/icon-512.png',
   './manifest.json',
   './privacy.html',
   `./style.css?v=${VERSION}`,
@@ -50,7 +55,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE && k !== FONT_CACHE).map(k => caches.delete(k))
+        keys.filter(k => k.startsWith('maktaba-aziz-') && k !== CACHE && k !== FONT_CACHE).map(k => caches.delete(k))
       ))
       .then(() => caches.open(FONT_CACHE)).then(fc => fc.keys().then(ks => Promise.all(ks.filter(r => !FONTS.some(f => r.url.endsWith(f.slice(1)))).map(r => fc.delete(r)))))
       .then(() => self.clients.claim())
@@ -87,6 +92,6 @@ self.addEventListener('fetch', event => {
         }
         return res;
       })
-      .catch(() => caches.match(req, { ignoreSearch: req.mode === 'navigate' }).then(hit => hit || caches.match('./index.html')))
+      .catch(() => caches.match(req, { ignoreSearch: req.mode === 'navigate' }).then(hit => hit || caches.match(url.pathname.includes('/diary/') ? './diary/index.html' : './index.html')))
   );
 });
