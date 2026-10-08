@@ -126,7 +126,7 @@ body::before{
 button.chip{cursor:pointer}
 [hidden]{display:none !important}
 
-/* MA810TH062: ابھرے ہوئے 3D دروازے */
+/* MA810TH063: ابھرے ہوئے 3D دروازے */
 .doors{gap:24px !important;perspective:900px}
 .door{border:0 !important;overflow:hidden;
   background:linear-gradient(180deg,#ffffff 0%,#fbf4e2 38%,#efe0bb 100%) !important;
@@ -146,7 +146,7 @@ button.chip{cursor:pointer}
 .door:active .go{transform:translateY(2px)}
 @media (prefers-reduced-motion:reduce){.door::after{animation:none;display:none}}
 
-/* MA810TH062: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
+/* MA810TH063: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
 .crest{width:min(30vw,116px) !important;margin-top:0 !important}
 .page{padding-top:calc(8px + env(safe-area-inset-top)) !important}
 .title{font-size:clamp(36px,10.5vw,50px) !important;line-height:1.75 !important}
@@ -174,7 +174,7 @@ button.chip{cursor:pointer}
 .tk-sep{color:#c8962f;padding:0 4px}
 @media (prefers-reduced-motion:reduce){.tk-run{animation:none}.tk-win{overflow-x:auto}}
 
-/* MA810TH062: ڈیولپر سے رابطہ */
+/* MA810TH063: ڈیولپر سے رابطہ */
 .dev{width:100%;margin-top:14px;display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:18px;
   background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,.18));border:1.5px solid rgba(232,196,103,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
 .dev-t{flex:1;min-width:0;display:grid;justify-items:start;line-height:1.5}
@@ -199,6 +199,16 @@ button.chip{cursor:pointer}
   box-shadow:0 0 0 2.5px #fff3c4,0 0 0 4.5px #b8862b,0 6px 0 #6e4a10,0 12px 16px rgba(0,0,0,.4),inset 0 3px 0 rgba(255,255,255,.55),inset 0 -5px 8px rgba(0,0,0,.25) !important}
 .dev-i svg{width:30px !important;height:30px !important;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.35))}
 .dev-i:active{transform:translateY(5px);box-shadow:0 0 0 2.5px #fff3c4,0 0 0 4.5px #b8862b,0 1px 0 #6e4a10,0 4px 6px rgba(0,0,0,.4) !important}
+
+/* رابطے کے بٹن: چھوٹے اور باہر کو ابھرے ہوئے */
+.dev-i{position:relative;width:44px !important;height:44px !important;
+  box-shadow:0 0 0 2px #b8862b,0 5px 0 #6e4a10,0 9px 12px rgba(0,0,0,.45) !important;transform:translateY(-3px)}
+.dev-i::before{content:"";position:absolute;left:12%;right:12%;top:6%;height:44%;border-radius:50% 50% 45% 45%;
+  background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,0));pointer-events:none}
+.dev-i.wa{background:radial-gradient(circle at 50% 30%,#6ef09b 0%,#2fc765 45%,#178a43 100%) !important}
+.dev-i.ph{background:radial-gradient(circle at 50% 30%,#fff6d0 0%,#f1d27a 40%,#b8862b 100%) !important}
+.dev-i svg{position:relative;width:24px !important;height:24px !important}
+.dev-i:active{transform:translateY(2px) !important;box-shadow:0 0 0 2px #b8862b,0 1px 0 #6e4a10,0 3px 5px rgba(0,0,0,.4) !important}
 </style>
 </head>
 <body data-b-title>
@@ -261,12 +271,12 @@ button.chip{cursor:pointer}
   </div>
   <footer class="foot">
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip">MA810TH062</span>
+    <span class="chip">MA810TH063</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ پہچان بدلیں</span></button>
     <button type="button" class="chip link" data-exit><span class="lbl">⏻ ایپ بند</span></button>
   </footer>
 </main>
-<script src="brand.js?v=MA810TH062"></script>
+<script src="brand.js?v=MA810TH063"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
