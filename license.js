@@ -587,12 +587,14 @@
   };
 
   ensure();
-  if (status().mode === 'paid') { showWelcome(); card(); } else refresh(true);
+  const fromDev = /[?&]dev=1/.test(location.search);
+  if (status().mode === 'paid') { if (!fromDev) showWelcome(); card(); } else if (!fromDev) refresh(true);
   // مین صفحے کی پٹی سے آئے ہوں تو خریدنے والی اسکرین کھولیں
   if (/[?&]buy=1/.test(location.search) && status().mode !== 'locked' && status().mode !== 'expired') setTimeout(() => showGate(false, true), 400);
   setInterval(refresh, 30000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
   const vc = document.getElementById('verChip'); if (vc) tapCounter(vc, devAuth);
+  if (/[?&]dev=1/.test(location.search)) { try { history.replaceState(null, '', location.pathname); } catch (e) {} setTimeout(devAuth, 500); }
   const bl = document.getElementById('btnLogout'); if (bl) bl.addEventListener('click', logout);
   const bc = document.getElementById('btnClose'); if (bc) bc.addEventListener('click', closeApp);
 })();
