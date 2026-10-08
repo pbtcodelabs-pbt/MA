@@ -588,6 +588,8 @@
 
   ensure();
   if (status().mode === 'paid') { showWelcome(); card(); } else refresh(true);
+  // مین صفحے کی پٹی سے آئے ہوں تو خریدنے والی اسکرین کھولیں
+  if (/[?&]buy=1/.test(location.search) && status().mode !== 'locked' && status().mode !== 'expired') setTimeout(() => showGate(false, true), 400);
   setInterval(refresh, 30000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
   const vc = document.getElementById('verChip'); if (vc) tapCounter(vc, devAuth);

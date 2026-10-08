@@ -127,7 +127,7 @@ body::before{
 button.chip{cursor:pointer}
 [hidden]{display:none !important}
 
-/* MA810TH069: ابھرے ہوئے 3D دروازے */
+/* MA810TH070: ابھرے ہوئے 3D دروازے */
 .doors{gap:24px !important;perspective:900px}
 .door{border:0 !important;overflow:hidden;
   background:linear-gradient(180deg,#ffffff 0%,#fbf4e2 38%,#efe0bb 100%) !important;
@@ -147,7 +147,7 @@ button.chip{cursor:pointer}
 .door:active .go{transform:translateY(2px)}
 @media (prefers-reduced-motion:reduce){.door::after{animation:none;display:none}}
 
-/* MA810TH069: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
+/* MA810TH070: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
 .crest{width:min(30vw,116px) !important;margin-top:0 !important}
 .page{padding-top:calc(8px + env(safe-area-inset-top)) !important}
 .title{font-size:clamp(36px,10.5vw,50px) !important;line-height:1.75 !important}
@@ -175,7 +175,7 @@ button.chip{cursor:pointer}
 .tk-sep{color:#c8962f;padding:0 4px}
 @media (prefers-reduced-motion:reduce){.tk-run{animation:none}.tk-win{overflow-x:auto}}
 
-/* MA810TH069: ڈیولپر سے رابطہ */
+/* MA810TH070: ڈیولپر سے رابطہ */
 .dev{width:100%;margin-top:14px;display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:18px;
   background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,.18));border:1.5px solid rgba(232,196,103,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
 .dev-t{flex:1;min-width:0;display:grid;justify-items:start;line-height:1.5}
@@ -221,10 +221,23 @@ button.chip{cursor:pointer}
   background:radial-gradient(circle at 50% 30%,#fff6d0 0%,#f1d27a 40%,#b8862b 100%);box-shadow:0 0 0 2px #fff3c4,0 4px 0 #6e4a10,0 8px 10px rgba(0,0,0,.4);transform:translateY(-2px)}
 .share-ic svg{width:20px;height:20px}
 .share-ic:active{transform:translateY(2px);box-shadow:0 0 0 2px #fff3c4,0 1px 0 #6e4a10}
+
+/* MA810TH070: ٹرائل / سبسکرپشن کی پٹی */
+.sub-pill{align-self:center;display:inline-flex;align-items:center;gap:6px;margin:0 0 4px;padding:1px 14px;border-radius:99px;text-decoration:none;
+  font-size:14px;line-height:1.9;color:#0b2e26;background:linear-gradient(180deg,#fff6d5,#f1d27a 45%,#c8962f);box-shadow:0 0 0 1.5px #fff3c4,0 3px 0 #8a5f16,0 6px 10px rgba(0,0,0,.35)}
+.sub-pill b{font:700 14px Arial,sans-serif}
+.sub-pill i{font-style:normal;text-decoration:underline;opacity:.85}
+.sub-pill.ok{background:rgba(0,0,0,.25);color:#e6d6aa;box-shadow:0 0 0 1px rgba(232,196,103,.5)}
+.sub-pill.bad{background:linear-gradient(180deg,#e2574a,#a3241a);color:#fff3c4;box-shadow:0 0 0 1.5px #f1d27a,0 3px 0 #5a0f08}
+.crest{width:min(27vw,104px) !important}
+.doors{gap:13px !important}
+.dev{margin-top:13px !important}
+.title{line-height:1.6 !important}
 </style>
 </head>
 <body data-b-title>
 <main class="page">
+  <a class="sub-pill" id="subPill" href="maktaba.html?buy=1" hidden></a>
   <div class="crest" data-b-box>
     <img data-b-logo alt="" width="190" height="190" hidden>
     <button type="button" class="ph" data-b-edit aria-label="لوگو لگائیں"><span>＋<br>لوگو</span></button>
@@ -284,12 +297,12 @@ button.chip{cursor:pointer}
   <footer class="foot">
     <button type="button" class="share-ic" id="shareApp" aria-label="ایپ شیئر کریں" title="ایپ شیئر کریں"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="#0b2e26" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="#0b2e26"/><circle cx="6" cy="12" r="3.2" fill="#0b2e26"/><circle cx="18" cy="19" r="3.2" fill="#0b2e26"/></svg></button>
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip">MA810TH069</span>
+    <span class="chip">MA810TH070</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ پہچان بدلیں</span></button>
     <button type="button" class="chip link" data-exit><span class="lbl">⏻ ایپ بند</span></button>
   </footer>
 </main>
-<script src="brand.js?v=MA810TH069"></script>
+<script src="brand.js?v=MA810TH070"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
@@ -335,10 +348,29 @@ if ('serviceWorker' in navigator) {
   requestAnimationFrame(() => { const w = run.scrollWidth / 2; run.style.setProperty('--dur', Math.max(12, w / 45) + 's'); });
 })();
 </script>
-<script src="promo.js?v=MA810TH069"></script>
+<script src="promo.js?v=MA810TH070"></script>
 <script>
 // ایپ شیئر: پہلے پوسٹر اور پیغام دکھائیں، پھر بھیجیں
 document.getElementById('shareApp').addEventListener('click', () => window.MA_PROMO && window.MA_PROMO.open());
+</script>
+<script>
+// ٹرائل / سبسکرپشن کی حالت ہر وقت مین صفحے پر
+(function () {
+  const el = document.getElementById('subPill'); if (!el) return;
+  try {
+    const iso = x => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+    const t = iso(new Date()), days = (a, b) => Math.round((new Date(a + 'T00:00:00') - new Date(b + 'T00:00:00')) / 864e5);
+    const s = JSON.parse(localStorage.getItem('maktaba-aziz-lic') || 'null') || {};
+    const tr = s.trial || localStorage.getItem('maktaba-aziz-trial') || '';
+    let html = '', cls = '';
+    if (s.exp && s.exp >= t) { const left = days(s.exp, t) + 1; html = `✅ سبسکرپشن: <b>${left}</b> دن باقی`; cls = left <= 30 ? 'bad' : 'ok'; if (left <= 30) html += ' — <i>تجدید کریں</i>'; }
+    else if (s.exp) { html = '⛔ سبسکرپشن ختم ہو گئی — <i>تجدید کریں</i>'; cls = 'bad'; }
+    else if (tr) { const e = new Date(tr + 'T00:00:00'); e.setDate(e.getDate() + 2); const left = days(iso(e), t) + 1;
+      if (left > 0) html = `🎁 فری ٹرائل: <b>${left}</b> دن باقی — <i>ابھی خریدیں</i>`; else { html = '⛔ فری ٹرائل ختم — <i>سبسکرپشن لیں</i>'; cls = 'bad'; } }
+    else html = '🎁 3 دن کا فری ٹرائل — کوئی بھی بٹن دبا کر شروع کریں';
+    el.innerHTML = html; if (cls) el.classList.add(cls); el.hidden = false;
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>
