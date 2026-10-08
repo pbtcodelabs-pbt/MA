@@ -122,6 +122,11 @@
   .lic-k{margin:0;color:#e9c97a;font-family:var(--f-body,'JNN','Noto Nastaliq Urdu',serif);font-weight:400;font-size:28px;line-height:2.1;padding:6px 0}
   .lic-p{margin:0;font-size:17px;line-height:2.2}
   .lic-s{margin:0;font-size:15px;line-height:2.1;color:#d8e6df}
+  .lic-step{margin:4px 0 -2px;font-size:19px;line-height:1.8;color:#f4de96;text-align:center}
+  .lic-big{display:block;width:100%;text-align:center;font-size:19px !important;padding:8px 12px !important;box-sizing:border-box}
+  .lic-small{margin:-4px 0 2px;font-size:14px;line-height:1.8;color:#e6d6aa;text-align:center}
+  .lic-small b{font:700 14px ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;color:#fff1c1}
+  .lic-link{border:0;background:none;color:#f4de96;text-decoration:underline;font:inherit;cursor:pointer;padding:0}
   .lic-in.need{border-color:#ff8a7a !important;box-shadow:0 0 0 3px rgba(255,120,100,.35) !important}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
   .lic-code{color:#9be3b0;font-size:19px;letter-spacing:1.5px}
@@ -232,13 +237,13 @@
       <div class="${block ? 'lic-fade' : ''}" style="display:grid;gap:10px">
       <p class="lic-k" id="licTitle">${block ? 'سبسکرپشن درکار ہے' : 'سبسکرپشن'}</p>
       <p class="lic-p">${line}</p>
-      <p class="lic-s">۱) اپنا نام لکھیں، پھر نیچے والا بٹن دبا کر ڈیولپر کو میسج بھیجیں (آپ کی UID خود لگ جائے گی)<br>۲) جو کوڈ ملے وہ نیچے ڈالیں</p>
+      <p class="lic-step">۱) اپنا نام لکھ کر واٹس ایپ کریں</p>
       <input class="lic-in t" id="licName" placeholder="اپنا نام لکھیں (ضروری)" autocomplete="off" value="${esc(s.name || '')}">
-      <div class="lic-uid" id="licUid">${st.uid}</div>
-      <div class="lic-row"><a class="lic-b" id="licWa" target="_blank" rel="noopener" href="#">📲 واٹس ایپ پر کوڈ منگوائیں</a>
-        <button type="button" class="lic-b g" id="licCopyUid">📋 UID کاپی</button></div>
+      <a class="lic-b lic-big" id="licWa" target="_blank" rel="noopener" href="#">📲 واٹس ایپ پر کوڈ منگوائیں</a>
+      <p class="lic-small">آپ کی UID: <b dir="ltr" id="licUid">${st.uid}</b> · <button type="button" class="lic-link" id="licCopyMsg">یا میسج کاپی کریں</button></p>
+      <p class="lic-step">۲) ملنے والا کوڈ یہاں ڈالیں</p>
       <input class="lic-in" id="licIn" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
-      <div class="lic-row"><button type="button" class="lic-b" id="licGo">✅ فعال کریں</button><button type="button" class="lic-b g" id="licPaste">📋 پیسٹ</button></div>
+      <button type="button" class="lic-b lic-big g2" id="licGo">✅ فعال کریں</button>
       <div class="lic-m" id="licMsg"></div>
       ${block ? '' : '<button type="button" class="lic-b g" id="licClose">بند کریں</button>'}
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
@@ -250,15 +255,22 @@
     wa.addEventListener('click', e => { if (!nm.value.trim()) { e.preventDefault(); nm.classList.add('need'); nm.focus(); m.className = 'lic-m'; m.textContent = 'پہلے اپنا نام لکھیں، پھر میسج بھیجیں'; } });
     tapCounter($(ov, '#licTitle'), devAuth);
     tapCounter($(ov, '#licVer'), devAuth);
-    $(ov, '#licCopyUid').onclick = async () => { m.className = 'lic-m ok'; m.textContent = (await copy(st.uid)) ? 'UID کاپی ہو گئی' : 'کاپی نہیں ہو سکی'; };
+    $(ov, '#licCopyMsg').onclick = async () => {
+      if (!nm.value.trim()) { nm.classList.add('need'); nm.focus(); m.className = 'lic-m'; m.textContent = 'پہلے اپنا نام لکھیں'; return; }
+      m.className = 'lic-m ok'; m.textContent = (await copy(waMsg(status(), nm.value.trim()))) ? 'میسج کاپی ہو گیا — اب 0320-6793793 پر بھیج دیں' : 'کاپی نہیں ہو سکا';
+    };
     const go = async () => {
       m.className = 'lic-m'; m.textContent = 'جانچ ہو رہی ہے…';
       const r = await activate(inp.value);
       if (r.ok) { m.className = 'lic-m ok'; m.textContent = `✅ سبسکرپشن فعال — ${dmyI(r.exp)} تک`; setTimeout(() => { showWelcome(); refresh(true); }, 900); }
       else m.textContent = r.msg;
     };
-    $(ov, '#licGo').onclick = go;
-    $(ov, '#licPaste').onclick = async () => { const t = await readClip(); if (t) { inp.value = t.trim(); if (normCode(t).length >= 16) go(); } else { m.className = 'lic-m'; m.textContent = 'پیسٹ نہیں ہو سکا — کوڈ خود لکھ دیں'; } };
+    // ایک ہی بٹن: کوڈ خالی ہو تو خود پیسٹ کر کے فعال کرے
+    $(ov, '#licGo').onclick = async () => {
+      if (normCode(inp.value).length < 16) { const t = await readClip(); if (t && normCode(t).length >= 16) inp.value = t.trim(); }
+      if (normCode(inp.value).length < 16) { m.className = 'lic-m'; m.textContent = 'واٹس ایپ پر ملا کوڈ کاپی کر کے یہ بٹن دبائیں، یا اوپر خانے میں لکھ دیں'; inp.focus(); return; }
+      go();
+    };
     inp.addEventListener('input', () => { if (normCode(inp.value).length >= 16) go(); });
     const cl = $(ov, '#licClose'); if (cl) cl.onclick = hide;
   }
