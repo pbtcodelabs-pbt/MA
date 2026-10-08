@@ -127,6 +127,9 @@
   .lic-small{margin:-4px 0 2px;font-size:14px;line-height:1.8;color:#e6d6aa;text-align:center}
   .lic-small b{font:700 14px ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;color:#fff1c1}
   .lic-link{border:0;background:none;color:#f4de96;text-decoration:underline;font:inherit;cursor:pointer;padding:0}
+  .lic-rs{display:block;margin:6px auto 0;font-size:16px}
+  .lic-rbox{background:rgba(0,0,0,.22);border:1px dashed rgba(233,201,122,.7);border-radius:14px;padding:8px 12px;display:grid;gap:6px}
+  .lic-rbox p{margin:0;font-size:15px;line-height:1.85;color:#f3e6c2}
   .lic-in.need{border-color:#ff8a7a !important;box-shadow:0 0 0 3px rgba(255,120,100,.35) !important}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
   .lic-code{color:#9be3b0;font-size:19px;letter-spacing:1.5px}
@@ -244,6 +247,12 @@
       <p class="lic-step">۲) ملنے والا کوڈ یہاں ڈالیں</p>
       <input class="lic-in" id="licIn" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button type="button" class="lic-b lic-big g2" id="licGo">✅ فعال کریں</button>
+      <button type="button" class="lic-link lic-rs" id="licRestore">🔄 پہلے سے سبسکرپشن تھی؟ یہاں سے بحال کریں</button>
+      <div class="lic-rbox" id="licRbox" hidden>
+        <p><b>۱)</b> پہلے واٹس ایپ پر جو کوڈ ملا تھا، وہی اوپر والے خانے میں دوبارہ ڈال کر «فعال کریں» دبائیں۔ اسی فون پر وہی کوڈ دوبارہ چل جاتا ہے۔</p>
+        <p><b>۲)</b> پرانا کوڈ نہیں مل رہا؟ نیچے بٹن دبائیں، آپ کو پرانا کوڈ دوبارہ بھیج دیا جائے گا (نیا پیسہ نہیں لگے گا)۔</p>
+        <a class="lic-b lic-big" id="licWaR" target="_blank" rel="noopener" href="#">📲 سبسکرپشن بحال کروائیں</a>
+      </div>
       <div class="lic-m" id="licMsg"></div>
       ${block ? '' : '<button type="button" class="lic-b g" id="licClose">بند کریں</button>'}
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
@@ -255,6 +264,12 @@
     wa.addEventListener('click', e => { if (!nm.value.trim()) { e.preventDefault(); nm.classList.add('need'); nm.focus(); m.className = 'lic-m'; m.textContent = 'پہلے اپنا نام لکھیں، پھر میسج بھیجیں'; } });
     tapCounter($(ov, '#licTitle'), devAuth);
     tapCounter($(ov, '#licVer'), devAuth);
+    $(ov, '#licRestore').onclick = () => { const b = $(ov, '#licRbox'); b.hidden = !b.hidden; if (!b.hidden) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
+    const waR = $(ov, '#licWaR');
+    waR.addEventListener('click', e => {
+      if (!nm.value.trim()) { e.preventDefault(); nm.classList.add('need'); nm.focus(); m.className = 'lic-m'; m.textContent = 'پہلے اوپر اپنا نام لکھیں'; return; }
+      waR.href = `https://wa.me/${CFG.DEV_PHONE}?text=${encodeURIComponent(`نام: ${nm.value.trim()}\nUID: ${st.uid}\nمیری سبسکرپشن پہلے سے تھی، ایپ دوبارہ کوڈ مانگ رہی ہے۔ براہ کرم بحال کر دیں۔`)}`;
+    });
     $(ov, '#licCopyMsg').onclick = async () => {
       if (!nm.value.trim()) { nm.classList.add('need'); nm.focus(); m.className = 'lic-m'; m.textContent = 'پہلے اپنا نام لکھیں'; return; }
       m.className = 'lic-m ok'; m.textContent = (await copy(waMsg(status(), nm.value.trim()))) ? 'میسج کاپی ہو گیا — اب 0320-6793793 پر بھیج دیں' : 'کاپی نہیں ہو سکا';
@@ -372,7 +387,17 @@
     };
     const fillName = () => { const u = normUid(uidIn.value); if (u && !nameIn.value.trim()) { const r = getL().find(x => x.uid === u && x.name); if (r) nameIn.value = r.name; } };
     // گاہک کا پورا میسج پیسٹ ہو تو نام + UID خود لگ کر کوڈ بھی خود بن جائے
-    const auto = () => { if (findUid(msg.value) && nameIn.value.trim()) gen(false); };
+    const isRestore = () => /بحال/.test(msg.value);
+    const auto = () => { if (findUid(msg.value) && nameIn.value.trim()) { if (isRestore() && restore()) return; gen(false); } };
+    // پرانی سبسکرپشن بحال: اسی UID کا ابھی چلنے والا کوڈ دوبارہ دکھائیں (نیا کوڈ / نئے دن نہیں)
+    function restore() {
+      const uid = normUid(uidIn.value); if (!uid) return false;
+      const live = getL().filter(r => r.uid === uid && r.exp >= today()).sort((a, b) => (b.exp > a.exp ? 1 : -1))[0];
+      if (!live) { m.className = 'lic-m'; m.textContent = 'اس UID کا کوئی چلتا ہوا کوڈ ریکارڈ میں نہیں — دن چن کر نیا کوڈ بنائیں'; return true; }
+      copy(live.code); m.className = 'lic-m ok'; m.textContent = '✅ پرانا کوڈ مل گیا اور کاپی ہو گیا — یہی گاہک کو بھیج دیں';
+      showResult(live, 'بحالی: یہ اسی فون کا پہلے والا کوڈ ہے، اس سے سبسکرپشن پہلے جتنی ہی بحال ہو جائے گی۔', false);
+      return true;
+    }
     msg.addEventListener('input', pick); uidIn.addEventListener('input', fillName);
     msg.addEventListener('paste', () => setTimeout(() => { pick(); auto(); }, 0));
     $(ov, '#dvPaste').onclick = async () => { const t = await readClip(); if (t) { msg.value = t; pick(); auto(); } else { m.className = 'lic-m'; m.textContent = 'پیسٹ نہیں ہو سکا — خود پیسٹ کریں'; } };
