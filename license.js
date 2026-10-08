@@ -368,7 +368,7 @@
       <p class="lic-s" id="dvCnt"></p>
       <input class="lic-in t" id="dvFind" placeholder="تلاش: نام / UID / کوڈ" autocomplete="off">
       <div class="lic-log" id="dvLog"></div>
-      <div class="lic-row"><button type="button" class="lic-b g sm" id="dvExp">📤 فہرست کاپی</button><button type="button" class="lic-b g sm" id="dvImp">📥 فہرست بحال</button></div>
+      <div class="lic-row"><button type="button" class="lic-b g sm" id="dvExp"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> فہرست کاپی</button><button type="button" class="lic-b g sm" id="dvImp">📥 فہرست بحال</button></div>
       <p class="lic-s" style="margin-top:6px">پاسورڈ بدلیں</p>
       <input class="lic-in" id="dvNew" type="password" placeholder="نیا پاسورڈ" autocomplete="off" style="text-transform:none">
       <input class="lic-in" id="dvNew2" type="password" placeholder="نیا پاسورڈ دوبارہ" autocomplete="off" style="text-transform:none">
@@ -403,11 +403,11 @@
         <div class="n"><b>${esc(r.name) || 'بغیر نام'}</b>${status2(r)}</div>
         <div class="u">UID ${r.uid}</div><div class="c">${r.code}</div>
         <div class="d">${dmy(r.iss)} → ${dmy(r.exp)}</div>
-        <div class="lic-row"><button type="button" class="lic-b g sm" data-a="used">${r.used ? '↩️ غیر استعمال' : '✅ استعمال ہو گیا'}</button><button type="button" class="lic-b g sm" data-a="name">✏️ نام</button><button type="button" class="lic-b g sm" data-a="copy">📋 کاپی</button><button type="button" class="lic-b sm" data-a="wa">📤 بھیجیں</button><button type="button" class="lic-b g sm" data-a="del">🗑️</button></div></div>`).join('') || '<p class="lic-s">کوئی ریکارڈ نہیں</p>';
+        <div class="lic-row"><button type="button" class="lic-b g sm" data-a="used">${r.used ? '↩️ غیر استعمال' : '✅ استعمال ہو گیا'}</button><button type="button" class="lic-b g sm" data-a="name">✏️ نام</button><button type="button" class="lic-b g sm" data-a="copy">📋 کاپی</button><button type="button" class="lic-b sm" data-a="wa"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> بھیجیں</button><button type="button" class="lic-b g sm" data-a="del">🗑️</button></div></div>`).join('') || '<p class="lic-s">کوئی ریکارڈ نہیں</p>';
     }
     function showResult(r, note, canForce) {
       out.innerHTML = `${note ? `<p class="lic-s">${note}</p>` : ''}<div class="lic-code">${r.code}</div><p class="lic-s">${esc(r.name) || ''} · ختم: ${dmyI(r.exp)} (${num(dayDiff(r.exp, today()) + 1)} دن)</p>
-        <div class="lic-row"><button type="button" class="lic-b g" id="dvCp">📋 کاپی</button><a class="lic-b" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(sendMsg(r))}">📤 واٹس ایپ</a>${canForce ? '<button type="button" class="lic-b g" id="dvForce">➕ نیا کوڈ (دن جمع)</button>' : ''}</div>`;
+        <div class="lic-row"><button type="button" class="lic-b g" id="dvCp">📋 کاپی</button><a class="lic-b" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(sendMsg(r))}"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> واٹس ایپ</a>${canForce ? '<button type="button" class="lic-b g" id="dvForce">➕ نیا کوڈ (دن جمع)</button>' : ''}</div>`;
       $(ov, '#dvCp').onclick = async () => { m.className = 'lic-m ok'; m.textContent = (await copy(r.code)) ? '✅ کاپی ہو گیا' : 'کاپی نہیں ہو سکا'; };
       const f = $(ov, '#dvForce'); if (f) f.onclick = () => gen(true);
     }

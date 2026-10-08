@@ -1466,7 +1466,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA810TH064</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA810TH065</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1481,7 +1481,7 @@
     <!-- Row 2: Action buttons -->
     <div style="display:flex;gap:4px;padding:2px 10px 4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;">
       <button class="tool-btn" onclick="showCatModal()" style="font-size:0.7rem;padding:4px 8px;white-space:nowrap;">➕ کیٹگری</button>
-      <button class="tool-btn gold" onclick="showShareBar()" style="font-size:0.7rem;padding:4px 8px;white-space:nowrap;">📤 شیئر</button>
+      <button class="tool-btn gold" onclick="showShareBar()" style="font-size:0.7rem;padding:4px 8px;white-space:nowrap;"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> شیئر</button>
       <button class="tool-btn gold" onclick="saveToGDrive()" style="font-size:0.7rem;padding:4px 8px;white-space:nowrap;">📦 بیک اپ</button>
       <button class="tool-btn gold" onclick="document.getElementById('restoreInput').click()" style="font-size:0.7rem;padding:4px 8px;white-space:nowrap;">📥 بحال</button>
       <input type="file" id="restoreInput" accept=".json,.zip" onchange="restoreFromZip(event)" style="display:none">
@@ -1625,7 +1625,7 @@
 <!-- ADVANCED SHARE MODAL -->
 <div class="modal-overlay" id="shareOptionsModal">
   <div class="modal" style="background:#fff; border-radius:20px; padding:20px; max-width:400px;">
-    <h3 style="text-align:center; color:#1a5c2a; margin-top:0;">📤 کیا شیئر کرنا چاہتے ہیں؟</h3>
+    <h3 style="text-align:center; color:#1a5c2a; margin-top:0;"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> کیا شیئر کرنا چاہتے ہیں؟</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
       <button onclick="doShare('all')" style="padding:15px; background:linear-gradient(135deg,#1a5c2a,#3a9148); border:none; border-radius:15px; cursor:pointer; font-weight:bold; color:white; font-size:1.1rem;">🌟 تصویر کے طور پر شیئر کریں</button>
       <button onclick="doShare('text')" style="padding:12px; background:#f0f7ff; border:1px solid #bbdefb; border-radius:12px; cursor:pointer; font-weight:bold; color:#1565c0; margin-top:10px;">📝 صرف تحریر (کاپی)</button>
@@ -1642,7 +1642,7 @@
       <button id="rf-nastaliq" onclick="applyFsFont('font-nastaliq')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">نستعلیق</button>
       <button id="rf-arial" onclick="applyFsFont('font-arial')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">ایریل</button>
       <button id="rf-naskh" onclick="applyFsFont('font-naskh')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">نسخ</button>
-      <button onclick="openShareOptions()" style="background:#f5d87a; color:#1a1a1a; border:none; border-radius:15px; padding:5px 15px; font-weight:bold; cursor:pointer; font-size:0.8rem;">📤 شیئر</button>
+      <button onclick="openShareOptions()" style="background:#f5d87a; color:#1a1a1a; border:none; border-radius:15px; padding:5px 15px; font-weight:bold; cursor:pointer; font-size:0.8rem;"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> شیئر</button>
       <button onclick="editFromFullscreen()" style="background:#3a9148; color:#fff; border:none; border-radius:15px; padding:5px 15px; font-weight:bold; cursor:pointer; font-size:0.8rem;">✏️ ترمیم</button>
       <button class="fs-close-btn" onclick="closeFullscreen(); goHome();">✕</button>
     </div>
@@ -1666,7 +1666,7 @@
     <div id="linkOptionUrlDisplay" style="padding:8px 12px;background:#e3f2fd;border-radius:8px;border:1px solid #bbdefb;font-size:0.75rem;color:#1565c0;margin-bottom:14px;word-break:break-all;direction:ltr;font-family:monospace;"></div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button onclick="doLinkAction('open')" style="padding:12px;background:linear-gradient(135deg,#1a5c2a,#3a9148);border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;font-family:inherit;font-size:0.9rem;">🌐 براؤزر میں کھولیں</button>
-      <button onclick="doLinkAction('share')" style="padding:12px;background:linear-gradient(135deg,#1565c0,#1976d2);border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;font-family:inherit;font-size:0.9rem;">📤 شیئر کریں</button>
+      <button onclick="doLinkAction('share')" style="padding:12px;background:linear-gradient(135deg,#1565c0,#1976d2);border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;font-family:inherit;font-size:0.9rem;"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> شیئر کریں</button>
       <button onclick="doLinkAction('copy')" style="padding:12px;background:linear-gradient(135deg,#e8c97a,#9c7a1e);border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#1a1a1a;font-family:inherit;font-size:0.9rem;">📋 کاپی کریں</button>
       <button onclick="closeModal('linkOptionsModal')" style="padding:10px;background:#eee;border:none;border-radius:12px;cursor:pointer;font-weight:600;color:#555;font-family:inherit;">بند کریں</button>
     </div>
@@ -1734,7 +1734,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA810TH064';
+const APP_VERSION = 'MA810TH065';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
