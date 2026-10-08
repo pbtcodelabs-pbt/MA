@@ -139,7 +139,7 @@
   .lic-rbox{background:rgba(0,0,0,.22);border:1px dashed rgba(233,201,122,.7);border-radius:14px;padding:8px 12px;display:grid;gap:6px}
   .lic-rbox p{margin:0;font-size:15px;line-height:1.85;color:#f3e6c2}
   .lic-trial{font-size:24px !important;padding:16px 14px !important;border-radius:20px !important;box-shadow:0 0 0 3px #fff3c4,0 8px 0 #8a5f16,0 16px 26px rgba(0,0,0,.45) !important;animation:licPulse 2.2s ease-in-out infinite}
-  @keyframes licPulse{50%{transform:scale(1.03)}}
+  @keyframes licPulse{50%{filter:brightness(1.12)}}
   .lic-tcard .ln{justify-content:center}
   .lic-in.need{border-color:#ff8a7a !important;box-shadow:0 0 0 3px rgba(255,120,100,.35) !important}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
@@ -241,6 +241,8 @@
     const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || '';
     return `نام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nہمیں سبسکرپشن کوڈ چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
   }
+  // ڈائری سے آئے ہوں تو کھلنے کے بعد واپس ڈائری میں
+  const goNext = () => { if (/[?&]next=diary\b/.test(location.search)) { location.replace('diary/'); return true; } return false; };
   function showTrialGate() {
     const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || 'میرا مکتبہ';
     show(`<div class="lic-box">${emblem(true)}
@@ -252,7 +254,7 @@
       </div></div>`, true);
     tapCounter($(ov, '#licTitle'), devAuth);
     tapCounter($(ov, '#licVer'), devAuth);
-    $(ov, '#licTrial').onclick = () => { startTrial(); hide(); showWelcome(); refresh(); };
+    $(ov, '#licTrial').onclick = () => { startTrial(); if (goNext()) return; hide(); showWelcome(); refresh(); };
     $(ov, '#licHaveCode').onclick = () => showGate(true, true);
   }
   function showGate(block, full) {
@@ -306,7 +308,7 @@
     const go = async () => {
       m.className = 'lic-m'; m.textContent = 'جانچ ہو رہی ہے…';
       const r = await activate(inp.value);
-      if (r.ok) { m.className = 'lic-m ok'; m.textContent = `✅ سبسکرپشن فعال — ${dmyI(r.exp)} تک`; setTimeout(() => { showWelcome(); refresh(true); }, 900); }
+      if (r.ok) { m.className = 'lic-m ok'; m.textContent = `✅ سبسکرپشن فعال — ${dmyI(r.exp)} تک`; setTimeout(() => { if (goNext()) return; showWelcome(); refresh(true); }, 900); }
       else m.textContent = r.msg;
     };
     // ایک ہی بٹن: کوڈ خالی ہو تو خود پیسٹ کر کے فعال کرے
