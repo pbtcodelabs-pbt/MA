@@ -9,6 +9,7 @@
   const CFG = {
     DEV_PHONE: '923206793793',   // ڈیولپر کا واٹس ایپ نمبر (بغیر + اور بغیر 0)
     PLAN_DAYS: 365,              // ایک سال
+    TRIAL_DAYS: 3,               // نئے فون پر ایک بار فری ٹرائل
     WARN_DAYS: 30,               // اتنے دن رہ جائیں تو وارننگ
     SECRET: '904c5bf2c13a07d515b226bbeb7cc495598b5ad186dfce35', // کوڈ بنانے کا خفیہ راز — کسی کو نہ دیں
     PASS_HASH: '1c1c5aed8da780051eb69c626df2657e0c6fa013f4c59b759e8e99b1f8b7077e' // ڈیولپر پاسورڈ کا نشان (SHA-256)
@@ -65,11 +66,18 @@
     return s;
   }
 
+  // ---------- فری ٹرائل (ہر فون پر ایک بار) ----------
+  const TKEY = 'maktaba-aziz-trial';
+  const trialStart = () => { const s = load(); let v = (s && s.trial) || ''; try { v = v || localStorage.getItem(TKEY) || ''; } catch (e) {} return v; };
+  function startTrial() { const s = ensure(); if (trialStart()) return; s.trial = today(); save(s); try { localStorage.setItem(TKEY, s.trial); } catch (e) {} }
+
   // ---------- حالت: فعال / ختم / بند ----------
   function status() {
     const s = ensure(), t = today();
     if (s.exp && s.exp >= t) return { mode: 'paid', left: dayDiff(s.exp, t) + 1, exp: s.exp, iss: s.iss || '', uid: s.uid, code: s.code };
-    return { mode: s.exp ? 'expired' : 'locked', exp: s.exp, uid: s.uid };
+    const tr = trialStart();
+    if (tr && !s.exp) { const end = addDays(tr, CFG.TRIAL_DAYS - 1); if (end >= t) return { mode: 'trial', left: dayDiff(end, t) + 1, exp: end, uid: s.uid }; }
+    return { mode: s.exp ? 'expired' : 'locked', exp: s.exp, uid: s.uid, trialUsed: !!tr };
   }
 
   // ---------- کوڈ: ختم کی تاریخ (3) + بننے کی تاریخ (3) + دستخط (10) = 16 حروف ----------
@@ -130,6 +138,9 @@
   .lic-rs{display:block;margin:6px auto 0;font-size:16px}
   .lic-rbox{background:rgba(0,0,0,.22);border:1px dashed rgba(233,201,122,.7);border-radius:14px;padding:8px 12px;display:grid;gap:6px}
   .lic-rbox p{margin:0;font-size:15px;line-height:1.85;color:#f3e6c2}
+  .lic-trial{font-size:24px !important;padding:16px 14px !important;border-radius:20px !important;box-shadow:0 0 0 3px #fff3c4,0 8px 0 #8a5f16,0 16px 26px rgba(0,0,0,.45) !important;animation:licPulse 2.2s ease-in-out infinite}
+  @keyframes licPulse{50%{transform:scale(1.03)}}
+  .lic-tcard .ln{justify-content:center}
   .lic-in.need{border-color:#ff8a7a !important;box-shadow:0 0 0 3px rgba(255,120,100,.35) !important}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
   .lic-code{color:#9be3b0;font-size:19px;letter-spacing:1.5px}
@@ -230,11 +241,28 @@
     const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || '';
     return `نام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nہمیں سبسکرپشن کوڈ چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
   }
-  function showGate(block) {
+  function showTrialGate() {
+    const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || 'میرا مکتبہ';
+    show(`<div class="lic-box">${emblem(true)}
+      <div class="lic-fade" style="display:grid;gap:14px">
+      <p class="lic-k" id="licTitle">${esc(bn)}</p>
+      <button type="button" class="lic-b lic-trial" id="licTrial">🎁 ${num(CFG.TRIAL_DAYS)} دن کے لیے فری استعمال کریں</button>
+      <button type="button" class="lic-link lic-rs" id="licHaveCode">سبسکرپشن کے لیے یہ بٹن دبائیں</button>
+      <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
+      </div></div>`, true);
+    tapCounter($(ov, '#licTitle'), devAuth);
+    tapCounter($(ov, '#licVer'), devAuth);
+    $(ov, '#licTrial').onclick = () => { startTrial(); hide(); showWelcome(); refresh(); };
+    $(ov, '#licHaveCode').onclick = () => showGate(true, true);
+  }
+  function showGate(block, full) {
     const st = status(), s = ensure();
+    if (block && !full && st.mode === 'locked' && !st.trialUsed) return showTrialGate();
     let line;
     if (st.mode === 'paid') line = `سبسکرپشن فعال ہے — ${num(st.left)} دن باقی (${dmyI(st.exp)} تک)۔ ابھی تجدید کریں تو باقی دن ضائع نہیں ہوں گے، نئے دن ان کے اوپر جمع ہو جائیں گے۔`;
     else if (st.mode === 'expired') line = 'آپ کا سبسکرپشن ختم ہو گیا ہے۔ تجدید کے لیے نیا کوڈ منگوائیں۔';
+    else if (st.mode === 'trial') line = `فری ٹرائل کے ${num(st.left)} دن باقی ہیں۔ ابھی کوڈ لے لیں تو ٹرائل کے بعد بھی ایپ بغیر رکے چلتی رہے گی۔`;
+    else if (st.trialUsed) line = `آپ کا ${num(CFG.TRIAL_DAYS)} دن کا فری ٹرائل ختم ہو گیا۔ آپ کا سارا ریکارڈ محفوظ ہے — سبسکرپشن کوڈ لگاتے ہی سب واپس مل جائے گا۔`;
     else line = 'ایپ چلانے کے لیے سبسکرپشن کوڈ حاصل کریں۔';
     show(`<div class="lic-box">${block ? emblem(true) : ''}
       <div class="${block ? 'lic-fade' : ''}" style="display:grid;gap:10px">
@@ -462,6 +490,15 @@
   function card() {
     const st = status();
     let c = document.getElementById('licCard');
+    if (st.mode === 'trial') {
+      const h = document.getElementById('licSlot'); if (!h) return;
+      if (c) c.remove();
+      c = document.createElement('div'); c.id = 'licCard'; c.className = 'lic-card lic-tcard'; h.appendChild(c);
+      c.innerHTML = `<div class="ln"><span>🎁 فری ٹرائل: <b class="big">${num(st.left)} دن</b> باقی</span><button type="button">🛒 ابھی خریدیں</button></div>`;
+      c.querySelector('button').onclick = () => showGate(false, true);
+      return;
+    }
+    if (c && c.classList.contains('lic-tcard')) { c.remove(); c = null; }
     if (st.mode !== 'paid') { if (c) c.remove(); return; }
     if (!c) {
       const h = document.getElementById('licSlot'); if (!h) return;
