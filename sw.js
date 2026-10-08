@@ -1,7 +1,7 @@
 /* میرا مکتبہ — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA810TH063';
+const VERSION = 'MA810TH064';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -68,6 +68,7 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith('.apk')) return;
 
   // فونٹس: پہلے فون کا کیش، نہ ہو تو ڈاؤن لوڈ کر کے محفوظ
   if (url.pathname.includes('/fonts/')) {
