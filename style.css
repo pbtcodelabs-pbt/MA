@@ -1482,7 +1482,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .emblem.gold::before{inset:0;border:0;border-radius:50%;z-index:2;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.85) 48%,rgba(255,255,255,.15) 54%,transparent 66%);background-size:260% 100%;background-position:130% 0;mix-blend-mode:soft-light;animation:emShine 3.6s ease-in-out 1s infinite}
 @keyframes emShine{0%{background-position:130% 0}60%,100%{background-position:-40% 0}}
 
-/* MA810TH048: مکتبے کی پہچان — ہر صارف کا اپنا لوگو اور نام */
+/* MA810TH049: مکتبے کی پہچان — ہر صارف کا اپنا لوگو اور نام */
 .emblem{cursor:pointer}
 .emblem.no-logo{display:none !important}
 .emblem.custom-logo img{opacity:1 !important;width:84%;height:84%;border-radius:50%;object-fit:contain}
@@ -1492,3 +1492,5 @@ html,body{overflow-x:hidden;max-width:100%}
 .patron2:has(> span:empty:only-child){display:none}
 .mh-setup{margin:4px auto 0;display:block;border:1.5px solid #8a5f16;border-radius:99px;padding:2px 14px;font-family:var(--f-body);font-size:16px;line-height:1.9;color:#0b2e26;background:var(--gold-tex);cursor:pointer}
 .mh-setup[hidden]{display:none}
+.merge-note{margin:0 0 6px;font-size:13.5px;line-height:1.8;color:#5d5543;text-align:center}
+.merge-go{background:var(--gold-tex) !important;color:#0b2e26 !important;border-color:#8a5f16 !important}

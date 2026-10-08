@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preload" href="fonts/jnn-kasheeda-title3.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=MA810TH048">
+<link rel="stylesheet" href="style.css?v=MA810TH049">
 </head>
 <body data-b-title>
 <div class="wrap">
@@ -32,7 +32,7 @@
       <div class="status">
         <a class="chip chip-btn" id="btnMain" href="./" style="text-decoration:none">🏠 مین</a>
         <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-        <span class="chip" id="verChip">MA810TH048</span>
+        <span class="chip" id="verChip">MA810TH049</span>
         <button class="chip chip-btn" id="btnBackup" type="button" aria-expanded="false" aria-controls="backupBox">بیک اپ</button>
         <button class="chip chip-btn" id="btnLogout" type="button">🚪 لاگ آؤٹ</button>
         <button class="chip chip-btn" id="btnClose" type="button">⏻ ایپ بند</button>
@@ -60,8 +60,15 @@
         <p class="local-h">فون میں فائل</p>
         <div class="actions">
           <button class="btn ghost small" id="btnExport" type="button">فائل ڈاؤن لوڈ</button>
+          <button class="btn ghost small" id="btnShareFile" type="button">📤 فائل بھیجیں</button>
           <label class="btn ghost small" for="importFile">فائل سے واپس</label>
-          <input id="importFile" type="file" accept="application/json,.json" hidden>
+          <input id="importFile" type="file" accept=".json,application/json,text/plain,application/octet-stream" hidden>
+        </div>
+        <p class="local-h">دوسرے فون کی کتب ملائیں</p>
+        <p class="merge-note">شاگرد یا ساتھی کے فون سے آئی بیک اپ فائل چنیں۔ آپ کی اپنی کتب ویسی ہی رہیں گی، صرف نئی کتب شامل ہو جائیں گی۔</p>
+        <div class="actions">
+          <label class="btn small merge-go" for="mergeFile">➕ کتب شامل کریں</label>
+          <input id="mergeFile" type="file" accept=".json,application/json,text/plain,application/octet-stream" hidden>
         </div>
         <p class="local-h">مکتبے کی پہچان</p>
         <div class="actions"><button class="btn ghost small" type="button" data-b-edit>✎ لوگو، نام اور پتہ بدلیں</button></div>
@@ -106,12 +113,12 @@
   </button>
 </nav>
 
-<script src="app.js?v=MA810TH048"></script>
-<script src="share.js?v=MA810TH048"></script>
-<script src="drive.js?v=MA810TH048"></script>
-<script src="programs.js?v=MA810TH048"></script>
-<script src="license.js?v=MA810TH048"></script>
-<script src="brand.js?v=MA810TH048"></script>
+<script src="app.js?v=MA810TH049"></script>
+<script src="share.js?v=MA810TH049"></script>
+<script src="drive.js?v=MA810TH049"></script>
+<script src="programs.js?v=MA810TH049"></script>
+<script src="license.js?v=MA810TH049"></script>
+<script src="brand.js?v=MA810TH049"></script>
 <script>
 // بیک اپ خانہ کھولنا/بند کرنا
 document.getElementById('btnBackup').addEventListener('click', e => {

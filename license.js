@@ -309,7 +309,19 @@
       <input class="lic-in" id="dvNew2" type="password" placeholder="نیا پاسورڈ دوبارہ" autocomplete="off" style="text-transform:none">
       <div class="lic-row"><button type="button" class="lic-b g" id="dvPwSave">🔒 پاسورڈ محفوظ کریں</button></div>
       <div class="lic-m" id="dvPwM"></div>
+      <div class="lic-row"><button type="button" class="lic-b" id="dvPoster">🖼️ پوسٹر شیئر کریں</button></div>
       <button type="button" class="lic-b g" id="dvClose">بند کریں</button></div>`, false);
+    // اشتہاری پوسٹر (صرف ڈیولپر کے لیے)
+    $(ov, '#dvPoster').onclick = async () => {
+      const pm = $(ov, '#dvM'); pm.className = 'lic-m'; pm.textContent = 'پوسٹر کھل رہا ہے…';
+      try {
+        const res = await fetch('promo/mera-maktaba.jpg', { cache: 'no-cache' }); if (!res.ok) throw new Error('net');
+        const blob = await res.blob(), file = new File([blob], 'mera-maktaba.jpg', { type: 'image/jpeg' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: 'میرا مکتبہ — ڈیجیٹل لائبریری، ڈائری اور شیڈیول' }); pm.textContent = ''; return; }
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mera-maktaba.jpg'; document.body.appendChild(a); a.click(); a.remove();
+        pm.className = 'lic-m ok'; pm.textContent = 'پوسٹر ڈاؤن لوڈ ہو گیا — گیلری سے واٹس ایپ پر بھیجیں';
+      } catch (e) { if (e && e.name === 'AbortError') { pm.textContent = ''; return; } pm.textContent = 'پوسٹر کے لیے انٹرنیٹ چاہیے'; }
+    };
     const msg = $(ov, '#dvMsg'), nameIn = $(ov, '#dvName'), uidIn = $(ov, '#dvUid'), curIn = $(ov, '#dvCur'), m = $(ov, '#dvM'), out = $(ov, '#dvOut'), logEl = $(ov, '#dvLog'), findIn = $(ov, '#dvFind');
 
     const status2 = r => (r.used ? '<span class="st on">✅ استعمال ہو گیا</span>' : '<span class="st">⏳ استعمال کی تصدیق نہیں</span>');

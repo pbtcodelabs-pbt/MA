@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA810TH048) */
+/* مکتبۃ العزیز — ایپ کا کوڈ (ورژن MA810TH049) */
 (() => {
   'use strict';
 
@@ -668,12 +668,65 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
+  // بیک اپ فائل واٹس ایپ وغیرہ پر بھیجنا
+  $('btnShareFile').addEventListener('click', async () => {
+    const json = JSON.stringify(Object.assign({}, db, { brand: undefined }), null, 1);
+    const fname = `maktaba-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    try {
+      const file = new File([json], fname, { type: 'application/json' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: fname, text: `کتب کی بیک اپ فائل — ${num(db.books.length)} کتب` }); return; }
+    } catch (err) { if (err && err.name === 'AbortError') return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('فائل ڈاؤن لوڈ ہو گئی — اب واٹس ایپ میں فائل کے طور پر بھیجیں');
+  });
+
+  // دوسرے فون کی کتب ملانا: اپنی کتب برقرار، صرف نئی شامل؛ لائسنس اور پہچان نہیں بدلتی
+  const fp = b => [b.name, b.author, b.publisher, b.parts, b.cat].map(v => String(v ?? '').replace(/\s+/g, ' ').trim()).join('|');
+  function mergeFrom(d) {
+    const inCats = Array.isArray(d.cats) ? d.cats.filter(c => c && c.id && c.name) : [];
+    const inNames = (d.catNames && typeof d.catNames === 'object') ? d.catNames : {};
+    const map = {};
+    DEFAULT_CATS.forEach(c => { map[c.id] = c.id; });
+    let newCats = 0;
+    inCats.forEach(c => {
+      const nm = String(inNames[c.id] || c.name).trim();
+      const same = cats().find(x => x.id === c.id && x.name.trim() === nm) || cats().find(x => x.name.trim() === nm);
+      if (same) { map[c.id] = same.id; return; }
+      const id = cats().some(x => x.id === c.id) ? newId() : c.id;
+      db.cats = db.cats || []; db.cats.push({ id, name: nm }); map[c.id] = id; newCats++;
+    });
+    const have = new Set(db.books.map(fp)), ids = new Set(db.books.map(b => b.id));
+    let added = 0, dup = 0, bad = 0;
+    (d.books || []).forEach(b => {
+      if (!b || !b.name || !map[b.cat]) { bad++; return; }
+      const nb = Object.assign({}, b, { cat: map[b.cat] }); delete nb.loan;
+      const k = fp(nb); if (have.has(k)) { dup++; return; }
+      if (!nb.id || ids.has(nb.id)) nb.id = newId();
+      have.add(k); ids.add(nb.id); db.books.push(nb); added++;
+    });
+    save(); route();
+    return { added, dup, bad, newCats };
+  }
+  $('mergeFile').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try {
+      const d = JSON.parse(await f.text());
+      if (!d || !Array.isArray(d.books)) throw new Error('bad');
+      const r = mergeFrom(d);
+      toast(`✓ ${num(r.added)} نئی کتب شامل ہو گئیں` + (r.dup ? ` · ${num(r.dup)} پہلے سے موجود تھیں` : '') + (r.newCats ? ` · ${num(r.newCats)} نئے فن` : ''));
+    } catch (err) { toast('یہ فائل درست بیک اپ نہیں ہے۔'); }
+    e.target.value = '';
+  });
+
   $('importFile').addEventListener('change', async e => {
     const f = e.target.files[0];
     if (!f) return;
     try {
       const d = JSON.parse(await f.text());
       if (!d || !Array.isArray(d.books)) throw new Error('bad');
+      if (db.books.length && !confirm(`اس سے آپ کی موجودہ ${num(db.books.length)} کتب ہٹ کر فائل والی کتب آ جائیں گی۔\nاگر صرف نئی کتب شامل کرنی ہیں تو «کتب شامل کریں» والا بٹن استعمال کریں۔\n\nکیا پھر بھی بدلنا ہے؟`)) { e.target.value = ''; return; }
       db = normDb(d);
       if (d.lic && window.MA_LIC) window.MA_LIC.import(d.lic);
       if (d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand);
@@ -712,7 +765,7 @@
   // ---------- بھیجنا (share.js) ----------
   window.MA_SHARE = { data: () => ({ books: db.books, cats: cats() }), toast };
   window.MA_DRIVE_HOST = {
-    version: 'MA810TH048',
+    version: 'MA810TH049',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); }
