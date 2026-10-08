@@ -129,6 +129,9 @@
   .lic-in{direction:ltr;text-align:center;font:700 20px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px;text-transform:uppercase}
   .lic-in.t{font:400 17px/1.7 inherit;font-family:inherit;direction:rtl;letter-spacing:0;text-transform:none}
   .lic-in.d{font-size:16px;letter-spacing:1px}
+  .lic-days{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+  .lic-days button{border:1.5px solid #e9c97a;background:rgba(255,255,255,.1);color:#fff1c1;border-radius:99px;padding:2px 12px;font:inherit;font-size:15px;line-height:1.9;cursor:pointer}
+  .lic-days button.on{background:linear-gradient(180deg,#fff6d5,#f1d27a 40%,#c8962f);color:#0b2e26;border-color:#8a5f16}
   .lic-ta{min-height:84px;font-size:15px;line-height:1.7;resize:vertical}
   .lic-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
   .lic-b{background:#e9c97a;color:#14463a;border:0;border-radius:12px;padding:10px 16px;font-weight:700;font-size:16px;line-height:1.4;font-family:inherit;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
@@ -288,7 +291,7 @@
     return /^UID\b/i.test(n) || /^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/i.test(n) ? '' : n;
   };
   const findExp = t => { const m = String(t || '').match(/ختم[^0-9\n]*(\d{2}-\d{2}-\d{4})/); return m ? m[1] : ''; };
-  const sendMsg = r => `السلام علیکم! آپ کا مکتبۃ العزیز ایکٹیویشن کوڈ:\n${r.code}\n(سبسکرپشن ختم ہونے کی تاریخ: ${dmyI(r.exp)})`;
+  const sendMsg = r => `السلام علیکم! آپ کا «میرا مکتبہ» ایکٹیویشن کوڈ:\n${r.code}\n(${r.days && r.days !== 365 ? r.days + ' دن کا کوڈ — ' : ''}سبسکرپشن ختم ہونے کی تاریخ: ${dmyI(r.exp)})`;
 
   function devPanel() {
     devOpen = true;
@@ -297,6 +300,9 @@
       <input class="lic-in" id="dvUid" placeholder="UID: XXXX-XXXX" maxlength="9" autocomplete="off" spellcheck="false">
       <textarea class="lic-ta" id="dvMsg" placeholder="گاہک کا میسج یہاں پیسٹ کریں — نام، UID اور ختم ہونے کی تاریخ خود نکل آئے گی۔ نام نہ ہو تو اوپر خود لکھ دیں"></textarea>
       <input class="lic-in d" id="dvCur" placeholder="موجودہ ختم (اختیاری) 31-12-2026" maxlength="10" autocomplete="off" style="text-transform:none">
+      <p class="lic-s" style="margin:2px 0 -4px">کتنے دن کا کوڈ؟</p>
+      <div class="lic-days" id="dvDd"><button type="button" data-d="5">5 دن</button><button type="button" data-d="10">10 دن</button><button type="button" data-d="15">15 دن</button><button type="button" data-d="30">ایک ماہ</button><button type="button" data-d="365" class="on">ایک سال</button></div>
+      <input class="lic-in" id="dvDays" inputmode="numeric" maxlength="4" value="365" autocomplete="off" placeholder="دن لکھیں" aria-label="دن">
       <div class="lic-row"><button type="button" class="lic-b g" id="dvPaste">📋 پیسٹ</button><button type="button" class="lic-b" id="dvGen">🔑 کوڈ بنائیں</button></div>
       <div class="lic-m" id="dvM"></div>
       <div id="dvOut"></div>
@@ -322,6 +328,11 @@
         pm.className = 'lic-m ok'; pm.textContent = 'پوسٹر ڈاؤن لوڈ ہو گیا — گیلری سے واٹس ایپ پر بھیجیں';
       } catch (e) { if (e && e.name === 'AbortError') { pm.textContent = ''; return; } pm.textContent = 'پوسٹر کے لیے انٹرنیٹ چاہیے'; }
     };
+    // دنوں کا انتخاب
+    const daysIn = $(ov, '#dvDays'), dd = $(ov, '#dvDd');
+    const markDays = () => { dd.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.d === String(parseInt(daysIn.value, 10)))); };
+    dd.onclick = e => { const b = e.target.closest('button[data-d]'); if (!b) return; daysIn.value = b.dataset.d; markDays(); };
+    daysIn.addEventListener('input', markDays);
     const msg = $(ov, '#dvMsg'), nameIn = $(ov, '#dvName'), uidIn = $(ov, '#dvUid'), curIn = $(ov, '#dvCur'), m = $(ov, '#dvM'), out = $(ov, '#dvOut'), logEl = $(ov, '#dvLog'), findIn = $(ov, '#dvFind');
 
     const status2 = r => (r.used ? '<span class="st on">✅ استعمال ہو گیا</span>' : '<span class="st">⏳ استعمال کی تصدیق نہیں</span>');
@@ -360,7 +371,8 @@
       if (!uid) { m.textContent = 'UID درست نہیں (8 حروف: XXXX-XXXX)'; return; }
       const name = nameIn.value.trim(), t = today(), L = getL(), mine = L.filter(r => r.uid === uid);
       if (!name) { m.textContent = 'پہلے گاہک کا نام لکھیں'; nameIn.focus(); return; }
-      const pending = mine.find(r => !r.used && r.exp >= t);
+      const days = Math.min(3650, Math.max(1, parseInt(String(daysIn.value).replace(/[^0-9]/g, ''), 10) || CFG.PLAN_DAYS));
+      const pending = mine.find(r => !r.used && r.exp >= t && (r.days || CFG.PLAN_DAYS) === days);
       if (pending && !force) {
         if (name && pending.name !== name) { pending.name = name; putL(L); }
         m.className = 'lic-m ok'; m.textContent = 'اس UID کا کوڈ پہلے بنا ہوا ہے';
@@ -368,9 +380,9 @@
       }
       let base = ''; mine.forEach(r => { if (r.exp >= t && r.exp > base) base = r.exp; });
       const cur = parseDmy(curIn.value); if (cur && cur >= t && cur > base) base = cur;
-      const exp = base ? addDays(base, CFG.PLAN_DAYS) : addDays(t, CFG.PLAN_DAYS - 1);
+      const exp = base ? addDays(base, days) : addDays(t, days - 1);
       const code = await makeCode(uid, exp, t);
-      const rec = { uid, name, code, iss: t, exp, used: false, ts: Date.now() };
+      const rec = { uid, name, code, iss: t, exp, days, used: false, ts: Date.now() };
       L.unshift(rec); putL(L);
       const ok = await copy(code);
       m.className = 'lic-m ok'; m.textContent = ok ? '✅ کوڈ بن گیا اور کاپی ہو گیا' : 'کوڈ بن گیا — نیچے سے کاپی کریں';
