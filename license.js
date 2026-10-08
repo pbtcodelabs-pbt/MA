@@ -122,6 +122,7 @@
   .lic-k{margin:0;color:#e9c97a;font-family:var(--f-body,'JNN','Noto Nastaliq Urdu',serif);font-weight:400;font-size:28px;line-height:2.1;padding:6px 0}
   .lic-p{margin:0;font-size:17px;line-height:2.2}
   .lic-s{margin:0;font-size:15px;line-height:2.1;color:#d8e6df}
+  .lic-in.need{border-color:#ff8a7a !important;box-shadow:0 0 0 3px rgba(255,120,100,.35) !important}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
   .lic-code{color:#9be3b0;font-size:19px;letter-spacing:1.5px}
   .lic-in,.lic-ta{width:100%;box-sizing:border-box;border-radius:12px;border:1.5px solid #e9c97a;background:#fff;color:#14463a;padding:10px;font-family:inherit}
@@ -215,7 +216,8 @@
 
   // ----- گاہک کی اسکرین -----
   function waMsg(st, name) {
-    return `نام: ${name || ''}\nUID: ${st.uid}\nہمیں ایک سال کا سبسکرپشن چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
+    const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || '';
+    return `نام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nہمیں ایک سال کا سبسکرپشن چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
   }
   function showGate(block) {
     const st = status(), s = ensure();
@@ -228,7 +230,7 @@
       <p class="lic-k" id="licTitle">${block ? 'سبسکرپشن درکار ہے' : 'سبسکرپشن'}</p>
       <p class="lic-p">${line}</p>
       <p class="lic-s">۱) اپنا نام لکھیں، پھر نیچے والا بٹن دبا کر ڈیولپر کو میسج بھیجیں (آپ کی UID خود لگ جائے گی)<br>۲) جو کوڈ ملے وہ نیچے ڈالیں</p>
-      <input class="lic-in t" id="licName" placeholder="آپ کا نام (اختیاری)" autocomplete="off" value="${esc(s.name || '')}">
+      <input class="lic-in t" id="licName" placeholder="اپنا نام لکھیں (ضروری)" autocomplete="off" value="${esc(s.name || '')}">
       <div class="lic-uid" id="licUid">${st.uid}</div>
       <div class="lic-row"><a class="lic-b" id="licWa" target="_blank" rel="noopener" href="#">📲 واٹس ایپ پر کوڈ منگوائیں</a>
         <button type="button" class="lic-b g" id="licCopyUid">📋 UID کاپی</button></div>
@@ -241,7 +243,8 @@
     </div>`, block);
     const m = $(ov, '#licMsg'), inp = $(ov, '#licIn'), nm = $(ov, '#licName'), wa = $(ov, '#licWa');
     const setWa = () => { const u = ensure(); u.name = nm.value.trim(); save(u); wa.href = `https://wa.me/${CFG.DEV_PHONE}?text=${encodeURIComponent(waMsg(status(), u.name))}`; };
-    setWa(); nm.addEventListener('input', setWa);
+    setWa(); nm.addEventListener('input', () => { setWa(); nm.classList.remove('need'); });
+    wa.addEventListener('click', e => { if (!nm.value.trim()) { e.preventDefault(); nm.classList.add('need'); nm.focus(); m.className = 'lic-m'; m.textContent = 'پہلے اپنا نام لکھیں، پھر میسج بھیجیں'; } });
     tapCounter($(ov, '#licTitle'), devAuth);
     tapCounter($(ov, '#licVer'), devAuth);
     $(ov, '#licCopyUid').onclick = async () => { m.className = 'lic-m ok'; m.textContent = (await copy(st.uid)) ? 'UID کاپی ہو گئی' : 'کاپی نہیں ہو سکی'; };
@@ -333,8 +336,11 @@
       fillName();
     };
     const fillName = () => { const u = normUid(uidIn.value); if (u && !nameIn.value.trim()) { const r = getL().find(x => x.uid === u && x.name); if (r) nameIn.value = r.name; } };
+    // گاہک کا پورا میسج پیسٹ ہو تو نام + UID خود لگ کر کوڈ بھی خود بن جائے
+    const auto = () => { if (findUid(msg.value) && nameIn.value.trim()) gen(false); };
     msg.addEventListener('input', pick); uidIn.addEventListener('input', fillName);
-    $(ov, '#dvPaste').onclick = async () => { const t = await readClip(); if (t) { msg.value = t; pick(); } else { m.className = 'lic-m'; m.textContent = 'پیسٹ نہیں ہو سکا — خود پیسٹ کریں'; } };
+    msg.addEventListener('paste', () => setTimeout(() => { pick(); auto(); }, 0));
+    $(ov, '#dvPaste').onclick = async () => { const t = await readClip(); if (t) { msg.value = t; pick(); auto(); } else { m.className = 'lic-m'; m.textContent = 'پیسٹ نہیں ہو سکا — خود پیسٹ کریں'; } };
 
     async function gen(force) {
       const uid = normUid(uidIn.value);
