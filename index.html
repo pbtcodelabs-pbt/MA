@@ -122,7 +122,7 @@ body::before{
 button.chip{cursor:pointer}
 [hidden]{display:none !important}
 
-/* MA810TH056: ابھرے ہوئے 3D دروازے */
+/* MA810TH057: ابھرے ہوئے 3D دروازے */
 .doors{gap:24px !important;perspective:900px}
 .door{border:0 !important;overflow:hidden;
   background:linear-gradient(180deg,#ffffff 0%,#fbf4e2 38%,#efe0bb 100%) !important;
@@ -141,6 +141,34 @@ button.chip{cursor:pointer}
 .go{box-shadow:0 0 0 1.5px #8a5f16,0 4px 0 #6e4a10,0 7px 10px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.7) !important}
 .door:active .go{transform:translateY(2px)}
 @media (prefers-reduced-motion:reduce){.door::after{animation:none;display:none}}
+
+/* MA810TH057: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
+.crest{width:min(30vw,116px) !important;margin-top:0 !important}
+.page{padding-top:calc(8px + env(safe-area-inset-top)) !important}
+.title{font-size:clamp(36px,10.5vw,50px) !important;line-height:1.75 !important}
+.doors{gap:16px !important}
+.door{padding:9px 14px 9px 12px !important}
+.ico{width:64px !important;height:64px !important}
+.ico svg{width:36px !important;height:36px !important}
+.txt b{font-size:clamp(25px,7vw,30px) !important;line-height:1.65 !important}
+.txt small{font-size:14px !important;line-height:1.7 !important}
+.rule{margin:2px 0 8px !important}
+.foot{padding-top:12px !important}
+.door-wrap{display:grid;gap:0}
+.ticker{position:relative;z-index:0;margin:-6px 10px 0;display:flex;align-items:stretch;border-radius:0 0 16px 16px;overflow:hidden;
+  background:linear-gradient(180deg,#0b2e26,#123f33);border:1.5px solid #c8962f;border-top:0;box-shadow:inset 0 6px 8px rgba(0,0,0,.35),0 6px 12px rgba(0,0,0,.35)}
+.tk-lbl{flex:none;display:grid;place-items:center;padding:8px 10px 2px;font-size:14px;line-height:1.6;color:#0b2e26;background:var(--gold-tex)}
+.tk-win{flex:1;min-width:0;overflow:hidden;padding-top:8px;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.tk-run{display:inline-flex;gap:0;white-space:nowrap;animation:tk var(--dur,24s) linear infinite;will-change:transform}
+.ticker:active .tk-run,.ticker:hover .tk-run{animation-play-state:paused}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(50%)}}
+.tk-it{display:inline-flex;align-items:center;gap:6px;padding:0 14px;color:#fff1c1;text-decoration:none;font-size:17px;line-height:1.9}
+.tk-it b{font-weight:400;color:#f1d27a}
+.tk-it i{font-style:normal;color:#e8c467;opacity:.7;padding:0 2px}
+.tk-it .tk-day{font:700 12px/1.5 Arial,sans-serif;background:#e8c467;color:#0b2e26;border-radius:99px;padding:1px 8px}
+.tk-it .tk-day.ur{font:inherit;font-size:13px;line-height:1.6;padding:0 9px}
+.tk-sep{color:#c8962f;padding:0 4px}
+@media (prefers-reduced-motion:reduce){.tk-run{animation:none}.tk-win{overflow-x:auto}}
 </style>
 </head>
 <body data-b-title>
@@ -165,7 +193,7 @@ button.chip{cursor:pointer}
           <path d="M6 16h8M15 12h8M15 34h8M6 34h8M29 18l7.6-2.2"/><path d="M4 42h40"/>
         </svg>
       </span>
-      <span class="txt"><b>مکتبہ</b><small>تفصیلی فہرستِ کتب، تلاش اور پروگرام</small></span>
+      <span class="txt"><b>مکتبہ</b><small>تفصیلی فہرستِ کتب اور تلاش</small></span>
       <span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
     </a>
 
@@ -181,17 +209,30 @@ button.chip{cursor:pointer}
       <span class="txt"><b>ڈائری</b><small>علمی اور تحقیقی ڈائری، روزانہ نوٹس</small></span>
       <span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
     </a>
+
+    <div class="door-wrap">
+    <a class="door" href="maktaba.html#/prog" id="goProg">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="#f1d27a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="9" width="36" height="33" rx="4"/><path d="M6 18h36M15 5v8M33 5v8"/><circle cx="24" cy="30" r="7"/><path d="M24 26.5V30l2.5 2"/>
+        </svg>
+      </span>
+      <span class="txt"><b>میری مصروفیات</b><small>پروگرام، وقت اور الٹی گنتی</small></span>
+      <span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
+    </a>
+    <div class="ticker" id="ticker" hidden><div class="tk-lbl">آنے والے</div><div class="tk-win"><div class="tk-run" id="tkRun"></div></div></div>
+    </div>
   </nav>
 
   <footer class="foot">
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip">MA810TH056</span>
+    <span class="chip">MA810TH057</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ پہچان بدلیں</span></button>
     <a class="chip link" href="privacy.html"><span class="lbl">پرائیویسی</span></a>
     <button type="button" class="chip link" data-exit><span class="lbl">⏻ ایپ بند</span></button>
   </footer>
 </main>
-<script src="brand.js?v=MA810TH056"></script>
+<script src="brand.js?v=MA810TH057"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
@@ -208,6 +249,34 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(r => r.update()).catch(() => {});
   });
 }
+</script>
+<script>
+// آنے والے پروگراموں کی پٹی (شیڈیول کی سیٹنگ کے مطابق 1، 2 یا 3 دن)
+(function () {
+  const box = document.getElementById('ticker'), run = document.getElementById('tkRun'); if (!box) return;
+  const MON = ['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر'];
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  let days = 3; try { const v = localStorage.getItem('maktaba-aziz-ticker-days'); if (v !== null) days = Number(v); } catch (e) {}
+  if (!days) return;
+  let progs = []; try { progs = (JSON.parse(localStorage.getItem('maktaba-aziz-data-v1')) || {}).progs || []; } catch (e) {}
+  const t0 = new Date(), from = iso(t0), end = new Date(t0); end.setDate(end.getDate() + days - 1); const to = iso(end);
+  const tmw = new Date(t0); tmw.setDate(tmw.getDate() + 1);
+  const list = progs.filter(p => p && p.date && p.date >= from && p.date <= to).sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+  if (!list.length) return;
+  const t12 = t => { const [h, m] = String(t).split(':').map(Number); if (isNaN(h)) return ''; const hh = ((h + 11) % 12) + 1; return `${hh}:${String(m || 0).padStart(2, '0')}`; };
+  const item = p => {
+    const [y, mo, d] = p.date.split('-').map(Number);
+    const tag = p.date === from ? '<span class="tk-day ur">آج</span>' : p.date === iso(tmw) ? '<span class="tk-day ur">کل</span>' : '';
+    const when = [p.timeNote, p.time ? `<span dir="ltr">${t12(p.time)}</span>` : ''].filter(Boolean).join(' ');
+    const where = [p.place, p.city].filter(Boolean).map(esc).join('، ');
+    return `<a class="tk-it" href="maktaba.html#/prog/p/${encodeURIComponent(p.id)}">${tag}<b>${d} ${MON[mo - 1]}</b>${when ? `<i>·</i>${when}` : ''}${where ? `<i>·</i>${where}` : ''}${p.title ? `<i>·</i>${esc(p.title)}` : ''}</a><span class="tk-sep">✦</span>`;
+  };
+  const one = list.map(item).join('');
+  run.innerHTML = one + one;
+  box.hidden = false;
+  requestAnimationFrame(() => { const w = run.scrollWidth / 2; run.style.setProperty('--dur', Math.max(12, w / 45) + 's'); });
+})();
 </script>
 </body>
 </html>

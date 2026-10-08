@@ -77,6 +77,7 @@
   let tick = null;
   const stopTick = () => { clearInterval(tick); tick = null; };
 
+  const tkDays = () => { try { const v = localStorage.getItem('maktaba-aziz-ticker-days'); return v === null ? 3 : Number(v); } catch (e) { return 3; } };
   function pageList() {
     const list = filtered();
     const upcoming = progs().filter(p => !isPast(p)).length;
@@ -88,12 +89,18 @@
         </div>
         <div class="panel-b">
           <div class="pg-filters" role="tablist">${FILTERS.map(([k, t]) => `<button type="button" class="pf${F.k === k ? ' on' : ''}" data-f="${k}">${t}</button>`).join('')}</div>
+          <div class="pg-tk"><span>مین صفحے کی چلتی پٹی:</span>${[[0, 'بند'], [1, 'آج'], [2, '2 دن'], [3, '3 دن']].map(([d, t]) => `<button type="button" class="pf${tkDays() === d ? ' on' : ''}" data-tk="${d}">${t}</button>`).join('')}</div>
           ${F.k === 'custom' ? `<div class="pg-range"><label>سے <input type="date" id="pgFrom" class="numin" value="${F.from}"></label><label>تک <input type="date" id="pgTo" class="numin" value="${F.to}"></label></div>` : ''}
           <div class="pg-sum"><span>${esc(rangeTxt())}</span><b>${num(list.length)} پروگرام</b></div>
           ${list.length ? `<div class="pg-list">${list.map(rowHtml).join('')}</div>`
           : `<div class="empty pg-empty"><b>${progs().length ? 'اس مدت میں کوئی پروگرام نہیں' : 'ابھی کوئی پروگرام درج نہیں'}</b>${progs().length ? `کل آنے والے پروگرام: ${num(upcoming)} — اوپر سے مدت بدل کر دیکھیں۔` : '«+ نیا پروگرام» دبا کر پہلی دعوت درج کریں۔'}</div>`}
         </div>
       </section>`;
+    H().view.querySelector('.pg-tk').addEventListener('click', e => {
+      const b = e.target.closest('[data-tk]'); if (!b) return;
+      try { localStorage.setItem('maktaba-aziz-ticker-days', b.dataset.tk); } catch (er) {}
+      H().toast(b.dataset.tk === '0' ? 'مین صفحے کی پٹی بند' : `مین صفحے پر آنے والے ${b.dataset.tk === '1' ? 'آج کے' : b.dataset.tk + ' دن کے'} پروگرام چلیں گے`); pageList();
+    });
     H().view.querySelector('.pg-filters').addEventListener('click', e => {
       const b = e.target.closest('[data-f]'); if (!b) return;
       F.k = b.dataset.f; saveF(); pageList();
