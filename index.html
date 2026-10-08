@@ -121,6 +121,26 @@ body::before{
 @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(241,210,122,.18),0 4px 12px rgba(0,0,0,.3)}}
 button.chip{cursor:pointer}
 [hidden]{display:none !important}
+
+/* MA810TH053: ابھرے ہوئے 3D دروازے */
+.doors{gap:24px !important;perspective:900px}
+.door{border:0 !important;overflow:hidden;
+  background:linear-gradient(180deg,#ffffff 0%,#fbf4e2 38%,#efe0bb 100%) !important;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.95),inset 0 -8px 14px rgba(160,120,40,.25),
+    0 0 0 2.5px #c8962f,0 9px 0 0 #8a5f16,0 9px 0 2.5px #6e4a10,0 22px 28px rgba(0,0,0,.55) !important;
+  transform:translateY(-4px);transition:transform .12s ease,box-shadow .12s ease !important}
+.door::after{content:"";position:absolute;top:0;bottom:0;width:38%;left:-60%;pointer-events:none;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:sheen 5.5s ease-in-out infinite}
+.door:nth-child(2)::after{animation-delay:2.4s}
+@keyframes sheen{0%,62%{left:-60%}82%,100%{left:130%}}
+.door:active{transform:translateY(5px) !important;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.95),inset 0 -6px 12px rgba(160,120,40,.25),0 0 0 2.5px #c8962f,0 2px 0 0 #8a5f16,0 2px 0 2.5px #6e4a10,0 6px 10px rgba(0,0,0,.45) !important}
+.ico{box-shadow:0 0 0 2px var(--gold-4),0 6px 0 #0a2a22,0 10px 14px rgba(0,0,0,.4),inset 0 5px 10px rgba(255,255,255,.18),inset 0 -6px 10px rgba(0,0,0,.35) !important}
+.ico svg{filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
+.txt b{text-shadow:0 1px 0 #fff,0 2px 3px rgba(20,70,58,.25);-webkit-text-stroke:.6px var(--ink)}
+.go{box-shadow:0 0 0 1.5px #8a5f16,0 4px 0 #6e4a10,0 7px 10px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.7) !important}
+.door:active .go{transform:translateY(2px)}
+@media (prefers-reduced-motion:reduce){.door::after{animation:none;display:none}}
 </style>
 </head>
 <body data-b-title>
@@ -165,12 +185,12 @@ button.chip{cursor:pointer}
 
   <footer class="foot">
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip">MA810TH052</span>
+    <span class="chip">MA810TH053</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ پہچان بدلیں</span></button>
     <a class="chip link" href="privacy.html"><span class="lbl">پرائیویسی</span></a>
   </footer>
 </main>
-<script src="brand.js?v=MA810TH052"></script>
+<script src="brand.js?v=MA810TH053"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
