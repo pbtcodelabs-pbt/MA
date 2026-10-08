@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — «شیڈیول»: جلسوں کی دعوتیں، اشتہار، رابطہ، الٹی گنتی اور رپورٹ
+/* میرا مکتبہ — «شیڈیول»: جلسوں کی دعوتیں، اشتہار، رابطہ، الٹی گنتی اور رپورٹ
    ڈیٹا app.js کے db.progs میں رہتا ہے (اسی بیک اپ کے ساتھ Drive پر بھی جاتا ہے)۔ */
 (() => {
   'use strict';
@@ -243,7 +243,7 @@
     const { close, wrap } = H().openSheet(p ? 'پروگرام میں ترمیم' : 'نیا پروگرام', `
       <form class="sheet-b pf-form" id="pgForm" novalidate>
         <div class="pf-grid">
-          ${fld('p-title', 'عنوان (اختیاری)', `value="${esc(p?.title || '')}" placeholder="مثلاً ختمِ نبوت کانفرنس"`, 'full')}
+          ${fld('p-title', 'عنوان (اختیاری)', `value="${esc(p?.title || '')}" placeholder="مثلاً سیرت کانفرنس"`, 'full')}
           ${fld('p-date', 'تاریخ', `type="date" class="ltr" value="${esc(p?.date || '')}"`)}
           ${fld('p-time', 'وقت', `type="time" class="ltr" value="${esc(p?.time || '')}"`)}
           ${fld('p-tnote', 'نماز', `list="dl-tnote" value="${esc(p ? (p.timeNote || '') : 'بعد از نماز عشاء')}" placeholder="بعد از نماز عشاء"`)}
@@ -402,7 +402,7 @@
       const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, PH);
       let yy = TOP; pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
       ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-      ctx.fillText(`شیڈیول — ${window.MA_BRAND ? window.MA_BRAND.name() : 'مکتبۃ العزیز'} — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
+      ctx.fillText(`شیڈیول — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'} — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
       return cv.toDataURL('image/jpeg', 0.9);
     });
     return k.makePdf(jpgs, W, PH);

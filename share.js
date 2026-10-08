@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — کتب کی تفصیل بھیجنا (واٹس ایپ، پوسٹر، PDF)
+/* میرا مکتبہ — کتب کی تفصیل بھیجنا (واٹس ایپ، پوسٹر، PDF)
    app.js سے window.MA_SHARE کے ذریعے ڈیٹا ملتا ہے۔ کوئی باہر کی لائبریری نہیں — آف لائن بھی چلتا ہے۔ */
 (() => {
   'use strict';
@@ -181,7 +181,7 @@
 
   // مکتبے کی پہچان (brand.js)
   const BR = () => window.MA_BRAND;
-  const BN = () => BR() ? BR().name() : 'مکتبۃ العزیز';
+  const BN = () => BR() ? BR().name() : 'میرا مکتبہ';
   const BP = () => BR() ? BR().place() : '';
   const BK = () => BR() ? BR().kasheeda(BR().get().name) : true;
   const BF = () => BR() ? BR().titleFont(BR().get().name) : TFONT;
@@ -403,10 +403,10 @@
         toast(await copyText(buildText()) ? 'فہرست کاپی ہو گئی' : 'کاپی نہیں ہو سکی');
       } else if (kind === 'img') {
         btn.textContent = 'بن رہا ہے…';
-        await deliver(await poster(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.png`, `${BN()} — فہرستِ کتب`);
+        await deliver(await poster(), `mera-maktaba-${mode === "loans" ? "loans-" : ""}${stamp}.png`, `${BN()} — فہرستِ کتب`);
       } else if (kind === 'pdf') {
         btn.textContent = 'بن رہا ہے…';
-        await deliver(await pdf(), `maktaba-aziz-${mode === "loans" ? "loans-" : ""}${stamp}.pdf`, `${BN()} — فہرستِ کتب`);
+        await deliver(await pdf(), `mera-maktaba-${mode === "loans" ? "loans-" : ""}${stamp}.pdf`, `${BN()} — فہرستِ کتب`);
       }
     } catch (e) {
       console.warn(e);

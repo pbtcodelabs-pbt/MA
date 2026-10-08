@@ -1,20 +1,10 @@
-/* مکتبۃ العزیز — «مکتبے کی پہچان»: لوگو، مکتبے کا نام، پہچان کی سطریں، پتہ اور موبائل
+/* میرا مکتبہ — «مکتبے کی پہچان»: لوگو، مکتبے کا نام، پہچان کی سطریں، پتہ اور موبائل
    ہر صارف خود بھر کر محفوظ کرتا ہے۔ یہ صرف اسی فون میں رہتا ہے (اور بیک اپ میں ساتھ جاتا ہے)۔ */
 (function () {
   const KEY = 'maktaba-aziz-brand';
   const DATA_KEY = 'maktaba-aziz-data-v1';
   const DEFAULT_LOGO = 'icons/khatam-logo.png';
   const FIELDS = ['name', 'line1', 'line2', 'line3', 'address', 'phone', 'logo'];
-  // پرانے صارف (مکتبۃ العزیز) کی پہچان — صرف ان فونوں پر جہاں پہلے سے کتب محفوظ ہیں
-  const LEGACY = {
-    name: 'مکتبۃ العزیز',
-    line1: 'مولانا مفتی محمد رضوان عزیز',
-    line2: 'مدیر',
-    line3: '',
-    address: 'دارالعلوم ختمِ نبوت، عارف والا',
-    phone: '0300-1355147',
-    logo: 'default'
-  };
   // کشیدہ فونٹ میں صرف یہ حروف ہیں؛ باقی ناموں کے لیے سادہ نوری
   const KASHEEDA = new Set(Array.from('،ابتحخدرزضعفلمنوِپکگۃیے '));
 
@@ -25,7 +15,6 @@
   function load() {
     const raw = lsGet(KEY);
     if (raw) { try { return clean(JSON.parse(raw)); } catch (e) {} }
-    if (lsGet(DATA_KEY)) { const b = clean(LEGACY); lsSet(KEY, JSON.stringify(b)); return b; }
     return clean({});
   }
   let brand = load();
@@ -64,10 +53,8 @@
       if (box) {
         box.classList.toggle('custom-logo', !!src && !api.isDefaultLogo());
         box.classList.toggle('no-logo', !src);
-        // سنہری نقش (دارالعلوم کا نشان) صرف اصل لوگو پر
         if (box.classList.contains('emblem')) {
-          if (api.isDefaultLogo()) { if (window.__maGoldEmblem) box.classList.add('gold'); }
-          else { if (box.classList.contains('gold')) window.__maGoldEmblem = true; box.classList.remove('gold'); }
+          box.classList.remove('gold');   // لوگو ہمیشہ اپنی اصل تصویر میں
         }
       }
     });
@@ -149,7 +136,7 @@
           <input type="file" id="br-file" accept="image/*" hidden>
         </div>
       </div>
-      ${fld('name', 'مکتبے کا نام', '', 'placeholder="مثلاً مکتبۃ العزیز"')}
+      ${fld('name', 'مکتبے کا نام', '', 'placeholder="مثلاً مکتبہ رحمانیہ"')}
       ${fld('line1', 'پہچان ۱', 'مثلاً سرپرست یا مالک کا نام', 'placeholder="مثلاً مولانا محمد …"')}
       ${fld('line2', 'پہچان ۲', 'عہدہ، مثلاً مہتمم، مدیر', 'placeholder="مثلاً مہتمم"')}
       ${fld('line3', 'پہچان ۳', 'اختیاری', '')}

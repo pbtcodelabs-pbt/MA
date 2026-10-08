@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — Google Drive بیک اپ
+/* میرا مکتبہ — Google Drive بیک اپ
    - ایک «تازہ ترین» فائل ہر تبدیلی پر اپڈیٹ ہوتی ہے (maktaba-aziz-latest.json)
    - ہر دن کی الگ نقل بھی رکھی جاتی ہے (maktaba-aziz-YYYY-MM-DD.json) — فون یا ایپ کا ڈیٹا ختم ہو جائے تب بھی ریکارڈ محفوظ
    - اجازت صرف drive.file: ایپ صرف اپنی بنائی فائلیں دیکھ سکتی ہے، باقی Drive نہیں
@@ -10,7 +10,7 @@
   const DEFAULT_CLIENT_ID = '954131537356-2be2rne30mje71l9qibosblvj3j0eqoj.apps.googleusercontent.com';
 
   const SCOPE = 'https://www.googleapis.com/auth/drive.file openid email';
-  const FOLDER_NAME = 'Maktaba Al-Aziz Backup';
+  const FOLDER_NAME = 'Mera Maktaba Backup', OLD_FOLDER = 'Maktaba Al-Aziz Backup';  // پرانا فولڈر ہو تو وہی استعمال
   const LATEST_NAME = 'maktaba-aziz-latest.json';
   const META_KEY = 'maktaba-aziz-drive';
   const KEEP_DAILY = 60;          // اتنے دنوں کی روزانہ نقلیں رکھیں، پرانی خود صاف
@@ -93,7 +93,7 @@
       } catch (e) { if (e.message === 'expired') throw e; }
       meta.folderId = null; meta.latestId = null;
     }
-    const q = encodeURIComponent(`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+    const q = encodeURIComponent(`(name='${FOLDER_NAME}' or name='${OLD_FOLDER}') and mimeType='application/vnd.google-apps.folder' and trashed=false`);
     const found = await (await api(`${DRIVE}?q=${q}&fields=files(id)&spaces=drive`)).json();
     if (found.files?.length) { meta.folderId = found.files[0].id; saveMeta(); return meta.folderId; }
     const made = await (await api(DRIVE + '?fields=id', {

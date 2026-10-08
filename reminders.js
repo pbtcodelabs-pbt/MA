@@ -1,4 +1,4 @@
-/* مکتبۃ العزیز — پروگراموں کی یاد دہانی
+/* میرا مکتبہ — پروگراموں کی یاد دہانی
    (الف) ایپ کے اندر: 3 دن بینر · 1 دن پوری اسکرین اشتہار · آخری دن ہر N منٹ پاپ اپ
    (ب) .ics فائل: فون کے کیلنڈر میں الارم (ایپ بند ہو تب بھی بجتے ہیں) */
 (() => {
@@ -114,7 +114,7 @@
       <p class="rm-msg">${esc(msg)}</p>
       <div class="rm-btns"><a class="btn" href="#/prog/p/${p.id}" data-x="open">کھولیں</a><button type="button" class="btn ghost" data-x="ok">ٹھیک ہے</button><button type="button" class="btn ghost" data-x="mute">آج مزید نہ دکھائیں</button></div></div>`;
     document.body.appendChild(w);
-    alertFx(); notify('مکتبۃ العزیز — آج پروگرام ہے', msg, 'rm-' + p.id);
+    alertFx(); notify(`${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'} — آج پروگرام ہے`, msg, 'rm-' + p.id);
     w.addEventListener('click', e => {
       const x = e.target.closest('[data-x]')?.dataset.x; if (!x) return;
       if (x === 'mute') seenSet(p.id, 'mute', iso(new Date()));
@@ -158,7 +158,7 @@
       : ['-P3D', '-P1D', 'PT8H', 'PT10H', 'PT12H', 'PT14H', 'PT16H', 'PT18H'];
     const title = `پروگرام: ${whereTxt(p)}`;
     const desc = [p.title, whenTxt(p), p.inviter && `دعوت: ${p.inviter}`, p.phone, p.note].filter(Boolean).join('\n');
-    const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Maktaba Al-Aziz//MA//UR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+    const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Mera Maktaba//MA//UR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
       `UID:${p.id}@maktaba-aziz`, `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, '')}`,
       hasT ? `DTSTART:${st}` : `DTSTART;VALUE=DATE:${ymd}`, hasT ? `DTEND:${en}` : '',
       `SUMMARY:${ics(title)}`, `LOCATION:${ics(whereTxt(p))}`, `DESCRIPTION:${ics(desc)}`];
@@ -200,8 +200,8 @@
     });
     $('rmTest').addEventListener('click', () => {
       save(); close();
-      const p = { id: 'test', date: iso(new Date()), time: '', place: 'آزمائشی مسجد', city: 'عارف والا' };
-      alertFx(); notify('مکتبۃ العزیز — آزمائش', 'یہ آزمائشی یاد دہانی ہے', 'rm-test'); todayPop(p);
+      const p = { id: 'test', date: iso(new Date()), time: '', place: 'آزمائشی مسجد', city: 'لاہور' };
+      alertFx(); notify('میرا مکتبہ — آزمائش', 'یہ آزمائشی یاد دہانی ہے', 'rm-test'); todayPop(p);
     });
   }
 
