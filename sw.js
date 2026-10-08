@@ -1,7 +1,7 @@
 /* میرا مکتبہ — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA810TH071';
+const VERSION = 'MA810TH072';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -42,6 +42,9 @@ const FONTS = [
   './fonts/jnn-kasheeda-promo.woff'
 ];
 
+// بڑے فونٹ جو صرف استعمال پر اترتے ہیں (پہلے سے نہیں)، مگر کیش میں رہیں
+const LAZY_FONTS = ['./fonts/jnn-kasheeda-full.woff2'];
+
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const c = await caches.open(CACHE);
@@ -61,7 +64,7 @@ self.addEventListener('activate', event => {
       .then(keys => Promise.all(
         keys.filter(k => k.startsWith('maktaba-aziz-') && k !== CACHE && k !== FONT_CACHE).map(k => caches.delete(k))
       ))
-      .then(() => caches.open(FONT_CACHE)).then(fc => fc.keys().then(ks => Promise.all(ks.filter(r => !FONTS.some(f => r.url.endsWith(f.slice(1)))).map(r => fc.delete(r)))))
+      .then(() => caches.open(FONT_CACHE)).then(fc => fc.keys().then(ks => Promise.all(ks.filter(r => !FONTS.concat(LAZY_FONTS).some(f => r.url.endsWith(f.slice(1)))).map(r => fc.delete(r)))))
       .then(() => self.clients.claim())
   );
 });

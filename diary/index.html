@@ -30,6 +30,10 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+@font-face{font-family:'JNN';src:local('Jameel Noori Nastaleeq'),url('../fonts/jnn-regular.woff') format('woff');font-display:swap}
+@font-face{font-family:'JNNK';src:local('Jameel Noori Nastaleeq Kasheeda'),url('../fonts/jnn-kasheeda-full.woff2') format('woff2');font-display:swap}
+</style>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Gulzar&family=Lateef:wght@400;700&family=Scheherazade+New:wght@400;700&family=Mirza&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 <style>
   @font-face {
@@ -90,7 +94,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Noto Nastaliq Urdu', serif;
+    font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
     background: var(--body-bg);
     min-height: 100vh;
     padding: 0;
@@ -226,7 +230,7 @@
     font-size: 1rem;
     margin-top: 6px;
     position: relative;
-    font-family: 'Noto Nastaliq Urdu', serif;
+    font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
     font-style: italic;
   }
 
@@ -621,7 +625,7 @@
   }
 
   .font-size-label {
-    font-family: 'Noto Nastaliq Urdu', serif;
+    font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
     font-size: 0.72rem;
     color: var(--green);
     direction: rtl;
@@ -671,9 +675,10 @@
   }
 
   /* ===== SELECTABLE URDU/ARABIC FONT CLASSES ===== */
-  .font-nastaliq { font-family: 'Noto Nastaliq Urdu', serif; }
+  .font-nastaliq { font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; }
   .font-arial { font-family: 'Arial', 'Helvetica Neue', 'Noto Sans Arabic', sans-serif; }
   .font-naskh { font-family: 'Noto Naskh Arabic', serif; }
+  .font-kasheeda { font-family: 'JNNK', 'Jameel Noori Nastaleeq Kasheeda', 'JNN', 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; line-height: 2.2; }
   .font-thuluth { font-family: 'Thuluth Bold', serif; }
   .font-gulzar { font-family: 'Gulzar', serif; }
   .font-lateef { font-family: 'Lateef', serif; }
@@ -756,7 +761,7 @@
     padding: 6px 28px 6px 12px;
     border: 1.5px solid var(--green-light);
     border-radius: 8px;
-    font-family: 'Noto Nastaliq Urdu', serif;
+    font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
     font-size: 0.85rem;
     outline: none;
     background: linear-gradient(135deg, #fffef8, #f0faf2);
@@ -1121,7 +1126,7 @@
   .fs-reader-title {
     color: var(--gold-light);
     font-size: 0.9rem;
-    font-family: 'Noto Nastaliq Urdu', serif;
+    font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
     flex: 1;
     text-align: right;
     direction: rtl;
@@ -1373,7 +1378,7 @@
   #composeModal .compose-textarea { height: auto !important; flex: 1 !important; min-height: 200px !important; }
 
 
-  .modal-input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ddd; margin-bottom: 15px; font-size: 1rem; box-sizing: border-box; outline: none; font-family: 'Noto Nastaliq Urdu', serif; }
+  .modal-input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ddd; margin-bottom: 15px; font-size: 1rem; box-sizing: border-box; outline: none; font-family: 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1407,11 +1412,12 @@
     <label style="display:block; font-size:0.9rem; color:#333; margin-bottom:8px; font-weight:600;">پوری ایپ کے لیے فونٹ منتخب کریں:</label>
     
     <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
-      <button onclick="setAppFont('font-nastaliq')" class="font-style-btn" id="btn-nastaliq" style="padding:14px; border:2px solid #1a5c2a; border-radius:10px; background:#f0f8f5; cursor:pointer; font-family:'Noto Nastaliq Urdu',serif; font-size:1.1rem; color:#1a5c2a; font-weight:600; transition:all 0.2s;">نوری نستعلیق (گوگل)</button>
+      <button onclick="setAppFont('font-nastaliq')" class="font-style-btn" id="btn-nastaliq" style="padding:14px; border:2px solid #1a5c2a; border-radius:10px; background:#f0f8f5; cursor:pointer; font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif; font-size:1.1rem; color:#1a5c2a; font-weight:600; transition:all 0.2s;">نوری نستعلیق (گوگل)</button>
       
       <button onclick="setAppFont('font-arial')" class="font-style-btn" id="btn-arial" style="padding:14px; border:2px solid #1a5c2a; border-radius:10px; background:#f0f8f5; cursor:pointer; font-family:'Arial',sans-serif; font-size:1.1rem; color:#1a5c2a; font-weight:600; transition:all 0.2s;">اردو ایریل</button>
       
       <button onclick="setAppFont('font-naskh')" class="font-style-btn" id="btn-naskh" style="padding:14px; border:2px solid #1a5c2a; border-radius:10px; background:#f0f8f5; cursor:pointer; font-family:'Noto Naskh Arabic',serif; font-size:1.1rem; color:#1a5c2a; font-weight:600; transition:all 0.2s;">نسخ (Naskh)</button>
+      <button onclick="setAppFont('font-kasheeda')" class="font-style-btn" id="btn-kasheeda" style="padding:14px; border:2px solid #1a5c2a; border-radius:10px; background:#f0f8f5; cursor:pointer; font-family:'JNNK',serif; font-size:1.1rem; color:#1a5c2a; font-weight:600; transition:all 0.2s;">کشیدہ (Kasheeda)</button>
     </div>
 
     <label style="display:block; font-size:0.9rem; color:#333; margin-bottom:8px; font-weight:600;">🎨 تھیم منتخب کریں:</label>
@@ -1448,10 +1454,10 @@
     <div style="font-size:1.5rem;color:#a5ffb8;line-height:1;position:relative;z-index:2;">﷽</div>
     <div style="flex:1;text-align:center;position:relative;z-index:2;">
       <div style="display:inline-flex;align-items:center;gap:5px;">
-        <span id="appHeaderName" style="font-family:'Noto Nastaliq Urdu',serif;font-size:1.1rem;font-weight:400;color:#f5d87a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;"></span>
+        <span id="appHeaderName" style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;font-size:1.1rem;font-weight:400;color:#f5d87a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;"></span>
         <button type="button" data-action="edit-name" onclick="showCustomizeDialog()" title="نام ایڈٹ کریں" style="background:none;border:none;color:#f5d87a;font-size:0.9rem;cursor:pointer;padding:2px 3px;line-height:1;flex-shrink:0;">✏️</button>
       </div>
-      <div style="font-family:'Noto Nastaliq Urdu',serif;font-size:0.75rem;color:#a8d4ff;margin-top:1px;" id="appHeaderType">علمی اور تحقیقی ڈائری</div>
+      <div style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;font-size:0.75rem;color:#a8d4ff;margin-top:1px;" id="appHeaderType">علمی اور تحقیقی ڈائری</div>
     </div>
     <button type="button" data-action="edit-name" onclick="showCustomizeDialog()" style="position:relative;z-index:2;background:#f5d87a;border:2px solid #fff;color:#1a1a1a;font-size:1.2rem;cursor:pointer;padding:4px;width:34px;height:34px;border-radius:50%;transition:all 0.2s;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.3);" title="نام / معلومات تبدیل کریں">⚙️</button>
   </div>
@@ -1466,7 +1472,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA810TH071</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA810TH072</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1476,6 +1482,7 @@
       <button class="font-quick-btn" id="qf-nastaliq" onclick="applyGlobalFont('font-nastaliq')" style="flex:1;min-width:0;font-size:0.72rem;padding:5px 4px;border:2px solid var(--green);border-radius:10px;background:#f0f8f5;color:var(--green);font-weight:700;white-space:nowrap;">نستعلیق</button>
       <button class="font-quick-btn" id="qf-arial" onclick="applyGlobalFont('font-arial')" style="flex:1;min-width:0;font-size:0.72rem;padding:5px 4px;border:2px solid var(--green);border-radius:10px;background:#f0f8f5;color:var(--green);font-weight:700;white-space:nowrap;">ایریل</button>
       <button class="font-quick-btn" id="qf-naskh" onclick="applyGlobalFont('font-naskh')" style="flex:1;min-width:0;font-size:0.72rem;padding:5px 4px;border:2px solid var(--green);border-radius:10px;background:#f0f8f5;color:var(--green);font-weight:700;white-space:nowrap;">نسخ</button>
+      <button class="font-quick-btn" id="qf-kasheeda" onclick="applyGlobalFont('font-kasheeda')" style="flex:1;min-width:0;font-size:0.72rem;padding:5px 4px;border:2px solid var(--green);border-radius:10px;background:#f0f8f5;color:var(--green);font-weight:700;white-space:nowrap;">کشیدہ</button>
       <span class="fs-display" id="fsDisplay" style="font-size:0.7rem;min-width:30px;flex-shrink:0;">100%</span>
     </div>
     <!-- Row 2: Action buttons -->
@@ -1541,7 +1548,7 @@
       <button type="button" onclick="pasteLink()" style="display:inline-flex;align-items:center;gap:3px;padding:6px 10px;background:linear-gradient(180deg,#1976d2,#0d47a1);border:none;border-bottom:2px solid #082a6e;border-radius:14px;font-size:0.75rem;color:#fff;font-family:inherit;cursor:pointer;white-space:nowrap;font-weight:700;flex-shrink:0;">📋 پیسٹ</button>
     </div>
     <div id="linkPreviewBox" style="display:none;margin-bottom:4px;padding:5px 10px;background:linear-gradient(90deg,#e3f2fd,#fffde7);border:1.5px solid #1565c0;border-radius:8px;direction:ltr;word-break:break-all;">
-      <span style="font-size:0.7rem;color:#888;font-family:'Noto Nastaliq Urdu',serif;direction:rtl;display:block;margin-bottom:1px;">لنک کا پیش نظارہ:</span>
+      <span style="font-size:0.7rem;color:#888;font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;direction:rtl;display:block;margin-bottom:1px;">لنک کا پیش نظارہ:</span>
       <a id="linkPreviewAnchor" href="#" target="_blank" style="color:#1565c0;font-size:0.75rem;text-decoration:none;font-family:monospace;font-weight:600;word-break:break-all;"></a>
       <button onclick="clearLink()" style="float:left;background:none;border:none;color:#c62828;cursor:pointer;font-weight:700;font-size:0.8rem;padding:0 4px;">✕</button>
     </div>
@@ -1555,6 +1562,7 @@
       <button type="button" class="font-quick-btn" id="ef-nastaliq" onclick="applyComposeFont('font-nastaliq')" style="flex:1;padding:3px 4px;border:2px solid #1a5c2a;border-radius:8px;background:#f0f8f5;color:#1a5c2a;font-weight:700;font-size:0.68rem;">نستعلیق</button>
       <button type="button" class="font-quick-btn" id="ef-arial" onclick="applyComposeFont('font-arial')" style="flex:1;padding:3px 4px;border:2px solid #1a5c2a;border-radius:8px;background:#f0f8f5;color:#1a5c2a;font-weight:700;font-size:0.68rem;">ایریل</button>
       <button type="button" class="font-quick-btn" id="ef-naskh" onclick="applyComposeFont('font-naskh')" style="flex:1;padding:3px 4px;border:2px solid #1a5c2a;border-radius:8px;background:#f0f8f5;color:#1a5c2a;font-weight:700;font-size:0.68rem;">نسخ</button>
+      <button type="button" class="font-quick-btn" id="ef-kasheeda" onclick="applyComposeFont('font-kasheeda')" style="flex:1;padding:3px 4px;border:2px solid #1a5c2a;border-radius:8px;background:#f0f8f5;color:#1a5c2a;font-weight:700;font-size:0.68rem;">کشیدہ</button>
     </div>
     <!-- Row 2: Action buttons all in one line -->
     <div style="display:flex;gap:4px;margin-bottom:4px;align-items:center;flex-wrap:nowrap;overflow-x:auto;">
@@ -1642,6 +1650,7 @@
       <button id="rf-nastaliq" onclick="applyFsFont('font-nastaliq')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">نستعلیق</button>
       <button id="rf-arial" onclick="applyFsFont('font-arial')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">ایریل</button>
       <button id="rf-naskh" onclick="applyFsFont('font-naskh')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">نسخ</button>
+      <button id="rf-kasheeda" onclick="applyFsFont('font-kasheeda')" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:12px; padding:5px 8px; font-family:inherit; font-size:0.72rem; cursor:pointer; font-weight:bold;">کشیدہ</button>
       <button onclick="openShareOptions()" style="background:#f5d87a; color:#1a1a1a; border:none; border-radius:15px; padding:5px 15px; font-weight:bold; cursor:pointer; font-size:0.8rem;"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> شیئر</button>
       <button onclick="editFromFullscreen()" style="background:#3a9148; color:#fff; border:none; border-radius:15px; padding:5px 15px; font-weight:bold; cursor:pointer; font-size:0.8rem;">✏️ ترمیم</button>
       <button class="fs-close-btn" onclick="closeFullscreen(); goHome();">✕</button>
@@ -1691,7 +1700,7 @@
   box-shadow:0 -4px 20px rgba(0,0,0,0.4);
 ">
   <div id="driveReminderMsg" style="
-    font-family:'Noto Nastaliq Urdu',serif;
+    font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;
     font-size:0.95rem;
     color:var(--gold-light);
     text-align:center;
@@ -1734,7 +1743,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA810TH071';
+const APP_VERSION = 'MA810TH072';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -1915,21 +1924,21 @@ function applyGlobalFontToEntireApp(fontClass) {
   // Apply to all entry elements
   const entries = document.querySelectorAll('.entry, .entry-body, .entry-title');
   entries.forEach(el => {
-    el.classList.remove('font-nastaliq', 'font-arial', 'font-naskh');
+    el.classList.remove('font-nastaliq', 'font-arial', 'font-naskh', 'font-kasheeda');
     el.classList.add(fontClass);
   });
   
   // Apply to compose textarea
   const textarea = document.getElementById('entryBody');
   if (textarea) {
-    textarea.classList.remove('font-nastaliq', 'font-arial', 'font-naskh');
+    textarea.classList.remove('font-nastaliq', 'font-arial', 'font-naskh', 'font-kasheeda');
     textarea.classList.add(fontClass);
   }
   
   // Apply to fullscreen reader
   const fsBody = document.getElementById('fsReaderBody');
   if (fsBody) {
-    fsBody.classList.remove('font-nastaliq', 'font-arial', 'font-naskh');
+    fsBody.classList.remove('font-nastaliq', 'font-arial', 'font-naskh', 'font-kasheeda');
     fsBody.classList.add(fontClass);
   }
   
@@ -1937,12 +1946,12 @@ function applyGlobalFontToEntireApp(fontClass) {
   updateFontButtonHighlights(fontClass);
 }
 
-const FONT_LABELS = { 'font-nastaliq': 'نوری نستعلیق', 'font-arial': 'اردو ایریل', 'font-naskh': 'نسخ' };
-function fontSuffix(cls) { return cls === 'font-nastaliq' ? 'nastaliq' : cls === 'font-arial' ? 'arial' : 'naskh'; }
+const FONT_LABELS = { 'font-nastaliq': 'نوری نستعلیق', 'font-arial': 'اردو ایریل', 'font-naskh': 'نسخ', 'font-kasheeda': 'نوری نستعلیق کشیدہ' };
+function fontSuffix(cls) { return cls === 'font-nastaliq' ? 'nastaliq' : cls === 'font-arial' ? 'arial' : cls === 'font-kasheeda' ? 'kasheeda' : 'naskh'; }
 
 function updateFontButtonHighlights(fontClass) {
   const suf = fontSuffix(fontClass);
-  ['btn-nastaliq', 'btn-arial', 'btn-naskh'].forEach(id => {
+  ['btn-nastaliq', 'btn-arial', 'btn-naskh', 'btn-kasheeda'].forEach(id => {
     const btn = document.getElementById(id);
     if (btn) {
       btn.style.background = '#f0f8f5';
@@ -1958,21 +1967,21 @@ function updateFontButtonHighlights(fontClass) {
     activeBtn.style.boxShadow = '0 4px 12px rgba(26, 92, 42, 0.3)';
   }
   // Home page quick buttons
-  ['qf-nastaliq','qf-arial','qf-naskh'].forEach(id => {
+  ['qf-nastaliq','qf-arial','qf-naskh','qf-kasheeda'].forEach(id => {
     const b = document.getElementById(id);
     if (b) { b.style.background = '#f0f8f5'; b.style.color = 'var(--green)'; }
   });
   const qActive = document.getElementById('qf-' + suf);
   if (qActive) { qActive.style.background = 'var(--green)'; qActive.style.color = '#fff'; }
   // Compose modal quick buttons
-  ['ef-nastaliq','ef-arial','ef-naskh'].forEach(id => {
+  ['ef-nastaliq','ef-arial','ef-naskh','ef-kasheeda'].forEach(id => {
     const b = document.getElementById(id);
     if (b) { b.style.background = '#f0f8f5'; b.style.color = '#1a5c2a'; }
   });
   const eActive = document.getElementById('ef-' + suf);
   if (eActive) { eActive.style.background = '#1a5c2a'; eActive.style.color = '#fff'; }
   // Reader quick buttons
-  ['rf-nastaliq','rf-arial','rf-naskh'].forEach(id => {
+  ['rf-nastaliq','rf-arial','rf-naskh','rf-kasheeda'].forEach(id => {
     const b = document.getElementById(id);
     if (b) { b.style.background = 'rgba(255,255,255,0.2)'; }
   });
@@ -2202,7 +2211,7 @@ function applyComposeFont(cls) {
   localStorage.setItem('jsm_global_font', cls);
   const ta = document.getElementById('entryBody');
   // Remove all font classes first
-  ta.classList.remove('font-nastaliq','font-arial','font-naskh','font-scheherazade','font-lateef','font-gulzar','font-mirza','font-aref','font-thuluth');
+  ta.classList.remove('font-nastaliq','font-arial','font-naskh','font-kasheeda','font-scheherazade','font-lateef','font-gulzar','font-mirza','font-aref','font-thuluth');
   ta.classList.add(cls);
   ta.style.setProperty('font-size', composeFontScale + 'rem', 'important');
   document.getElementById('composeFontPct').textContent = Math.round(composeFontScale * 100) + '%';
@@ -2354,7 +2363,7 @@ function renderEntries(list) {
       <div style="margin-bottom:10px;">
         <div style="background:linear-gradient(90deg,${cat.color},${cat.color}cc);padding:6px 14px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:8px;">
           <span style="width:10px;height:10px;border-radius:50%;background:#fff;display:inline-block;opacity:0.8;flex-shrink:0;"></span>
-          <span style="font-family:'Noto Nastaliq Urdu',serif;font-weight:700;font-size:0.95em;color:#fff;">${cat.name}</span>
+          <span style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;font-weight:700;font-size:0.95em;color:#fff;">${cat.name}</span>
           <span style="font-size:0.72em;color:rgba(255,255,255,0.75);margin-right:auto;">${grp.items.length} اندراج</span>
         </div>
         <div style="border-radius:0 0 10px 10px;overflow:hidden;border:1.5px solid ${cat.color}44;border-top:none;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
@@ -2368,7 +2377,7 @@ function renderEntries(list) {
     fullHTML += `
       <div style="margin-bottom:10px;">
         <div style="background:linear-gradient(90deg,#888,#aaa);padding:6px 14px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:8px;">
-          <span style="font-family:'Noto Nastaliq Urdu',serif;font-weight:700;font-size:0.95em;color:#fff;">متفرق</span>
+          <span style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;font-weight:700;font-size:0.95em;color:#fff;">متفرق</span>
         </div>
         <div style="border-radius:0 0 10px 10px;overflow:hidden;border:1.5px solid #aaa4;border-top:none;">
           ${ungrouped.map(e => entryRowHTML(e)).join('')}
@@ -2399,7 +2408,7 @@ function showFloatingShareBar(cnt) {
     existing.id = 'floatingShareBar';
     existing.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:5000;background:linear-gradient(135deg,#1a5c2a,#2d7a3a);border:2px solid var(--gold);border-radius:30px;padding:8px 14px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,0.4);direction:rtl;flex-wrap:nowrap;white-space:nowrap;max-width:95vw;overflow-x:auto;';
     existing.innerHTML = `
-      <span id="floatingShareCount" style="font-family:'Noto Nastaliq Urdu',serif;color:#f5d87a;font-weight:700;font-size:0.85rem;flex-shrink:0;">0 منتخب</span>
+      <span id="floatingShareCount" style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;color:#f5d87a;font-weight:700;font-size:0.85rem;flex-shrink:0;">0 منتخب</span>
       <button onclick="shareVia('whatsapp')" style="background:#25D366;color:#fff;border:none;border-radius:20px;padding:6px 12px;font-family:inherit;font-weight:700;font-size:0.78rem;cursor:pointer;flex-shrink:0;">📲 واٹس ایپ</button>
       <button onclick="shareVia('copy')" style="background:#f5d87a;color:#1a1a1a;border:none;border-radius:20px;padding:6px 12px;font-family:inherit;font-weight:700;font-size:0.78rem;cursor:pointer;flex-shrink:0;">📋 کاپی</button>
       <button onclick="deleteSelected()" style="background:#c62828;color:#fff;border:none;border-radius:20px;padding:6px 12px;font-family:inherit;font-weight:700;font-size:0.78rem;cursor:pointer;flex-shrink:0;">🗑 حذف</button>
@@ -2599,7 +2608,7 @@ function handleSearch() {
 
   const topSuggestions = suggestionItems.slice(0, 6);
   sug.innerHTML = topSuggestions.map(s =>
-    `<div class="suggestion-item" onclick="applySearch('${s.term.replace(/'/g,"\\'")}')" style="font-family:'Noto Nastaliq Urdu',serif;font-size:0.9rem;padding:10px 16px;">🔍 ${s.label}</div>`
+    `<div class="suggestion-item" onclick="applySearch('${s.term.replace(/'/g,"\\'")}')" style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;font-size:0.9rem;padding:10px 16px;">🔍 ${s.label}</div>`
   ).join('');
   sug.classList.toggle('show', topSuggestions.length > 0);
 
@@ -2938,9 +2947,10 @@ async function _shareAsImage(e, includeRef) {
     const fontFamily = e.font || 'font-nastaliq';
     // Map font class to CSS font family
     const fontMap = {
-      'font-nastaliq': "'Noto Nastaliq Urdu', serif",
+      'font-nastaliq': "'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif",
       'font-arial': "'Arial', 'Helvetica Neue', 'Noto Sans Arabic', sans-serif",
       'font-naskh': "'Noto Naskh Arabic', serif",
+      'font-kasheeda': "'JNNK', 'JNN', 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif",
       'font-scheherazade': "'Scheherazade New', serif",
       'font-lateef': "'Lateef', serif",
       'font-gulzar': "'Gulzar', serif",
@@ -2948,7 +2958,7 @@ async function _shareAsImage(e, includeRef) {
       'font-aref': "'Aref Ruqaa', serif",
       'font-thuluth': "'Thuluth Bold', serif"
     };
-    const cssFont = fontMap[fontFamily] || "'Noto Nastaliq Urdu', serif";
+    const cssFont = fontMap[fontFamily] || "'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif";
 
     // Build a styled div, render it to canvas via html2canvas-like approach
     // We'll use an offscreen div + canvas
@@ -2989,7 +2999,7 @@ async function _shareAsImage(e, includeRef) {
 
     // TOP LINE: بسم اللہ (most prominent, centered)
     ctx.fillStyle = '#f5d87a';
-    ctx.font = `bold 36px 'Noto Nastaliq Urdu', serif`;
+    ctx.font = `bold 36px 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif`;
     ctx.textAlign = 'center';
     ctx.direction = 'rtl';
     ctx.fillText('﷽', W / 2, 52);
@@ -3008,7 +3018,7 @@ async function _shareAsImage(e, includeRef) {
       ctx.roundRect(W - PAD - 120, 66, 120, 26, 13);
       ctx.fill();
       ctx.fillStyle = '#fff';
-      ctx.font = `bold 16px 'Noto Nastaliq Urdu', serif`;
+      ctx.font = `bold 16px 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif`;
       ctx.textAlign = 'right';
       ctx.direction = 'rtl';
       ctx.fillText(cat.name, W - PAD - 8, 84);
@@ -3019,7 +3029,7 @@ async function _shareAsImage(e, includeRef) {
     // Title
     if (e.title) {
       ctx.fillStyle = catColor;
-      ctx.font = `bold 32px 'Noto Nastaliq Urdu', serif`;
+      ctx.font = `bold 32px 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif`;
       ctx.textAlign = 'right';
       ctx.direction = 'rtl';
       ctx.fillText(e.title, W - PAD, y + 40);
@@ -3061,7 +3071,7 @@ async function _shareAsImage(e, includeRef) {
       ctx.roundRect(PAD, y, W - PAD*2, 38, 10);
       ctx.fill();
       ctx.fillStyle = '#1565c0';
-      ctx.font = `20px 'Noto Nastaliq Urdu', serif`;
+      ctx.font = `20px 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif`;
       ctx.textAlign = 'right';
       ctx.fillText('🔗 ' + e.ref, W - PAD - 8, y + 26);
       y += refH;
@@ -3074,7 +3084,7 @@ async function _shareAsImage(e, includeRef) {
     ctx.fillStyle = '#c9a84c';
     ctx.fillRect(0, ftY, W, 3);
     ctx.fillStyle = '#f5d87a';
-    ctx.font = `20px 'Noto Nastaliq Urdu', serif`;
+    ctx.font = `20px 'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif`;
     ctx.textAlign = 'center';
     ctx.direction = 'rtl';
     ctx.fillText((localStorage.getItem('jsm_diary_owner_name') || '') + ' ' + (localStorage.getItem('jsm_diary_type') || 'ذاتی ڈائری'), W/2, ftY + 36);
@@ -3131,7 +3141,7 @@ function downloadAsPDF() {
     ctx.fillStyle = '#1a5c2a';
     ctx.fillRect(0, 0, W, 80);
     ctx.fillStyle = '#f5d87a';
-    ctx.font = 'bold 28px Noto Nastaliq Urdu, serif';
+    ctx.font = 'bold 28px JNN, Noto Nastaliq Urdu, serif';
     ctx.textAlign = 'center';
     ctx.direction = 'rtl';
     ctx.fillText((localStorage.getItem('jsm_diary_owner_name') || 'ڈائری'), W/2, 50);
@@ -3140,7 +3150,7 @@ function downloadAsPDF() {
     let y = 120;
     if (e.title) {
       ctx.fillStyle = '#1a5c2a';
-      ctx.font = 'bold 24px Noto Nastaliq Urdu, serif';
+      ctx.font = 'bold 24px JNN, Noto Nastaliq Urdu, serif';
       ctx.textAlign = 'right';
       ctx.fillText(e.title, W - PAD, y);
       y += 50;
@@ -3155,7 +3165,7 @@ function downloadAsPDF() {
     
     // Body text
     ctx.fillStyle = '#333';
-    ctx.font = '16px Noto Nastaliq Urdu, serif';
+    ctx.font = '16px JNN, Noto Nastaliq Urdu, serif';
     ctx.textAlign = 'right';
     ctx.direction = 'rtl';
     
@@ -3216,7 +3226,7 @@ function downloadAsImage() {
     ctx.fillStyle = '#1a5c2a';
     ctx.fillRect(0, 0, W, 60);
     ctx.fillStyle = '#f5d87a';
-    ctx.font = 'bold 20px Noto Nastaliq Urdu, serif';
+    ctx.font = 'bold 20px JNN, Noto Nastaliq Urdu, serif';
     ctx.textAlign = 'center';
     ctx.fillText('📔 ڈائری', W/2, 40);
     
@@ -3224,7 +3234,7 @@ function downloadAsImage() {
     let y = 90;
     if (e.title) {
       ctx.fillStyle = '#1a5c2a';
-      ctx.font = 'bold 18px Noto Nastaliq Urdu, serif';
+      ctx.font = 'bold 18px JNN, Noto Nastaliq Urdu, serif';
       ctx.textAlign = 'right';
       ctx.fillText(e.title, W - PAD, y);
       y += 40;
@@ -3232,7 +3242,7 @@ function downloadAsImage() {
     
     // Body
     ctx.fillStyle = '#333';
-    ctx.font = '14px Noto Nastaliq Urdu, serif';
+    ctx.font = '14px JNN, Noto Nastaliq Urdu, serif';
     ctx.textAlign = 'right';
     ctx.direction = 'rtl';
     
@@ -3278,7 +3288,7 @@ function _downloadImg(blob, canvas) {
     ov = document.createElement('div');
     ov.id = 'shareImgPreview';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:19999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
-    ov.innerHTML = '<p style="color:#f5d87a;font-family:Noto Nastaliq Urdu,serif;font-size:1rem;text-align:center;margin:0;">تصویر کو دبا کر رکھیں → محفوظ/شیئر کریں</p><img id="shareImgEl" style="max-width:95%;max-height:75vh;border-radius:12px;border:2px solid #c9a84c;"><div style="display:flex;gap:10px;"><button id="shareImgDl" style="background:#c9a84c;color:#1a1a1a;border:none;border-radius:20px;padding:10px 24px;font-weight:700;cursor:pointer;font-family:inherit;">⬇ ڈاؤن لوڈ</button><button onclick="document.getElementById(\'shareImgPreview\').remove()" style="background:#555;color:#fff;border:none;border-radius:20px;padding:10px 20px;font-weight:700;cursor:pointer;">✕ بند</button></div>';
+    ov.innerHTML = '<p style="color:#f5d87a;font-family:JNN,Noto Nastaliq Urdu,serif;font-size:1rem;text-align:center;margin:0;">تصویر کو دبا کر رکھیں → محفوظ/شیئر کریں</p><img id="shareImgEl" style="max-width:95%;max-height:75vh;border-radius:12px;border:2px solid #c9a84c;"><div style="display:flex;gap:10px;"><button id="shareImgDl" style="background:#c9a84c;color:#1a1a1a;border:none;border-radius:20px;padding:10px 24px;font-weight:700;cursor:pointer;font-family:inherit;">⬇ ڈاؤن لوڈ</button><button onclick="document.getElementById(\'shareImgPreview\').remove()" style="background:#555;color:#fff;border:none;border-radius:20px;padding:10px 20px;font-weight:700;cursor:pointer;">✕ بند</button></div>';
     document.body.appendChild(ov);
   }
   const url = URL.createObjectURL(blob);
@@ -3311,7 +3321,7 @@ function showReaderUI(id) {
   const meta = document.getElementById('fsReaderMeta');
   meta.innerHTML = `
     ${cat ? `<span class="fs-meta-cat" style="background:${cat.color}">${cat.name}</span>` : ''}
-    <span style="font-family:'Noto Nastaliq Urdu',serif;font-size:0.8rem;color:#555;direction:rtl;">${e.title || ''}</span>
+    <span style="font-family:'JNN','Jameel Noori Nastaleeq','Noto Nastaliq Urdu',serif;font-size:0.8rem;color:#555;direction:rtl;">${e.title || ''}</span>
     <span class="fs-meta-date">${e.date}</span>
   `;
 
@@ -3500,7 +3510,7 @@ window.onload = function() {
     updateFontButtonHighlights(globalFont);
     const ta = document.getElementById('entryBody');
     if (ta) {
-      ta.classList.remove('font-nastaliq','font-arial','font-naskh');
+      ta.classList.remove('font-nastaliq','font-arial','font-naskh','font-kasheeda');
       ta.classList.add(globalFont);
     }
   }
