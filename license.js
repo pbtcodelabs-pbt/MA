@@ -141,6 +141,8 @@
   .lic-trial{font-size:24px !important;padding:16px 14px !important;border-radius:20px !important;box-shadow:0 0 0 3px #fff3c4,0 8px 0 #8a5f16,0 16px 26px rgba(0,0,0,.45) !important;animation:licPulse 2.2s ease-in-out infinite}
   @keyframes licPulse{50%{filter:brightness(1.12)}}
   .lic-tcard .ln{justify-content:center}
+  .lic-em.sm .lic-logo{width:100%}
+  .lic-logo{position:absolute;left:50%;top:50%;width:80%;height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 10px 16px rgba(0,0,0,.5));z-index:3}
   .lic-in.need{border-color:#ff8a7a !important;box-shadow:0 0 0 3px rgba(255,120,100,.35) !important}
   .lic-uid,.lic-code{direction:ltr;font:700 24px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;background:rgba(255,255,255,.12);border:1px solid #e9c97a;border-radius:12px;padding:8px}
   .lic-code{color:#9be3b0;font-size:19px;letter-spacing:1.5px}
@@ -225,7 +227,7 @@
     const sp = Array.from({ length: 22 }, (_, i) => `<i class="lic-sp" style="--a:${Math.round(i * 360 / 22 + (i % 2) * 6)}deg;--d:${((i * 0.41) % 2.8).toFixed(2)}s;--z:${6 + (i * 5) % 9}px"></i>`).join('');
     const ed = Array.from({ length: 13 }, (_, i) => `<i class="lic-ed" style="transform:translateZ(calc(var(--t) * ${((i - 6) / 12).toFixed(3)}))"></i>`).join('');
     const face = c => `<div class="lic-face ${c}"><div class="lic-art"></div><div class="lic-shine"></div></div>`;
-    return `<div class="lic-em${small ? ' sm' : ''}" style="--m:${LOGO_MASK}"><div class="lic-rays"></div><div class="lic-rays2"></div><div class="lic-glow"></div>${sp}<div class="lic-coin">${ed}${face('f')}${face('b')}</div></div>`;
+    return `<div class="lic-em${small ? ' sm' : ''}"><div class="lic-rays"></div><div class="lic-rays2"></div><div class="lic-glow"></div>${sp}<img class="lic-logo" src="icons/app-badge.png" alt="میرا مکتبہ"></div>`;
   }
 
   function showWelcome() {

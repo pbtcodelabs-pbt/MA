@@ -137,10 +137,8 @@ ${LINK}`;
 
   function design2(c, T, logo) {
     bg(c, T); frame(c, T);
-    const r = 150, cy = 230;
-    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; c.shadowOffsetY = 14;
-    c.fillStyle = T.gold[1]; c.beginPath(); c.arc(W / 2, cy, r + 10, 0, 7); c.fill(); c.restore();
-    if (logo) { c.save(); c.beginPath(); c.arc(W / 2, cy, r, 0, 7); c.clip(); c.drawImage(logo, W / 2 - r, cy - r, r * 2, r * 2); c.restore(); }
+    if (logo) { const lh = 330, lw = logo.width * lh / logo.height, lx = W / 2 - lw / 2, ly = 60;
+      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; c.shadowOffsetY = 16; c.drawImage(logo, lx, ly, lw, lh); c.restore(); }
     title(c, T, 520, 160);
     txt(c, 'علمائے کرام، طلبائے کرام اور کتاب سے محبت کرنے والوں کے لیے', W / 2, 600, 32, T.tx, { max: W - 140 });
     txt(c, 'اپنی طرز کا پہلا بہترین موبائل سافٹ ویئر', W / 2, 660, 44, T.gold[1], { max: W - 140 });
@@ -161,7 +159,7 @@ ${LINK}`;
   }
 
   let logoImg = null;
-  function loadLogo() { return new Promise(res => { if (logoImg) return res(logoImg); const i = new Image(); i.onload = () => { logoImg = i; res(i); }; i.onerror = () => res(null); i.src = 'icons/icon-512.png'; }); }
+  function loadLogo() { return new Promise(res => { if (logoImg) return res(logoImg); const i = new Image(); i.onload = () => { logoImg = i; res(i); }; i.onerror = () => res(null); i.src = 'icons/app-badge.png'; }); }
   async function render(cv) {
     try { await Promise.all([document.fonts.load(`40px ${F}`, 'کتاب'), document.fonts.load(`120px ${TF}`, 'میرا مکتبہ')]); } catch (e) {}
     const c = cv.getContext('2d'); c.clearRect(0, 0, W, H);
