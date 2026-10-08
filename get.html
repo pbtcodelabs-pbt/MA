@@ -4,57 +4,80 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f3a30">
-<title>میرا مکتبہ — ایپ ڈاؤن لوڈ کریں</title>
-<meta name="description" content="علمائے کرام، طلبائے کرام اور کتاب سے محبت کرنے والوں کے لیے ڈیجیٹل لائبریری، ڈیجیٹل ڈائری اور مصروفیات — تین ایپس ایک جگہ">
+<title>میرا مکتبہ — ڈاؤن لوڈ</title>
+<meta name="description" content="میرا مکتبہ — ڈیجیٹل لائبریری، ڈیجیٹل ڈائری اور مصروفیات۔ 3 دن فری استعمال کریں۔">
 <meta property="og:title" content="میرا مکتبہ — ڈیجیٹل لائبریری، ڈیجیٹل ڈائری اور مصروفیات">
-<meta property="og:description" content="علمائے کرام، طلبائے کرام اور کتاب سے محبت کرنے والوں کے لیے اپنی طرز کا پہلا بہترین موبائل سافٹ ویئر — 3 دن فری۔ ابھی ڈاؤن لوڈ کریں۔">
+<meta property="og:description" content="ایپ انسٹال کریں، 3 دن فری استعمال کریں، اس کے بعد خریدنے کا فیصلہ کریں۔">
 <meta property="og:image" content="https://pbtcodelabs-pbt.github.io/MA/promo/mera-maktaba.jpg">
 <meta property="og:type" content="website">
 <link rel="icon" href="icons/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 @font-face{font-family:"JNN";src:local("Jameel Noori Nastaleeq"),url("fonts/jnn-regular.woff") format("woff");font-display:swap}
-:root{--gold:linear-gradient(180deg,#fff6d5 0%,#f1d27a 30%,#c8962f 55%,#f5dc8f 75%,#a8741f 100%)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"JNN","Noto Nastaliq Urdu",serif;color:#fff1c1;min-height:100svh;
-  background:radial-gradient(120% 70% at 50% 15%,#1f6a54 0%,#14463a 45%,#0b2e26 100%) fixed,#0b2e26}
-.w{max-width:480px;margin:0 auto;padding:22px 18px 30px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
-.logo{width:150px;height:150px;border-radius:50%;box-shadow:0 10px 26px rgba(0,0,0,.5)}
-h1{font-weight:400;font-size:48px;line-height:1.8;background:var(--gold);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:-6px}
-.lead{font-size:18px;line-height:2;color:#f5e6b8;margin-top:-10px}
-.lead b{font-weight:400;color:#f1d27a}
-.feats{width:100%;display:grid;gap:10px;margin:6px 0}
-.f{display:flex;align-items:center;gap:12px;padding:8px 14px;border-radius:16px;text-align:right;color:#14463a;
-  background:linear-gradient(180deg,#fff,#fbf4e2 40%,#efe0bb);box-shadow:0 0 0 2px #c8962f,0 6px 0 #8a5f16,0 12px 18px rgba(0,0,0,.4)}
-.f i{font-style:normal;font-size:26px}
-.f b{font-weight:400;font-size:21px;line-height:1.7;display:block}
-.f small{font-size:14px;color:#6b6250;line-height:1.6}
-.dl{display:block;width:100%;margin-top:10px;padding:14px;border-radius:20px;text-decoration:none;color:#0b2e26;font-size:24px;line-height:1.8;
-  background:var(--gold);box-shadow:0 0 0 3px #fff3c4,0 8px 0 #8a5f16,0 16px 24px rgba(0,0,0,.45)}
+html,body{height:100%}
+body{font-family:"JNN","Noto Nastaliq Urdu",serif;color:#fff1c1;background:radial-gradient(120% 70% at 50% 25%,#1f6a54 0%,#14463a 45%,#0b2e26 100%) fixed,#0b2e26;
+  display:grid;place-items:center;min-height:100svh;padding:24px 20px}
+.w{width:100%;max-width:420px;display:grid;justify-items:center;gap:18px;text-align:center}
+.logo{width:110px;height:110px;border-radius:50%;box-shadow:0 10px 24px rgba(0,0,0,.5)}
+.dl{position:relative;width:100%;border:0;border-radius:22px;padding:16px 14px;cursor:pointer;color:#0b2e26;font:inherit;font-size:26px;line-height:1.8;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:linear-gradient(180deg,#fff6d5 0%,#f1d27a 30%,#c8962f 55%,#f5dc8f 75%,#a8741f 100%);box-shadow:0 0 0 3px #fff3c4,0 8px 0 #8a5f16,0 16px 24px rgba(0,0,0,.45)}
+.dl svg{width:38px;height:38px;flex:none}
 .dl:active{transform:translateY(5px);box-shadow:0 0 0 3px #fff3c4,0 2px 0 #8a5f16}
-.trial{font-size:17px;color:#fff1c1}
-.how{width:100%;text-align:right;font-size:15px;line-height:2;color:#e6d6aa;background:rgba(0,0,0,.22);border:1px dashed rgba(232,196,103,.6);border-radius:14px;padding:8px 14px}
-.how b{font-weight:400;color:#f1d27a}
-.web{color:#f1d27a;font-size:15px}
-.ct{font-size:15px;color:#e6d6aa}
-.ct a{color:#fff1c1;font:700 15px Arial,sans-serif;text-decoration:none}
+.dl[disabled]{opacity:.65}
+.bar{width:100%;height:18px;border-radius:99px;background:rgba(0,0,0,.35);border:1.5px solid #e8c467;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f1d27a,#2fc765);transition:width .2s}
+.pc{font:700 18px Arial,sans-serif;color:#fff1c1;min-height:1.4em}
+.msg{font-size:19px;line-height:2;color:#fff1c1;min-height:1.9em}
+.msg b{font-weight:400;color:#f1d27a}
+.again{border:0;background:none;color:#f1d27a;text-decoration:underline;font:inherit;font-size:16px;cursor:pointer}
+[hidden]{display:none !important}
 </style>
 </head>
 <body>
 <main class="w">
-  <img class="logo" src="icons/icon-512.png" alt="میرا مکتبہ" width="150" height="150">
-  <h1>میرا مکتبہ</h1>
-  <p class="lead">علمائے کرام، طلبائے کرام اور کتاب سے محبت کرنے والوں کے لیے<br><b>اپنی طرز کا پہلا بہترین موبائل سافٹ ویئر</b></p>
-  <div class="feats">
-    <div class="f"><i>📚</i><span><b>ڈیجیٹل لائبریری</b><small>کتب کا مکمل ریکارڈ، فن وار اور جلد وار، پڑھنے کو دی گئی کتب کا حساب</small></span></div>
-    <div class="f"><i>📒</i><span><b>ڈیجیٹل ڈائری</b><small>نوٹس، لنکس اور ضروری باتیں محفوظ</small></span></div>
-    <div class="f"><i>🗓️</i><span><b>میری مصروفیات</b><small>پروگرام، وقت اور الٹی گنتی کے ساتھ</small></span></div>
-  </div>
-  <a class="dl" href="app/mera-maktaba.apk" download="mera-maktaba.apk">⬇️ ایپ ڈاؤن لوڈ کریں</a>
-  <p class="trial">🎁 پہلے 3 دن بالکل فری</p>
-  <div class="how"><b>انسٹال کرنے کا طریقہ:</b><br>۱) اوپر والا بٹن دبائیں، فائل ڈاؤن لوڈ ہو جائے گی۔<br>۲) ڈاؤن لوڈ ہونے کے بعد فائل کھولیں اور «انسٹال» دبائیں۔<br>۳) اگر فون اجازت مانگے تو «اجازت دیں» دبا دیں۔</div>
-  <a class="web" href="./">یا بغیر انسٹال کیے یہیں سے کھولیں ←</a>
-  <p class="ct">رابطہ: <a href="https://wa.me/923206793793" dir="ltr">0320-6793793</a></p>
+  <img class="logo" src="icons/icon-512.png" alt="میرا مکتبہ" width="110" height="110">
+  <button type="button" class="dl" id="dl">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0b2e26" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M6.5 10l5.5 5.5 5.5-5.5"/><path d="M4 20h16"/></svg>
+    <span>ایپ ڈاؤن لوڈ کریں</span>
+  </button>
+  <div class="bar" id="bar" hidden><i id="fill"></i></div>
+  <p class="pc" id="pc"></p>
+  <p class="msg" id="msg"></p>
+  <button type="button" class="again" id="again" hidden>فائل نہیں ملی؟ دوبارہ محفوظ کریں</button>
 </main>
+<script>
+(function () {
+  const URL_APK = 'app/mera-maktaba.apk', NAME = 'mera-maktaba.apk';
+  const dl = document.getElementById('dl'), bar = document.getElementById('bar'), fill = document.getElementById('fill'),
+        pc = document.getElementById('pc'), msg = document.getElementById('msg'), again = document.getElementById('again');
+  let blobUrl = '';
+  const save = () => { const a = document.createElement('a'); a.href = blobUrl || URL_APK; a.download = NAME; document.body.appendChild(a); a.click(); a.remove(); };
+  const done = () => {
+    fill.style.width = '100%'; pc.textContent = '100%';
+    msg.innerHTML = '✅ ڈاؤن لوڈ مکمل<br>اب اوپر یا نیچے آنے والی اطلاع میں <b>«کھولیں»</b> دبائیں، پھر <b>«انسٹال»</b> دبائیں۔<br>فون اجازت مانگے تو <b>«اجازت دیں»</b> دبا دیں۔';
+    again.hidden = false; dl.disabled = false;
+  };
+  dl.addEventListener('click', async () => {
+    dl.disabled = true; bar.hidden = false; fill.style.width = '0'; pc.textContent = '0%'; msg.textContent = 'ڈاؤن لوڈ ہو رہی ہے…';
+    try {
+      const res = await fetch(URL_APK, { cache: 'no-cache' }); if (!res.ok || !res.body) throw new Error('net');
+      const total = Number(res.headers.get('content-length')) || 0, reader = res.body.getReader(), parts = []; let got = 0;
+      for (;;) {
+        const { done: d, value } = await reader.read(); if (d) break;
+        parts.push(value); got += value.length;
+        if (total) { const p = Math.min(99, Math.round(got * 100 / total)); fill.style.width = p + '%'; pc.textContent = p + '%'; }
+        else pc.textContent = (got / 1048576).toFixed(1) + ' MB';
+      }
+      blobUrl = URL.createObjectURL(new Blob(parts, { type: 'application/vnd.android.package-archive' }));
+      save(); done();
+    } catch (e) {
+      // پٹی نہ چل سکے تو سیدھا ڈاؤن لوڈ
+      bar.hidden = true; pc.textContent = ''; save(); done();
+    }
+  });
+  again.addEventListener('click', save);
+})();
+</script>
 </body>
 </html>
