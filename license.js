@@ -648,7 +648,7 @@
     show(`<div class="lic-box">${emblem(true)}
       <div class="lic-fade" style="display:grid;gap:10px">
       <p class="lic-k">لاگ آؤٹ ہو گئے</p>
-      <p class="lic-s">سبسکرپشن فعال ہے — ${num(st.left)} دن باقی</p>
+      <p class="lic-s">${st.mode === 'trial' ? `فری ٹرائل — ${num(st.left)} دن باقی` : `سبسکرپشن فعال ہے — ${num(st.left)} دن باقی`}</p>
       <div class="lic-row"><button type="button" class="lic-b" id="loIn">🔓 داخل ہوں</button><button type="button" class="lic-b g" id="loClose">⏻ ایپ بند</button></div>
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
       </div></div>`, true);
@@ -656,7 +656,8 @@
     $(ov, '#loClose').onclick = closeApp;
     tapCounter($(ov, '#licVer'), devAuth);
   }
-  function logout() { if (status().mode !== 'paid') return; loggedOut = true; showLoggedOut(); }
+  const canIn = () => { const m = status().mode; return m === 'paid' || m === 'trial'; };
+  function logout() { if (!canIn()) { refresh(true); return; } loggedOut = true; showLoggedOut(); }
   function closeApp() {
     // مکتبے کے صفحے سے: مین صفحے پر جا کر وہیں سے بند کریں (وہی ایپ کا پہلا صفحہ ہے)
     if (!/\/(index\.html)?$/.test(location.pathname)) { location.replace('./?exit=1'); return; }
@@ -694,7 +695,7 @@
   // ----- جانچ -----
   function refresh() {
     if (devOpen) return;
-    if (loggedOut && status().mode === 'paid') { if (!ov || !blocking) showLoggedOut(); return; }
+    if (loggedOut && canIn()) { if (!ov || !blocking) showLoggedOut(); return; }
     loggedOut = false;
     const st = status(), locked = st.mode === 'locked' || st.mode === 'expired';
     if (st.mode === 'blocked' || st.mode === 'net') { if (!ov || !blocking || ov.dataset.m !== st.mode) showHold(st); card(); return; }
