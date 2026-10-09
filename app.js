@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA910FR080) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA910FR081) */
 (() => {
   'use strict';
 
@@ -27,15 +27,16 @@
 
   // ---------- ڈیٹا ----------
   const KEY = 'maktaba-aziz-data-v1';
-  let db = { books: [], cats: [], catNames: {}, loanLog: [], progs: [] };
+  let db = { books: [], cats: [], catNames: {}, loanLog: [], progs: [], notes: [] };
   function normDb(d) {
-    const o = { books: [], cats: [], catNames: {}, loanLog: [], progs: [] };
+    const o = { books: [], cats: [], catNames: {}, loanLog: [], progs: [], notes: [] };
     if (d && Array.isArray(d.cats)) o.cats = d.cats.filter(c => c && c.id && c.name);
     if (d && d.catNames && typeof d.catNames === 'object') o.catNames = d.catNames;
     if (d && Array.isArray(d.loanLog)) o.loanLog = d.loanLog;
     if (d && Array.isArray(d.progs)) o.progs = d.progs.filter(p => p && p.id && p.date);
     const ids = new Set([...DEFAULT_CATS, ...o.cats].map(c => c.id));
     if (d && Array.isArray(d.books)) o.books = d.books.filter(b => b && b.name && ids.has(b.cat));
+    if (d && Array.isArray(d.notes)) { const bk = new Set(o.books.map(b => b.id)); o.notes = d.notes.filter(n => n && n.id && bk.has(n.book) && n.text); }
     return o;
   }
   try {
@@ -242,6 +243,7 @@
             ${b.price ? row('قیمت', money(b.price)) : ''}
             ${row('فن', esc(cat.name))}
           </dl>
+          <a class="btn nt-go" href="#/c/${cat.id}/b/${b.id}/notes">📝 ضروری یادداشتیں <b>${num(window.MA_NOTES ? window.MA_NOTES.countOf(b.id) : 0)}</b></a>
           ${b.loan ? `<div class="loan-card">
             <div class="lc-h"><span class="lc-tag">پڑھنے کے لیے گئی ہوئی ہے</span><span class="lc-days">${num(daysSince(b.loan.date))} دن</span></div>
             <dl>
@@ -271,7 +273,7 @@
       if (t.dataset.act === 'del-no') pageBook(cat, id);
       if (t.dataset.act === 'del-yes') {
         const i = db.books.findIndex(x => x.id === id);
-        if (i > -1) { const [gone] = db.books.splice(i, 1); save(); toast(`«${gone.name}» حذف ہو گئی`); }
+        if (i > -1) { const [gone] = db.books.splice(i, 1); if (window.MA_NOTES) window.MA_NOTES.removeBook(gone.id); else db.notes = (db.notes || []).filter(n => n.book !== gone.id); save(); toast(`«${gone.name}» حذف ہو گئی`); }
         refreshCounts(cat.id); location.hash = `#/c/${cat.id}`;
       }
     });
@@ -592,7 +594,10 @@
       const hay = norm([b.name, b.author, b.publisher, catById(b.cat)?.name, b.loan?.name, b.loan?.phone].join(' '));
       return words.every(w => hay.includes(w));
     });
-    view.innerHTML = `
+    const nHits = (db.notes || []).filter(n => { const hay = norm(n.text + ' ' + (n.page || '')); return words.every(w => hay.includes(w)); }).slice(0, 60);
+    const bookOf = id => db.books.find(x => x.id === id);
+    const notesHtml = nHits.length ? `<section class="panel"><div class="panel-h"><h2>📝 ضروری یادداشتوں میں</h2><span class="crumb">${num(nHits.length)} ملیں</span></div><div class="panel-b"><div class="results">${nHits.map(n => { const b = bookOf(n.book); if (!b) return ''; return `<a class="result" href="#/c/${b.cat}/b/${b.id}/notes"><span class="r-ico" style="font-size:28px;display:grid;place-items:center">${n.img ? '📎' : '📝'}</span><span class="r-txt"><b>${esc(n.text)}</b><span>${esc(b.name)}${(+b.parts || 1) > 1 ? ' · جلد ' + num(n.vol || 1) : ''}${n.page ? ' · صفحہ ' + num(n.page) : ''}</span></span></a>`; }).join('')}</div></div></section>` : '';
+    view.innerHTML = notesHtml + `
       <section class="panel">
         <div class="panel-h"><h2>تلاش: «${esc(q)}»</h2><span class="crumb">${num(hits.length)} کتب ملیں</span></div>
         <div class="panel-b">
@@ -624,7 +629,7 @@
     if (gq.value) { gq.value = ''; $('gqClear').hidden = true; }
     if (!/\/(add|edit)|newcat/.test(location.hash) && document.getElementById('sheet')) { document.getElementById('sheet').remove(); document.body.classList.remove('noscroll'); }
     const parts = location.hash.replace(/^#\/?/, '').split('/');
-    document.body.classList.toggle('is-home', !(parts[0] === 'c' && catById(parts[1])));
+    document.body.classList.toggle('is-home', !(parts[0] === 'c' && catById(parts[1])) || parts[4] === 'notes');
     if (parts[0] === 'reports') {
       renderBar(null);
       if (REP[parts[1]] && parts[2] !== undefined) pageReportDetail(parts[1], decodeURIComponent(parts[2]));
@@ -642,6 +647,7 @@
       renderBar(cat.id);
       if (parts[2] === 'add') pageAdd(cat);
       else if (parts[2] === 'edit' && parts[3]) pageAdd(cat, parts[3]);
+      else if (parts[2] === 'b' && parts[3] && parts[4] === 'notes' && window.MA_NOTES) { const bk = db.books.find(x => x.id === parts[3] && x.cat === cat.id); if (bk) window.MA_NOTES.page(cat, bk); else location.hash = `#/c/${cat.id}`; }
       else if (parts[2] === 'b' && parts[3]) pageBook(cat, parts[3]);
       else pageCat(cat);
     } else {
@@ -660,8 +666,9 @@
   });
 
   // ---------- بیک اپ ----------
-  $('btnExport').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }), null, 2)], { type: 'application/json' });
+  $('btnExport').addEventListener('click', async () => {
+    let imgs; try { imgs = window.MA_NOTES ? await window.MA_NOTES.exportImgs() : undefined; } catch (e) {}
+    const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get(), imgs }), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `mera-maktaba-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -670,7 +677,7 @@
   });
   // بیک اپ فائل واٹس ایپ وغیرہ پر بھیجنا
   $('btnShareFile').addEventListener('click', async () => {
-    const json = JSON.stringify(Object.assign({}, db, { brand: undefined }), null, 1);
+    const json = JSON.stringify(Object.assign({}, db, { brand: undefined, notes: undefined }), null, 1);
     const fname = `maktaba-backup-${new Date().toISOString().slice(0, 10)}.json`;
     try {
       const file = new File([json], fname, { type: 'application/json' });
@@ -731,6 +738,7 @@
       if (d.lic && window.MA_LIC) window.MA_LIC.import(d.lic);
       if (d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand);
       if (d.diary) window.MA_DIARY.set(d.diary);
+      if (d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs);
       save(); route(); toast(`بیک اپ سے ${num(db.books.length)} کتب واپس آ گئیں`);
     } catch (err) {
       toast('یہ فائل درست بیک اپ نہیں ہے۔');
@@ -772,10 +780,10 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA910FR080',
+    version: 'MA910FR081',
     toast,
-    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
-    replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); }
+    snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
+    replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
   };
   // میرے پروگرام (programs.js) کے لیے
   window.MA_APP = {

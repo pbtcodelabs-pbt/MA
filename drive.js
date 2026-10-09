@@ -128,6 +128,46 @@
     return (await api(`${UPLOAD}?uploadType=multipart&fields=id`, { method: 'POST', ...m })).json();
   }
 
+  // ---------- یادداشتوں کی تصاویر: بیک اپ فولڈر کے اندر «images» فولڈر میں، ہر تصویر ایک بار ----------
+  async function imgFolder() {
+    const parent = await ensureFolder();
+    if (meta.imgFolder && meta.imgParent === parent) return meta.imgFolder;
+    const q = encodeURIComponent(`name='images' and '${parent}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+    const f = await (await api(`${DRIVE}?q=${q}&fields=files(id)`)).json();
+    let id = f.files?.[0]?.id;
+    if (!id) id = (await (await api(DRIVE + '?fields=id', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'images', mimeType: 'application/vnd.google-apps.folder', parents: [parent] }) })).json()).id;
+    meta.imgFolder = id; meta.imgParent = parent; saveMeta(); return id;
+  }
+  async function syncImgs() {
+    const N = window.MA_NOTES; if (!N) return;
+    meta.imgUp = meta.imgUp || {};
+    const todo = N.imgIds().filter(id => !meta.imgUp[id]); if (!todo.length) return;
+    const fid = await imgFolder();
+    for (const id of todo) {
+      const blob = await N.imgGet(id); if (!blob) continue;
+      const bd = 'mkimg' + Date.now();
+      const body = new Blob([`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name: `img-${id}.jpg`, parents: [fid], appProperties: { app: 'maktaba-aziz-img', id } })}\r\n--${bd}\r\nContent-Type: image/jpeg\r\n\r\n`, blob, `\r\n--${bd}--`]);
+      const r = await (await api(`${UPLOAD}?uploadType=multipart&fields=id`, { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${bd}` }, body })).json();
+      meta.imgUp[id] = r.id; saveMeta();
+    }
+  }
+  async function fetchImgs() {
+    const N = window.MA_NOTES; if (!N) return 0;
+    const miss = []; for (const id of N.imgIds()) if (!(await N.imgHas(id))) miss.push(id);
+    if (!miss.length) return 0;
+    const fid = await imgFolder(); let n = 0;
+    meta.imgUp = meta.imgUp || {};
+    for (const id of miss) {
+      try {
+        const q = encodeURIComponent(`name='img-${id}.jpg' and '${fid}' in parents and trashed=false`);
+        const f = (await (await api(`${DRIVE}?q=${q}&fields=files(id)`)).json()).files?.[0]; if (!f) continue;
+        const blob = await (await api(`${DRIVE}/${f.id}?alt=media`)).blob();
+        await N.imgPut(id, new Blob([blob], { type: 'image/jpeg' })); meta.imgUp[id] = f.id; n++;
+      } catch (e) { if (e.message === 'expired') throw e; }
+    }
+    saveMeta(); return n;
+  }
+
   // ---------- بیک اپ ----------
   // slot: 'manual' (دستی/خودکار تبدیلی پر) یا '08' / '14' / '20' (مقررہ اوقات)
   async function backup(interactive, slot = 'manual', slotKey = null) {
@@ -170,6 +210,7 @@
       meta.lastDrive = new Date().toISOString(); meta.lastBooks = n; meta.pending = false;
       if (window.MA_DIARY) meta.diarySig = window.MA_DIARY.sig();
       saveMeta();
+      try { await syncImgs(); } catch (e) { console.warn('img sync', e); }
       return n;
     } catch (e) {
       handleErr(e, interactive);
@@ -271,7 +312,8 @@
       if (!j || !Array.isArray(j.books)) throw new Error('bad');
       host().replace(j);
       meta.lastDrive = new Date().toISOString(); meta.pending = false; meta.lastBooks = j.books.length; saveMeta(); render();
-      capEnd(true, `ری اسٹور مکمل — ${j.books.length} کتب واپس آ گئیں`);
+      let ni = 0; try { capStart('یادداشتوں کی تصاویر واپس آ رہی ہیں…'); ni = await fetchImgs(); } catch (e) { console.warn(e); }
+      capEnd(true, `ری اسٹور مکمل — ${j.books.length} کتب واپس آ گئیں` + (ni ? ` · ${ni} تصاویر` : ''));
     } catch (e) {
       handleErr(e, true);
       capEnd(false, e.message === 'bad' ? 'یہ فائل درست بیک اپ نہیں' : (lastErr || 'ری اسٹور نہیں ہو سکا'));
