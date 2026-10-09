@@ -213,7 +213,14 @@
       p.city ? `📍 شہر: ${p.city}` : '',
       p.inviter || p.phone ? `👤 دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : '',
       p.note ? `📝 ${p.note}` : ''
-    ].filter(Boolean).join('\n');
+    ].filter(Boolean).join('\n') + brandSign();
+  }
+  // مکتبے کی پہچان — پیغام کے آخر میں
+  function brandSign() {
+    const b = window.MA_BRAND ? window.MA_BRAND.get() : {};
+    const n = window.MA_BRAND ? window.MA_BRAND.name() : '';
+    const parts = [n, (b.line1 || '').trim(), (b.phone || '').trim() ? '📞 ' + b.phone.trim() : ''].filter(Boolean);
+    return parts.length ? '\n━━━━━━━━━━\n' + parts.join('\n') : '';
   }
   async function shareOne(p) {
     const text = textOf(p);
@@ -345,7 +352,7 @@
     document.querySelector('.pr-btns').addEventListener('click', async e => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const k = window.MA_SHARE_UI?.kit;
-      const text = `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
+      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی — واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'رپورٹ کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
       const old = b.textContent; b.disabled = true; b.textContent = 'بن رہی ہے…';
@@ -365,16 +372,8 @@
     cols[3].w = W - 2 * M - cols.reduce((s, c) => s + c.w, 0);
     let x = W - M; cols.forEach(c => { c.r = x; x -= c.w; });
     const blocks = [];
-    blocks.push({ h: 250, draw(ctx, y) {
-      const g = ctx.createLinearGradient(0, y, 0, y + 200); g.addColorStop(0, '#2c1f4a'); g.addColorStop(1, '#14463a');
-      ctx.fillStyle = g; k.roundRect(ctx, M, y + 10, W - 2 * M, 200, 22); ctx.fill();
-      ctx.strokeStyle = C.gold2; ctx.lineWidth = 3; k.roundRect(ctx, M + 10, y + 20, W - 2 * M - 20, 180, 16); ctx.stroke();
-      const tg = ctx.createLinearGradient(0, y + 30, 0, y + 120); tg.addColorStop(0, '#fff3c4'); tg.addColorStop(.5, '#e2b24e'); tg.addColorStop(1, '#a8741f');
-      ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `80px ${TFONT}`; ctx.fillText('شیڈیول', W / 2, y + 118);
-      ctx.fillStyle = '#f3e6c2'; ctx.font = `30px ${FONT}`; ctx.fillText(rangeTxt(), W / 2, y + 178);
-      ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.textAlign = 'right'; ctx.fillText(`رپورٹ کی تاریخ: ${dmy(iso(new Date()))}`, W - M, y + 244);
-      ctx.textAlign = 'left'; ctx.fillText(`کل ${list.length} پروگرام`, M, y + 244);
-    } });
+    blocks.push({ h: k.letterH(), draw(ctx, y) { k.letterDraw(ctx, y, ['#2c1f4a', '#14463a']); } });
+    blocks.push({ h: 116, draw(ctx, y) { k.titleDraw(ctx, y, `شیڈیول — ${rangeTxt()}`, `رپورٹ کی تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); } });
     blocks.push({ h: 56, keep: 2, draw(ctx, y) {
       ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 6, W - 2 * M, 48, 10); ctx.fill();
       ctx.fillStyle = C.gold2; ctx.font = `24px ${FONT}`; ctx.textAlign = 'right';

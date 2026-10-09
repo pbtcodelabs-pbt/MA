@@ -146,7 +146,7 @@
   function buildText() {
     const g = grouped();
     const all = g.flatMap(x => x.list);
-    let t = `*${BN()}*\n${headLine()}\nتاریخ: ${today()}\n`;
+    let t = `${brandText()}\n*${headLine()}*\nتاریخ: ${today()}\n`;
     if (mode === 'loans') {
       g.forEach(({ cat, list }) => {
         t += `\n*${cat.name}* (${fmt(list.length)})\n`;
@@ -164,7 +164,7 @@
         const parts = [b.name];
         if (opts.details) { if (b.author) parts.push(b.author); if (b.publisher) parts.push(b.publisher); }
         parts.push(`اجزاء ${fmt(b.parts)}`);
-        if (opts.price) parts.push(`Rs ${fmt(b.price)}`);
+        if (opts.price && +b.price) parts.push(`Rs ${fmt(b.price)}`);
         t += `${i + 1}. ${parts.join(' — ')}\n`;
       });
     });
@@ -186,10 +186,87 @@
   const BK = () => BR() ? BR().kasheeda(BR().get().name) : true;
   const BF = () => BR() ? BR().titleFont(BR().get().name) : TFONT;
   function headLine() {
-    const pl = BP() ? ` — ${BP()}` : '';
-    if (mode === 'loans') return `پڑھنے کے لیے گئی کتب${pl}`;
-    if (subtitle) return `فہرستِ کتب (${subtitle})${pl}`;
-    return `تفصیلی فہرستِ کتب${pl}`;
+    if (mode === 'loans') return 'پڑھنے کے لیے گئی کتب';
+    if (subtitle) return `فہرستِ کتب (${subtitle})`;
+    return 'تفصیلی فہرستِ کتب';
+  }
+  // ---------- لیٹر ہیڈ: ہر بھیجی جانے والی فہرست / رپورٹ کے اوپر مکتبے کی پہچان ----------
+  const BG = () => (BR() ? BR().get() : {});
+  const bLines = () => { const b = BG(); return { l1: (b.line1 || '').trim(), l2: [b.line2, b.line3].map(x => (x || '').trim()).filter(Boolean).join(' · '), addr: (b.address || '').trim(), phone: (b.phone || '').trim() }; };
+  function brandText() {
+    const L = bLines();
+    return [`*${BN()}*`, L.l1, L.l2, L.addr ? `📍 ${L.addr}` : '', L.phone ? `📞 ${L.phone}` : '', '━━━━━━━━━━━━'].filter(Boolean).join('\n');
+  }
+  let logoImg = null, logoFor = '';
+  function loadLogo() {
+    const src = BR() ? BR().logoSrc() : '';
+    if (!src) { logoImg = null; logoFor = ''; return Promise.resolve(); }
+    if (src === logoFor && logoImg) return Promise.resolve();
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => { logoImg = im; logoFor = src; res(); };
+      im.onerror = () => { logoImg = null; logoFor = ''; res(); };
+      im.src = src;
+    });
+  }
+  // لیٹر ہیڈ کی اونچائی
+  function letterH() {
+    const L = bLines();
+    let h = 20 + 100;                       // نام
+    if (L.l1) h += 50;
+    if (L.l2) h += 42;
+    if (L.addr || L.phone) h += 84;          // نیچے کی پٹی
+    else h += 16;
+    return Math.max(h, logoImg ? 210 : 0) + 20;
+  }
+  // لیٹر ہیڈ بنائیں — y سے شروع، مکمل چوڑائی
+  function letterDraw(ctx, y, colors) {
+    const c1 = (colors && colors[0]) || '#0f3a30', c2 = (colors && colors[1]) || C.green2;
+    const L = bLines(), H = letterH() - 20;
+    const band = (L.addr || L.phone) ? 62 : 0;
+    const x0 = M, w0 = W - 2 * M, top = y + 10;
+    const grd = ctx.createLinearGradient(0, top, 0, top + H);
+    grd.addColorStop(0, c1); grd.addColorStop(1, c2);
+    ctx.fillStyle = grd; roundRect(ctx, x0, top, w0, H, 22); ctx.fill();
+    ctx.strokeStyle = C.gold2; ctx.lineWidth = 3; roundRect(ctx, x0 + 10, top + 10, w0 - 20, H - 20, 16); ctx.stroke();
+    // لوگو — دائیں طرف گول دائرے میں
+    let cx = W / 2, avail = w0 - 80;
+    if (logoImg) {
+      const D = 150, lx = W - M - 40 - D, ly = top + (H - band - D) / 2;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(lx + D / 2, ly + D / 2, D / 2 + 6, 0, Math.PI * 2); ctx.fillStyle = C.gold2; ctx.fill();
+      ctx.beginPath(); ctx.arc(lx + D / 2, ly + D / 2, D / 2, 0, Math.PI * 2); ctx.fillStyle = '#fffaf0'; ctx.fill(); ctx.clip();
+      const r = Math.min(D / logoImg.width, D / logoImg.height) * .92, iw = logoImg.width * r, ih = logoImg.height * r;
+      ctx.drawImage(logoImg, lx + (D - iw) / 2, ly + (D - ih) / 2, iw, ih);
+      ctx.restore();
+      // بائیں طرف بھی اتنی جگہ چھوڑیں تاکہ عبارت بیچ میں رہے
+      avail = w0 - 2 * (D + 60);
+    }
+    ctx.textAlign = 'center';
+    let ty = top + 98;
+    const tg = ctx.createLinearGradient(0, ty - 70, 0, ty + 10);
+    tg.addColorStop(0, '#fff3c4'); tg.addColorStop(.5, '#e2b24e'); tg.addColorStop(1, '#a8741f');
+    ctx.fillStyle = tg; let fs = BK() ? 80 : 64;
+    ctx.font = `${fs}px ${BF()}`;
+    while (fs > 40 && ctx.measureText(BN()).width > avail) { fs -= 4; ctx.font = `${fs}px ${BF()}`; }
+    ctx.fillText(BN(), cx, ty);
+    if (L.l1) { ty += 50; ctx.fillStyle = '#ffe08a'; ctx.font = `34px ${FONT}`; ctx.fillText(fit(ctx, L.l1, avail), cx, ty); }
+    if (L.l2) { ty += 42; ctx.fillStyle = '#f3e6c2'; ctx.font = `26px ${FONT}`; ctx.fillText(fit(ctx, L.l2, avail), cx, ty); }
+    if (band) {
+      const by = top + H - band - 22;
+      ctx.fillStyle = 'rgba(0,0,0,.28)'; roundRect(ctx, x0 + 24, by, w0 - 48, band, 14); ctx.fill();
+      ctx.font = `26px ${FONT}`; ctx.fillStyle = '#fff1c1';
+      const t = [L.addr ? `پتہ: ${L.addr}` : '', L.phone ? `موبائل: \u2066${L.phone}\u2069` : ''].filter(Boolean).join('     |     ');
+      ctx.fillText(fit(ctx, t, w0 - 60), W / 2, by + 41);
+    }
+  }
+  // لیٹر ہیڈ کے نیچے فہرست کا عنوان، تاریخ اور تعداد
+  function titleDraw(ctx, y, title, right, left) {
+    ctx.textAlign = 'center'; ctx.fillStyle = C.green; ctx.font = `34px ${FONT}`;
+    ctx.fillText(fit(ctx, title, W - 2 * M - 40), W / 2, y + 46);
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2 - 200, y + 66); ctx.lineTo(W / 2 + 200, y + 66); ctx.stroke();
+    ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.textAlign = 'right'; ctx.fillText(right, W - M, y + 100);
+    ctx.textAlign = 'left'; ctx.fillText(left, M, y + 100);
   }
   function cols() {
     const c = [{ k: 'n', w: 70, t: 'نمبر' }, { k: 'name', w: 0, t: 'کتاب کا نام' }];
@@ -223,21 +300,8 @@
     const cc = cols();
     const out = [];
     const ROW = 62;
-    out.push({ h: 230, head: true, draw(ctx, y) {
-      const grd = ctx.createLinearGradient(0, y, 0, y + 200);
-      grd.addColorStop(0, '#0f3a30'); grd.addColorStop(1, C.green2);
-      ctx.fillStyle = grd; roundRect(ctx, M, y + 10, W - 2 * M, 190, 22); ctx.fill();
-      ctx.strokeStyle = C.gold2; ctx.lineWidth = 3; roundRect(ctx, M + 10, y + 20, W - 2 * M - 20, 170, 16); ctx.stroke();
-      const tg = ctx.createLinearGradient(0, y + 30, 0, y + 120);
-      tg.addColorStop(0, '#fff3c4'); tg.addColorStop(.5, '#e2b24e'); tg.addColorStop(1, '#a8741f');
-      ctx.fillStyle = tg; ctx.textAlign = 'center'; ctx.font = `${BK() ? 76 : 60}px ${BF()}`;
-      ctx.fillText(BN(), W / 2, y + 112);
-      ctx.fillStyle = '#f3e6c2'; ctx.font = `30px ${FONT}`;
-      ctx.fillText(headLine(), W / 2, y + 168);
-      ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.textAlign = 'right';
-      ctx.fillText(`تاریخ: ${today()}`, W - M, y + 228);
-      ctx.textAlign = 'left'; ctx.fillText(`کل ${fmt(all.length)} کتب`, M, y + 228);
-    } });
+    out.push({ h: letterH(), head: true, draw(ctx, y) { letterDraw(ctx, y); } });
+    out.push({ h: 116, draw(ctx, y) { titleDraw(ctx, y, headLine(), `تاریخ: ${today()}`, `کل ${fmt(all.length)} کتب`); } });
     g.forEach(({ cat, list }) => {
       out.push({ h: 64 + 50, keep: 2, draw(ctx, y) {
         ctx.fillStyle = C.green; roundRect(ctx, M, y + 14, W - 2 * M, 48, 12); ctx.fill();
@@ -256,8 +320,8 @@
           ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M, y + ROW - .5); ctx.lineTo(W - M, y + ROW - .5); ctx.stroke();
           cc.forEach(col => {
             const L = b.loan || {};
-            let v = col.k === 'n' ? i + 1 : col.k === 'parts' ? fmt(b.parts) : col.k === 'price' ? fmt(b.price)
-              : col.k === 'lname' ? (L.name || '—') : col.k === 'lphone' ? (L.phone || '—') : col.k === 'ldate' ? dmy(L.date) : col.k === 'ldays' ? daysSince(L.date)
+            let v = col.k === 'n' ? i + 1 : col.k === 'parts' ? fmt(b.parts) : col.k === 'price' ? (+b.price ? fmt(b.price) : '—')
+              : col.k === 'lname' ? (L.name || '—') : col.k === 'lphone' ? (L.phone ? `\u2066${L.phone}\u2069` : '—') : col.k === 'ldate' ? dmy(L.date) : col.k === 'ldays' ? daysSince(L.date)
               : (b[col.k] || '—');
             ctx.font = `${col.k === 'name' ? 27 : 23}px ${FONT}`;
             ctx.fillStyle = col.k === 'name' ? C.fg : col.k === 'n' ? C.muted : '#4a4339';
@@ -291,7 +355,7 @@
   }
   async function ready() {
     try {
-      await Promise.all([document.fonts.load(`30px ${FONT}`, 'کتاب 123'), document.fonts.load(`76px ${BF()}`, BN())]);
+      await Promise.all([document.fonts.load(`30px ${FONT}`, 'کتاب 123'), document.fonts.load(`76px ${BF()}`, BN()), loadLogo()]);
       await document.fonts.ready;
     } catch (e) {}
   }
@@ -416,5 +480,5 @@
     }
   }
 
-  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT }, _test: { buildText, poster, pdf, select: ids => { ids.forEach(i => sel.add(i)); } } };
+  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, brandText, letterH, letterDraw, titleDraw, brandName: BN }, _test: { buildText, poster, pdf, select: ids => { ids.forEach(i => sel.add(i)); } } };
 })();
