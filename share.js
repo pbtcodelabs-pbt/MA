@@ -41,11 +41,11 @@
           <button type="button" class="x" id="shClose" aria-label="بند کریں">✕</button>
         </div>
         <div class="sh-top">
-          <input id="shQ" type="search" placeholder="کتاب، مصنف، مکتبہ یا فن…" aria-label="فہرست میں تلاش" autocomplete="off">
+          <input id="shQ" type="search" placeholder="کتاب، مصنف، ناشر یا فن…" aria-label="فہرست میں تلاش" autocomplete="off">
           <div class="sh-opts">
             <label class="tick"><input type="checkbox" id="shAll"><span>سب منتخب</span></label>
             <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shPrice" ${opts.price ? 'checked' : ''}><span>قیمت</span></label>
-            <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shDet" ${opts.details ? 'checked' : ''}><span>مصنف و مکتبہ</span></label>
+            <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shDet" ${opts.details ? 'checked' : ''}><span>مصنف و ناشر</span></label>
             <b class="sh-count" id="shCount"></b>
           </div>
         </div>
@@ -199,7 +199,7 @@
       let x = W - M; c.forEach(col => { col.r = x; x -= col.w; });
       return c;
     }
-    if (opts.details) c.push({ k: 'author', w: 250, t: 'مصنف' }, { k: 'publisher', w: 230, t: 'مکتبہ' });
+    if (opts.details) c.push({ k: 'author', w: 250, t: 'مصنف' }, { k: 'publisher', w: 230, t: 'ناشر' });
     c.push({ k: 'parts', w: 90, t: 'اجزاء' });
     if (opts.price) c.push({ k: 'price', w: 140, t: 'قیمت (Rs)' });
     const fixed = c.reduce((s, x) => s + x.w, 0);
