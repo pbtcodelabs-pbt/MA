@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA810TH076) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA810TH077) */
 (() => {
   'use strict';
 
@@ -239,7 +239,7 @@
             ${row('مصنف', esc(b.author) || '—')}
             ${row('مکتبہ', esc(b.publisher) || '—')}
             ${row('تعداد اجزاء', num(b.parts))}
-            ${row('قیمت', money(b.price))}
+            ${b.price ? row('قیمت', money(b.price)) : ''}
             ${row('فن', esc(cat.name))}
           </dl>
           ${b.loan ? `<div class="loan-card">
@@ -315,7 +315,7 @@
           ${!b && last.publisher ? `<p class="hint" style="--i:3">مکتبہ پچھلے اندراج سے خود بھر جاتا ہے</p>` : ''}
           <div class="cap-row" style="--i:4">
             <div class="cap"><label class="cap-l" for="f-parts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>اجزاء <b class="req">*</b></label><input id="f-parts" class="numin" inputmode="numeric" autocomplete="off" value="${b ? (b.parts ?? '') : ''}" placeholder="4"></div>
-            <div class="cap"><label class="cap-l" for="f-price"><b class="rs" aria-hidden="true">Rs</b>قیمت</label><input id="f-price" class="numin" inputmode="decimal" autocomplete="off" value="${b ? (b.price ?? '') : ''}" placeholder="3200"></div>
+            <div class="cap"><label class="cap-l" for="f-price"><b class="rs" aria-hidden="true">Rs</b>قیمت</label><input id="f-price" class="numin" inputmode="decimal" autocomplete="off" value="${b && b.price ? b.price : ''}" placeholder="اختیاری"></div>
           </div>
           <datalist id="dl-author">${uniq('author').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
           <datalist id="dl-pub">${uniq('publisher').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
@@ -772,7 +772,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA810TH076',
+    version: 'MA810TH077',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); }
