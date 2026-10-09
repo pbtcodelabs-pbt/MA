@@ -11,11 +11,13 @@
     PLAN_DAYS: 365,              // ایک سال
     TRIAL_DAYS: 3,               // نئے فون پر ایک بار فری ٹرائل
     WARN_DAYS: 30,               // اتنے دن رہ جائیں تو وارننگ
+    NET_DAYS: 15,                // اتنے دن انٹرنیٹ سے جانچ نہ ہو تو ایپ ایک بار انٹرنیٹ مانگے
+    REPO: 'pbtcodelabs-pbt/MA',  // معطل فہرست (block.json) یہاں رکھی ہے
     SECRET: '904c5bf2c13a07d515b226bbeb7cc495598b5ad186dfce35', // کوڈ بنانے کا خفیہ راز — کسی کو نہ دیں
     PASS_HASH: '1c1c5aed8da780051eb69c626df2657e0c6fa013f4c59b759e8e99b1f8b7077e' // ڈیولپر پاسورڈ کا نشان (SHA-256)
   };
 
-  const KEY = 'maktaba-aziz-lic', PWKEY = 'maktaba-aziz-lic-pw', LKEY = 'maktaba-aziz-lic-ledger';
+  const KEY = 'maktaba-aziz-lic', PWKEY = 'maktaba-aziz-lic-pw', LKEY = 'maktaba-aziz-lic-ledger', GHKEY = 'maktaba-aziz-gh';
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const pad = n => String(n).padStart(2, '0');
   const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -63,6 +65,7 @@
   function ensure() {
     let s = load();
     if (!s) { s = { uid: computeUid(), exp: '', iss: '', code: '', name: '' }; save(s); }
+    if (!s.chk) { s.chk = today(); save(s); }   // پہلی بار: جانچ کی مہلت آج سے
     return s;
   }
 
@@ -74,6 +77,8 @@
   // ---------- حالت: فعال / ختم / بند ----------
   function status() {
     const s = ensure(), t = today();
+    if (s.blk) return { mode: 'blocked', uid: s.uid, exp: s.exp };
+    if (s.exp && s.exp >= t && s.chk && dayDiff(t, s.chk) > CFG.NET_DAYS) return { mode: 'net', uid: s.uid, exp: s.exp, left: dayDiff(s.exp, t) + 1 };
     if (s.exp && s.exp >= t) return { mode: 'paid', left: dayDiff(s.exp, t) + 1, exp: s.exp, iss: s.iss || '', uid: s.uid, code: s.code };
     const tr = trialStart();
     if (tr && !s.exp) { const end = addDays(tr, CFG.TRIAL_DAYS - 1); if (end >= t) return { mode: 'trial', left: dayDiff(end, t) + 1, exp: end, uid: s.uid }; }
@@ -113,6 +118,48 @@
   const getL = () => { try { const l = JSON.parse(localStorage.getItem(LKEY)); return Array.isArray(l) ? l : []; } catch (e) { return []; } };
   // کوڈ کا ریکارڈ بدلے تو Drive بیک اپ بھی خود ہو جائے
   const putL = l => { try { localStorage.setItem(LKEY, JSON.stringify(l.slice(0, 500))); } catch (e) {} try { window.dispatchEvent(new Event('ma-data-changed')); } catch (e) {} };
+
+  // ---------- معطل فہرست (block.json) — ڈیولپر کے فون سے GitHub پر لکھی جاتی ہے ----------
+  const BKKEY = 'maktaba-aziz-lic-blk';
+  let BLK = (() => { try { return JSON.parse(localStorage.getItem(BKKEY)) || {}; } catch (e) { return {}; } })();
+  const saveBlk = () => { try { localStorage.setItem(BKKEY, JSON.stringify(BLK)); } catch (e) {} };
+  const ghKey = () => { try { return localStorage.getItem(GHKEY) || ''; } catch (e) { return ''; } };
+  const b64e = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+  const b64d = s => new TextDecoder().decode(Uint8Array.from(atob(String(s).replace(/\s/g, '')), c => c.charCodeAt(0)));
+  const GH = () => `https://api.github.com/repos/${CFG.REPO}/contents/block.json`;
+  async function ghGet() {
+    const k = ghKey();
+    if (!k) return { ok: false, key: true, msg: 'پہلے «معطل کرنے کی چابی» ڈالیں' };
+    if (navigator.onLine === false) return { ok: false, msg: 'انٹرنیٹ نہیں ہے' };
+    try {
+      const r = await fetch(GH() + '?ref=main&t=' + Date.now(), { headers: { Authorization: 'Bearer ' + k, Accept: 'application/vnd.github+json' }, cache: 'no-store' });
+      if (r.status === 401 || r.status === 403) return { ok: false, key: true, msg: 'چابی درست نہیں یا اس کی اجازت نہیں — نئی چابی ڈالیں' };
+      if (r.status === 404) return { ok: true, sha: '', data: { blocked: {} } };
+      if (!r.ok) return { ok: false, msg: 'رابطہ نہیں ہو سکا، دوبارہ کوشش کریں' };
+      const j = await r.json();
+      let data = { blocked: {} }; try { data = JSON.parse(b64d(j.content)) || data; } catch (e) {}
+      if (!data.blocked || typeof data.blocked !== 'object') data.blocked = {};
+      return { ok: true, sha: j.sha, data };
+    } catch (e) { return { ok: false, msg: 'انٹرنیٹ نہیں یا رابطہ نہیں ہو سکا' }; }
+  }
+  async function setBlock(uid, on, name) {
+    for (let tries = 0; tries < 2; tries++) {
+      const g = await ghGet(); if (!g.ok) return g;
+      const d = g.data;
+      if (on) d.blocked[uid] = { n: name || '', d: today() }; else delete d.blocked[uid];
+      d.updated = today();
+      try {
+        const r = await fetch(GH(), { method: 'PUT', headers: { Authorization: 'Bearer ' + ghKey(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({ message: `${on ? 'معطل' : 'بحال'}: ${uid}${name ? ' — ' + name : ''}`, content: b64e(JSON.stringify(d, null, 1) + '\n'), branch: 'main' }, g.sha ? { sha: g.sha } : {})) });
+        if (r.status === 409 || r.status === 422) continue;   // اسی وقت کوئی اور تبدیلی — دوبارہ
+        if (r.status === 401 || r.status === 403) return { ok: false, key: true, msg: 'چابی کو لکھنے کی اجازت نہیں — نئی چابی ڈالیں' };
+        if (!r.ok) return { ok: false, msg: 'محفوظ نہیں ہو سکا، دوبارہ کوشش کریں' };
+        BLK = d.blocked; saveBlk();
+        return { ok: true };
+      } catch (e) { return { ok: false, msg: 'انٹرنیٹ نہیں یا رابطہ نہیں ہو سکا' }; }
+    }
+    return { ok: false, msg: 'محفوظ نہیں ہو سکا، دوبارہ کوشش کریں' };
+  }
 
   // ---------- کاپی / پیسٹ ----------
   async function copy(t) {
@@ -170,6 +217,13 @@
   .lic-lr .d{color:#d8e6df}
   .lic-lr .st{font-size:13px;border-radius:99px;padding:0 10px;background:rgba(255,255,255,.14)}
   .lic-lr .st.on{background:#2e7d4f;color:#fff}
+  .lic-tags{display:flex;flex-wrap:wrap;gap:6px}
+  .lic-tags .tg{font-size:13px;line-height:1.8;border-radius:99px;padding:0 10px;background:rgba(255,255,255,.14)}
+  .lic-tags .tg.ok{background:#2e7d4f;color:#fff}
+  .lic-tags .tg.bad{background:#a8432f;color:#fff}
+  .lic-tags .tg.blk{background:#5a0f0a;color:#ffd0ca;box-shadow:0 0 0 1.5px #ff6b5e}
+  .lic-b.red{color:#ffb3a8;border-color:#ff8a7a}
+  #dvCnt b{color:#ffe08a;font-weight:400}
   .lic-em{--s:min(40vw,150px);--t:14px;position:relative;width:var(--s);height:var(--s);margin:40px auto 34px;perspective:760px;flex:none}
   .lic-em.sm{--s:min(30vw,112px);--t:11px;margin:30px auto 24px}
   .lic-rays,.lic-rays2{position:absolute;inset:-85%;border-radius:50%;pointer-events:none}
@@ -215,7 +269,7 @@
   function show(html, block) {
     if (!ov) { ov = document.createElement('div'); ov.id = 'licOv'; document.body.appendChild(ov); }
     ov.classList.remove('out');
-    blocking = !!block; ov.innerHTML = html; document.documentElement.style.overflow = 'hidden';
+    blocking = !!block; ov.innerHTML = html; delete ov.dataset.m; document.documentElement.style.overflow = 'hidden';
   }
   function hide() { if (ov) { ov.remove(); ov = null; } blocking = false; devOpen = false; document.documentElement.style.overflow = ''; }
   function toast(m) { try { window.MA_APP && window.MA_APP.toast(m); } catch (e) {} }
@@ -325,6 +379,40 @@
     const ex = $(ov, '#licExit'); if (ex) ex.onclick = closeApp;
   }
 
+  // ----- معطل / انٹرنیٹ درکار -----
+  function showHold(st) {
+    const blk = st.mode === 'blocked';
+    const s = ensure();
+    const txt = blk
+      ? `نام: ${s.name || ''}\nUID: ${st.uid}\nمیری ایپ پر «سبسکرپشن معطل» لکھا آ رہا ہے، براہ کرم بحال کر دیں۔`
+      : '';
+    show(`<div class="lic-box">${emblem(true)}
+      <div class="lic-fade" style="display:grid;gap:12px">
+      <p class="lic-k" id="licTitle">${blk ? '⛔ سبسکرپشن معطل ہے' : '📶 انٹرنیٹ آن کریں'}</p>
+      <p class="lic-p">${blk
+        ? 'آپ کی سبسکرپشن عارضی طور پر معطل کر دی گئی ہے۔ آپ کا سارا ریکارڈ محفوظ ہے — بحال ہوتے ہی سب کچھ ویسے ہی مل جائے گا۔'
+        : 'سبسکرپشن کی تصدیق کے لیے ایک بار انٹرنیٹ (موبائل ڈیٹا یا وائی فائی) آن کریں، پھر نیچے بٹن دبائیں۔ آپ کا سارا ریکارڈ محفوظ ہے۔'}</p>
+      ${blk ? `<a class="lic-b lic-big" id="licWa" target="_blank" rel="noopener" href="https://wa.me/${CFG.DEV_PHONE}?text=${encodeURIComponent(txt)}">📲 واٹس ایپ پر رابطہ کریں</a>` : ''}
+      <button type="button" class="lic-b lic-big ${blk ? 'g' : ''}" id="licRe">🔄 دوبارہ جانچ کریں</button>
+      <div class="lic-m" id="licMsg"></div>
+      <button type="button" class="lic-b g lic-big" id="licExit">⏻ ایپ بند کریں</button>
+      <p class="lic-small">آپ کی UID: <b dir="ltr">${st.uid}</b></p>
+      <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
+      </div></div>`, true);
+    ov.dataset.m = st.mode;
+    tapCounter($(ov, '#licTitle'), devAuth);
+    tapCounter($(ov, '#licVer'), devAuth);
+    $(ov, '#licExit').onclick = closeApp;
+    $(ov, '#licRe').onclick = async () => {
+      const m = $(ov, '#licMsg'); m.className = 'lic-m'; m.textContent = 'جانچ ہو رہی ہے…';
+      const r = window.MA_GUARD ? await window.MA_GUARD.check() : null;
+      if (r === null) { m.textContent = 'انٹرنیٹ نہیں ملا — ڈیٹا یا وائی فائی آن کر کے دوبارہ دبائیں'; return; }
+      if (r) { m.textContent = 'سبسکرپشن ابھی بھی معطل ہے — رابطہ کریں'; return; }
+      m.className = 'lic-m ok'; m.textContent = '✅ ٹھیک ہے، ایپ کھل رہی ہے';
+      setTimeout(() => { hide(); if (goNext()) return; showWelcome(); refresh(true); }, 700);
+    };
+  }
+
   // ----- ڈیولپر -----
   function devAuth() {
     devOpen = true;
@@ -372,6 +460,13 @@
       <input class="lic-in t" id="dvFind" placeholder="تلاش: نام / UID / کوڈ" autocomplete="off">
       <div class="lic-log" id="dvLog"></div>
       <div class="lic-row"><button type="button" class="lic-b g sm" id="dvExp"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> فہرست کاپی</button><button type="button" class="lic-b g sm" id="dvImp">📥 فہرست بحال</button></div>
+      <button type="button" class="lic-link" id="dvGhT">🔑 معطل کرنے کی چابی</button>
+      <div class="lic-rbox" id="dvGhBox" hidden>
+        <p>گاہک کو معطل / بحال کرنے کے لیے یہ چابی ایک بار یہاں ڈالیں۔ چابی صرف اسی فون میں رہتی ہے۔</p>
+        <input class="lic-in" id="dvGh" type="password" placeholder="github_pat_…" autocomplete="off" style="text-transform:none;font-size:14px;letter-spacing:0">
+        <div class="lic-row"><button type="button" class="lic-b g sm" id="dvGhSave">💾 محفوظ کریں</button><button type="button" class="lic-b g sm" id="dvGhTest">🧪 جانچیں</button></div>
+        <div class="lic-m" id="dvGhM"></div>
+      </div>
       <p class="lic-s" style="margin-top:6px">پاسورڈ بدلیں</p>
       <input class="lic-in" id="dvNew" type="password" placeholder="نیا پاسورڈ" autocomplete="off" style="text-transform:none">
       <input class="lic-in" id="dvNew2" type="password" placeholder="نیا پاسورڈ دوبارہ" autocomplete="off" style="text-transform:none">
@@ -400,12 +495,17 @@
     const status2 = r => (r.used ? '<span class="st on">✅ استعمال ہو گیا</span>' : '<span class="st">⏳ استعمال کی تصدیق نہیں</span>');
     function renderLog() {
       const L = getL(), q = findIn.value.trim().toUpperCase();
-      $(ov, '#dvCnt').textContent = `ریکارڈ: ${L.length} کوڈ`;
+      const t0 = today(), latest = {};
+      L.forEach(r => { if (!latest[r.uid] || r.exp > latest[r.uid].exp) latest[r.uid] = r; });
+      const U = Object.values(latest), act = U.filter(r => r.exp >= t0 && !BLK[r.uid]).length, blkN = U.filter(r => BLK[r.uid]).length, unpaid = L.filter(r => r.paid === false).length;
+      $(ov, '#dvCnt').innerHTML = `کل گاہک: <b>${num(U.length)}</b> · فعال: <b>${num(act)}</b> · معطل: <b>${num(blkN)}</b> · پیسے باقی: <b>${num(unpaid)}</b>`;
       const rows = L.filter(r => !q || (r.name || '').toUpperCase().includes(q) || r.uid.includes(q) || r.code.replace(/-/g, '').includes(q.replace(/-/g, '')));
       logEl.innerHTML = rows.map(r => `<div class="lic-lr" data-c="${r.code}">
         <div class="n"><b>${esc(r.name) || 'بغیر نام'}</b>${status2(r)}</div>
         <div class="u">UID ${r.uid}</div><div class="c">${r.code}</div>
         <div class="d">${dmy(r.iss)} → ${dmy(r.exp)}</div>
+        <div class="lic-tags">${r.exp >= today() ? `<span class="tg ok">باقی ${num(dayDiff(r.exp, today()) + 1)} دن</span>` : '<span class="tg bad">ختم ہو گیا</span>'}${r.paid === false ? '<span class="tg bad">⏳ پیسے باقی</span>' : '<span class="tg ok">💰 پیسے مل گئے</span>'}${BLK[r.uid] ? '<span class="tg blk">⛔ معطل</span>' : ''}</div>
+        <div class="lic-row"><button type="button" class="lic-b sm ${r.paid === false ? '' : 'g'}" data-a="paid">${r.paid === false ? '💰 پیسے مل گئے' : '↩️ پیسے باقی'}</button><button type="button" class="lic-b sm ${BLK[r.uid] ? '' : 'g'} ${BLK[r.uid] ? '' : 'red'}" data-a="blk">${BLK[r.uid] ? '✅ بحال کریں' : '⛔ معطل کریں'}</button></div>
         <div class="lic-row"><button type="button" class="lic-b g sm" data-a="used">${r.used ? '↩️ غیر استعمال' : '✅ استعمال ہو گیا'}</button><button type="button" class="lic-b g sm" data-a="name">✏️ نام</button><button type="button" class="lic-b g sm" data-a="copy">📋 کاپی</button><button type="button" class="lic-b sm" data-a="wa"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> بھیجیں</button><button type="button" class="lic-b g sm" data-a="del">🗑️</button></div></div>`).join('') || '<p class="lic-s">کوئی ریکارڈ نہیں</p>';
     }
     function showResult(r, note, canForce) {
@@ -454,7 +554,7 @@
       const cur = parseDmy(curIn.value); if (cur && cur >= t && cur > base) base = cur;
       const exp = base ? addDays(base, days) : addDays(t, days - 1);
       const code = await makeCode(uid, exp, t);
-      const rec = { uid, name, code, iss: t, exp, days, used: false, ts: Date.now() };
+      const rec = { uid, name, code, iss: t, exp, days, used: false, paid: false, ts: Date.now() };
       L.unshift(rec); putL(L);
       const ok = await copy(code);
       m.className = 'lic-m ok'; m.textContent = ok ? '✅ کوڈ بن گیا اور کاپی ہو گیا' : 'کوڈ بن گیا — نیچے سے کاپی کریں';
@@ -467,6 +567,18 @@
       const code = b.closest('.lic-lr').dataset.c, L = getL(), r = L.find(x => x.code === code); if (!r) return;
       const a = b.dataset.a;
       if (a === 'used') { r.used = !r.used; putL(L); renderLog(); }
+      else if (a === 'paid') { r.paid = r.paid === false; putL(L); renderLog(); }
+      else if (a === 'blk') {
+        const on = !BLK[r.uid];
+        if (on && !confirm(`${r.name || r.uid} کی سبسکرپشن معطل کریں؟\nانٹرنیٹ لگتے ہی اس کی ایپ بند ہو جائے گی۔`)) return;
+        if (!on && !confirm(`${r.name || r.uid} کی سبسکرپشن بحال کریں؟`)) return;
+        b.disabled = true; m.className = 'lic-m'; m.textContent = on ? 'معطل ہو رہا ہے…' : 'بحال ہو رہا ہے…';
+        const res = await setBlock(r.uid, on, r.name);
+        b.disabled = false;
+        if (!res.ok) { m.className = 'lic-m'; m.textContent = res.msg; if (res.key) $(ov, '#dvGhBox').hidden = false; return; }
+        m.className = 'lic-m ok'; m.textContent = on ? '✅ معطل ہو گیا — 2، 3 منٹ میں اس کی ایپ پر لاگو ہو جائے گا (جب اس کا انٹرنیٹ چلے)' : '✅ بحال ہو گیا — 2، 3 منٹ میں اس کی ایپ کھل جائے گی';
+        renderLog();
+      }
       else if (a === 'name') { const n = prompt('گاہک کا نام', r.name || ''); if (n !== null) { const nn = n.trim(); L.forEach(x => { if (x.uid === r.uid) x.name = nn; }); putL(L); renderLog(); } }
       else if (a === 'copy') { m.className = 'lic-m ok'; m.textContent = (await copy(r.code)) ? '✅ کوڈ کاپی ہو گیا' : 'کاپی نہیں ہو سکا'; }
       else if (a === 'wa') { window.open('https://wa.me/?text=' + encodeURIComponent(sendMsg(r)), '_blank'); }
@@ -487,8 +599,21 @@
       $(ov, '#dvNew').value = ''; $(ov, '#dvNew2').value = '';
       pm.className = 'lic-m ok'; pm.textContent = '✅ نیا پاسورڈ محفوظ ہو گیا';
     };
+    const ghIn = $(ov, '#dvGh'), ghM = $(ov, '#dvGhM');
+    ghIn.value = ghKey();
+    $(ov, '#dvGhT').onclick = () => { const bx = $(ov, '#dvGhBox'); bx.hidden = !bx.hidden; };
+    $(ov, '#dvGhSave').onclick = () => { try { localStorage.setItem(GHKEY, ghIn.value.trim()); } catch (e) {} ghM.className = 'lic-m ok'; ghM.textContent = '✅ چابی محفوظ ہو گئی'; };
+    $(ov, '#dvGhTest').onclick = async () => {
+      try { localStorage.setItem(GHKEY, ghIn.value.trim()); } catch (e) {}
+      ghM.className = 'lic-m'; ghM.textContent = 'جانچ ہو رہی ہے…';
+      const r = await ghGet();
+      if (r.ok) { ghM.className = 'lic-m ok'; ghM.textContent = '✅ چابی ٹھیک ہے — اب معطل / بحال کے بٹن کام کریں گے'; }
+      else ghM.textContent = r.msg;
+    };
     $(ov, '#dvClose').onclick = () => { hide(); refresh(true); };
     renderLog();
+    // تازہ معطل فہرست لا کر نشان لگائیں
+    fetch('block.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.blocked) { BLK = j.blocked; saveBlk(); if (ov && devOpen) renderLog(); } }).catch(() => {});
   }
 
   // ----- ہوم پیج پر سبسکرپشن کارڈ -----
@@ -572,6 +697,8 @@
     if (loggedOut && status().mode === 'paid') { if (!ov || !blocking) showLoggedOut(); return; }
     loggedOut = false;
     const st = status(), locked = st.mode === 'locked' || st.mode === 'expired';
+    if (st.mode === 'blocked' || st.mode === 'net') { if (!ov || !blocking || ov.dataset.m !== st.mode) showHold(st); card(); return; }
+    if (ov && ov.dataset.m) hide();
     if (locked && (!ov || !blocking)) showGate(true);
     else if (!locked && ov && blocking) hide();
     card();
@@ -593,6 +720,7 @@
   // مین صفحے کی پٹی سے آئے ہوں تو خریدنے والی اسکرین کھولیں
   if (/[?&]buy=1/.test(location.search) && status().mode !== 'locked' && status().mode !== 'expired') setTimeout(() => showGate(false, true), 400);
   setInterval(refresh, 30000);
+  window.addEventListener('ma-lic-checked', () => refresh(true));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
   const vc = document.getElementById('verChip'); if (vc) tapCounter(vc, devAuth);
   if (/[?&]dev=1/.test(location.search)) { try { history.replaceState(null, '', location.pathname); } catch (e) {} setTimeout(devAuth, 500); }

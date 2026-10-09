@@ -15,8 +15,8 @@
     const d = new Date(), iso = x => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`, t = iso(d);
     const s = JSON.parse(localStorage.getItem('maktaba-aziz-lic') || 'null') || {};
     const tr = s.trial || localStorage.getItem('maktaba-aziz-trial') || '';
-    let ok = !!(s.exp && s.exp >= t);
-    if (!ok && tr && !s.exp) { const e = new Date(tr + 'T00:00:00'); e.setDate(e.getDate() + 2); ok = t <= iso(e); }
+    let ok = !!(s.exp && s.exp >= t) && !s.blk && !(s.chk && (new Date(t) - new Date(s.chk)) / 864e5 > 15);
+    if (!ok && !s.blk && tr && !s.exp) { const e = new Date(tr + 'T00:00:00'); e.setDate(e.getDate() + 2); ok = t <= iso(e); }
     if (!ok) location.replace('../maktaba.html?next=diary');
   } catch (e) {}
 })();
@@ -1472,7 +1472,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA910FR079</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA910FR080</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1743,7 +1743,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA910FR079';
+const APP_VERSION = 'MA910FR080';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -3530,6 +3530,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../update.js?v=MA910FR079"></script>
+</script><script src="../guard.js?v=MA910FR080"></script><script src="../update.js?v=MA910FR080"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
    نیا ورژن اترنا شروع ہو تو اوپر پٹی: «نئی اپڈیٹ آ رہی ہے…»
    اپڈیٹ مکمل ہو کر صفحہ تازہ ہو تو پیغام: پرانا ورژن → نیا ورژن */
 (function () {
-  const V = 'MA910FR079';
+  const V = 'MA910FR080';
   const KEY = 'maktaba-aziz-seen-version';
   const CSS = `
   .up-bar{position:fixed;left:0;right:0;top:0;z-index:60000;display:flex;align-items:center;justify-content:center;gap:12px;
