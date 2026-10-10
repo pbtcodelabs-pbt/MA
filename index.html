@@ -127,7 +127,7 @@ body::before{
 button.chip{cursor:pointer}
 [hidden]{display:none !important}
 
-/* MA1010SA090: ابھرے ہوئے 3D دروازے */
+/* MA1010SA091: ابھرے ہوئے 3D دروازے */
 .doors{gap:24px !important;perspective:900px}
 .door{border:0 !important;overflow:hidden;
   background:linear-gradient(180deg,#ffffff 0%,#fbf4e2 38%,#efe0bb 100%) !important;
@@ -147,7 +147,7 @@ button.chip{cursor:pointer}
 .door:active .go{transform:translateY(2px)}
 @media (prefers-reduced-motion:reduce){.door::after{animation:none;display:none}}
 
-/* MA1010SA090: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
+/* MA1010SA091: تیسرا بٹن + آنے والے پروگراموں کی چلتی پٹی */
 .crest{width:min(30vw,116px) !important;margin-top:0 !important}
 .page{padding-top:calc(8px + env(safe-area-inset-top)) !important}
 .title{font-size:clamp(36px,10.5vw,50px) !important;line-height:1.75 !important}
@@ -175,7 +175,7 @@ button.chip{cursor:pointer}
 .tk-sep{color:#c8962f;padding:0 4px}
 @media (prefers-reduced-motion:reduce){.tk-run{animation:none}.tk-win{overflow-x:auto}}
 
-/* MA1010SA090: ڈیولپر سے رابطہ */
+/* MA1010SA091: ڈیولپر سے رابطہ */
 .dev{width:100%;margin-top:14px;display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:18px;
   background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,.18));border:1.5px solid rgba(232,196,103,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
 .dev-t{flex:1;min-width:0;display:grid;justify-items:start;line-height:1.5}
@@ -222,7 +222,7 @@ button.chip{cursor:pointer}
 .share-ic svg{width:20px;height:20px}
 .share-ic:active{transform:translateY(2px);box-shadow:0 0 0 2px #fff3c4,0 1px 0 #6e4a10}
 
-/* MA1010SA090: ٹرائل / سبسکرپشن کی پٹی */
+/* MA1010SA091: ٹرائل / سبسکرپشن کی پٹی */
 .sub-pill{align-self:center;display:inline-flex;align-items:center;gap:6px;margin:0 0 4px;padding:1px 14px;border-radius:99px;text-decoration:none;
   font-size:14px;line-height:1.9;color:#0b2e26;background:linear-gradient(180deg,#fff6d5,#f1d27a 45%,#c8962f);box-shadow:0 0 0 1.5px #fff3c4,0 3px 0 #8a5f16,0 6px 10px rgba(0,0,0,.35)}
 .sub-pill b{font:700 14px Arial,sans-serif}
@@ -234,7 +234,7 @@ button.chip{cursor:pointer}
 .dev{margin-top:13px !important}
 .title{line-height:1.6 !important}
 
-/* MA1010SA090: سب کچھ ایک اسکرین میں، نیچے آدھا انچ خالی جگہ */
+/* MA1010SA091: سب کچھ ایک اسکرین میں، نیچے آدھا انچ خالی جگہ */
 .page{padding-bottom:calc(48px + env(safe-area-inset-bottom)) !important;padding-top:calc(6px + env(safe-area-inset-top)) !important}
 .crest{width:min(24vw,92px) !important}
 .title{font-size:clamp(30px,9vw,42px) !important;line-height:1.55 !important}
@@ -351,12 +351,12 @@ button.chip{cursor:pointer}
   <footer class="foot">
     <button type="button" class="share-ic" id="shareApp" aria-label="ایپ شیئر کریں" title="ایپ شیئر کریں"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="#0b2e26" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="#0b2e26"/><circle cx="6" cy="12" r="3.2" fill="#0b2e26"/><circle cx="18" cy="19" r="3.2" fill="#0b2e26"/></svg></button>
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip" id="homeVer">MA1010SA090</span>
+    <span class="chip" id="homeVer">MA1010SA091</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ نام اور لوگو بدلیں</span></button>
     <button type="button" class="chip link" data-exit><span class="lbl">⏻ ایپ بند</span></button>
   </footer>
 </main>
-<script src="brand.js?v=MA1010SA090"></script>
+<script src="brand.js?v=MA1010SA091"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
@@ -410,7 +410,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('storage', render);
 })();
 </script>
-<script src="promo.js?v=MA1010SA090"></script>
+<script src="promo.js?v=MA1010SA091"></script>
 <script>
 // ایپ شیئر: پہلے پوسٹر اور پیغام دکھائیں، پھر بھیجیں
 document.getElementById('shareApp').addEventListener('click', () => window.MA_PROMO && window.MA_PROMO.open());
@@ -435,8 +435,8 @@ document.getElementById('shareApp').addEventListener('click', () => window.MA_PR
   } catch (e) {}
 })();
 </script>
-<script src="guard.js?v=MA1010SA090"></script>
-<script src="update.js?v=MA1010SA090"></script>
+<script src="guard.js?v=MA1010SA091"></script>
+<script src="update.js?v=MA1010SA091"></script>
 <script>
 // ورژن پر 7 بار جلدی جلدی ٹیپ = ڈیولپر حصہ (پاسورڈ کے ساتھ)
 (function () { const v = document.getElementById('homeVer'); if (!v) return; let n = 0, t;
