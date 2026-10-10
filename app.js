@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA085) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA086) */
 (() => {
   'use strict';
 
@@ -156,11 +156,10 @@
     view.innerHTML = `
       <section class="panel">
         <div class="panel-h home-h">
-          <span class="hsum"><span>کتب <b>${num(total)}</b></span><span>اجزاء <b>${num(sum(db.books, 'parts'))}</b></span></span>
+          <a class="nc-pill" href="#/newcat" title="نیا فن شامل کریں" aria-label="نیا فن شامل کریں"><i>＋</i>نیا فن</a><span class="hsum"><span>کتب <b>${num(total)}</b></span><span>اجزاء <b>${num(sum(db.books, 'parts'))}</b></span></span>
           <span class="actions"><button class="btn gold small" id="btnSumPrice2" type="button">${showGrandPrice ? money(sum(db.books, 'price')) : 'کل قیمت'}</button>${sizeCtl()}</span>
         </div>
         <div class="panel-b">
-          <a class="newcat-btn" href="#/newcat"><span class="nc-plus" aria-hidden="true">＋</span><span class="nc-t"><b>نیا فن شامل کریں</b><small>اپنی مرضی کا نیا خانہ بنائیں — مثلاً دوائیں، اسماء الرجال، لغت…</small></span></a>
           <div class="shelf">
             ${cats().map((c, i) => `<a class="bk" href="#/c/${c.id}">${book3d(esc(c.name), PAL[i % PAL.length])}${pill(booksOf(c.id).length, booksOf(c.id).filter(b => b.loan).length)}</a>`).join('')}
             <a class="bk special" href="#/reports">${SP('#1f6a54', IC_REP)}<span class="cnt lbl">رپورٹس</span></a>
@@ -780,7 +779,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1010SA085',
+    version: 'MA1010SA086',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
