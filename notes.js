@@ -46,7 +46,7 @@
   // تصویر: چھوٹی کریں، گھمائیں، اور «سکین» کی طرح صاف (روشنی اور کنٹراسٹ)
   async function processImage(src, rot = 0, clean = true) {
     const img = await loadImg(src);
-    const max = 1600, r = Math.min(1, max / Math.max(img.width, img.height));
+    const max = 1280, r = Math.min(1, max / Math.max(img.width, img.height));
     const w = Math.round(img.width * r), h = Math.round(img.height * r);
     const sw = rot % 180 ? h : w, sh = rot % 180 ? w : h;
     const cv = document.createElement('canvas'); cv.width = sw; cv.height = sh;
@@ -69,7 +69,7 @@
         }
       } catch (e) {}
     }
-    return new Promise(res => cv.toBlob(res, 'image/jpeg', 0.8));
+    return new Promise(res => cv.toBlob(res, 'image/jpeg', 0.7));
   }
 
   // ---------- اسٹائل ----------
@@ -89,17 +89,28 @@
   .nt-acts .btn{justify-content:center;font-size:17px;padding:0 10px}
   .nt-acts .nt-add{grid-column:1 / -1;font-size:20px;min-height:52px}
   .nt-sheet{border:1.5px solid var(--gilt);border-radius:14px;overflow:hidden;background:#fffdf6}
-  .nt-hd,.nt-row{display:grid;grid-template-columns:38px minmax(0,1fr) 74px;align-items:stretch}
+  .nt-hd,.nt-row{display:grid;grid-template-columns:34px minmax(0,1fr) 54px 64px;align-items:stretch}
+  .nt-sheet.mv .nt-hd,.nt-sheet.mv .nt-row{grid-template-columns:34px minmax(0,1fr) 40px 50px 58px}
+  .nt-row .vl,.nt-row .pg{display:grid;place-items:center;text-align:center;font-size:17px;color:#14463a;font-variant-numeric:tabular-nums;cursor:pointer;border-inline-end:1px dashed #eadfc4;overflow-wrap:anywhere;line-height:1.3;padding:0 2px}
+  .nt-flt{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 8px}
+  .nt-flt label{display:flex;align-items:center;gap:6px;background:#e9f4ee;border:1.5px solid #1f6a54;border-radius:99px;padding:2px 4px 2px 10px}
+  .nt-flt label span{font-size:14px;color:#14463a}
+  .nt-flt select{border:0;background:#fff;border-radius:99px;font:inherit;font-size:15px;padding:2px 8px;color:#14463a;min-height:34px}
+  .nt-rng{display:flex;align-items:center;gap:6px;flex-basis:100%;justify-content:center}
+  .nt-rng input{border:1.5px solid #1f6a54;border-radius:10px;padding:2px 6px;font:14px Arial,sans-serif;min-height:34px}
+  .nt-fnote{margin:-2px 0 8px;text-align:center;font-size:14px;color:#8a5f16}
+  .nt-attgo{width:100%;border:1.5px dashed var(--gilt);background:var(--gilt-soft);color:#6b4a1a;border-radius:12px;font:inherit;font-size:16px;line-height:2.2;cursor:pointer}
+  .nt-attgo small{font-size:13px;color:#8a7d62}
   .nt-hd{background:#14463a;color:#f1d27a;font-size:15px;line-height:2.2}
   .nt-hd span{text-align:center}
-  .nt-row{border-top:1px solid #eadfc4;min-height:58px;background-image:linear-gradient(transparent calc(100% - 1px),#f1e7cf 0)}
+  .nt-row{border-top:1px solid #eadfc4;min-height:40px}
   .nt-row:nth-child(even){background-color:#fbf6e8}
-  .nt-row .n{text-align:center;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:12px}
-  .nt-row .t{padding:6px 8px;font-size:18px;line-height:1.9;cursor:pointer;overflow-wrap:anywhere;border-inline:1px dashed #eadfc4}
-  .nt-row .sd{display:grid;justify-items:center;align-content:start;gap:4px;padding:6px 2px}
-  .nt-row .pg{text-align:center;font-size:20px;line-height:1.3;color:#14463a;font-variant-numeric:tabular-nums;cursor:pointer;background:#fff;border:1px solid #e4d6b0;border-radius:8px;min-width:56px;padding:2px 4px}
-  .nt-row .pg small{display:block;font-size:11px;color:var(--muted);line-height:1.3}
-  .nt-row .cl{display:flex;align-items:center;gap:2px}
+  .nt-row .n{display:grid;place-items:center;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+  .nt-row .t{padding:2px 8px;font-size:16.5px;line-height:1.8;cursor:pointer;overflow-wrap:anywhere;border-inline:1px dashed #eadfc4;align-self:center}
+  .nt-row .cl{display:flex;align-items:center;justify-content:center;gap:2px}
+  .nt-row .cl .nt-th{width:28px;height:28px;border-width:1.5px}
+  .nt-row .nt-sh svg{width:18px;height:18px}
+  .nt-hd{font-size:14px !important;line-height:2 !important}
   .nt-clip{width:40px;height:40px;border-radius:10px;border:1.5px dashed var(--gilt);background:var(--gilt-soft);display:grid;place-items:center;cursor:pointer;padding:0;color:#8a5f16}
   .nt-th{width:40px;height:40px;border-radius:8px;object-fit:cover;border:2px solid #c8962f;cursor:pointer;display:block;background:#eee}
   .nt-sh{border:0;background:none;color:var(--accent);cursor:pointer;padding:2px;line-height:0}
@@ -151,51 +162,86 @@
   const volOf = {};   // ہر کتاب کی چنی ہوئی جلد
   try { Object.assign(volOf, JSON.parse(localStorage.getItem(VKEY) || '{}')); } catch (e) {}
   const saveVol = () => { try { localStorage.setItem(VKEY, JSON.stringify(volOf)); } catch (e) {} };
-  const listOf = (b, v) => notes().filter(n => n.book === b.id && (!v || (n.vol || 1) === v)).sort((x, y) => (x.vol || 1) - (y.vol || 1) || (x.ts || 0) - (y.ts || 0));
+  const pnum = p => { const m = String(p || '').match(/\d+/); return m ? +m[0] : 1e9; };
+  const sortN = (x, y) => (x.vol || 1) - (y.vol || 1) || pnum(x.page) - pnum(y.page) || (x.ts || 0) - (y.ts || 0);
+  const allOf = b => notes().filter(n => n.book === b.id).sort(sortN);
+  const listOf = (b, v) => allOf(b).filter(n => !v || (n.vol || 1) === v);
   const countOf = bookId => notes().filter(n => n.book === bookId).length;
+  // فلٹر: جلد اور تاریخ (ہر کتاب کا الگ)
+  const FL = {};
+  const fOf = b => FL[b.id] || (FL[b.id] = { vol: 0, when: 'all', from: '', to: '' });
+  const pad2 = x => String(x).padStart(2, '0');
+  const isoD = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const MONTHS = ['جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون', 'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'];
+  function inWhen(n, f) {
+    if (f.when === 'all') return true;
+    const d = new Date(n.ts || n.upd || 0), now = new Date();
+    if (f.when === 'm0') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    if (f.when === 'm1') { const q = new Date(now.getFullYear(), now.getMonth() - 1, 1); return d.getFullYear() === q.getFullYear() && d.getMonth() === q.getMonth(); }
+    if (f.when === 'y0') return d.getFullYear() === now.getFullYear();
+    if (f.when === 'rng') { const t = isoD(d); return (!f.from || t >= f.from) && (!f.to || t <= f.to); }
+    return true;
+  }
+  const filtered = (b, f) => allOf(b).filter(n => (!f.vol || (n.vol || 1) === f.vol) && inWhen(n, f));
+  function whenTxt(f) {
+    const now = new Date();
+    if (f.when === 'm0') return `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+    if (f.when === 'm1') { const q = new Date(now.getFullYear(), now.getMonth() - 1, 1); return `${MONTHS[q.getMonth()]} ${q.getFullYear()}`; }
+    if (f.when === 'y0') return `سال ${now.getFullYear()}`;
+    if (f.when === 'rng') { const dm = t => t ? t.split('-').reverse().join('/') : '…'; return `${dm(f.from)} سے ${dm(f.to)} تک`; }
+    return '';
+  }
+  const fDesc = (b, f) => [vols(b) > 1 ? (f.vol ? `جلد ${f.vol}` : 'تمام جلدیں') : '', whenTxt(f)].filter(Boolean).join(' · ');
 
   let cur = null;   // { cat, b }
   function page(cat, b) {
     cur = { cat, b };
-    const V = vols(b);
-    let v = volOf[b.id] || 1; if (v > V) v = 1;
-    const list = listOf(b, v);
+    const V = vols(b), f = fOf(b);
+    if (f.vol > V) f.vol = 0;
+    const list = filtered(b, f), total = countOf(b.id);
     const view = H().view;
     view.innerHTML = `
       <section class="panel">
-        <div class="panel-h"><a class="back" href="#/c/${cat.id}/b/${b.id}">→ کتاب</a><span class="crumb">ضروری یادداشتیں</span></div>
+        <div class="panel-h"><a class="back" href="#/c/${cat.id}/b/${b.id}">→ کتاب</a><span class="crumb">${V > 1 ? 'حوالہ جات (انڈیکس)' : 'ضروری یادداشتیں'}</span></div>
         <div class="panel-b" id="ntb">
-          <div class="nt-book"><b>${esc(b.name)}</b><small>${[b.author, b.publisher].filter(Boolean).map(esc).join(' · ')}</small></div>
-          ${V > 1 ? `<div class="nt-vols" id="ntVols">${Array.from({ length: V }, (_, i) => { const c = listOf(b, i + 1).length; return `<button type="button" data-v="${i + 1}" class="${i + 1 === v ? 'on' : ''}">جلد ${num(i + 1)}${c ? `<i>(${num(c)})</i>` : ''}</button>`; }).join('')}</div>` : ''}
+          <div class="nt-book"><b>${esc(b.name)}</b><small>${[b.author, V > 1 ? `${num(V)} جلدیں` : '', `${num(total)} حوالے`].filter(Boolean).map(esc).join(' · ')}</small></div>
+          <div class="nt-flt">
+            ${V > 1 ? `<label><span>جلد</span><select id="fVol"><option value="0">تمام جلدیں</option>${Array.from({ length: V }, (_, i) => `<option value="${i + 1}" ${f.vol === i + 1 ? 'selected' : ''}>جلد ${num(i + 1)}</option>`).join('')}</select></label>` : ''}
+            <label><span>تاریخ</span><select id="fWhen">${[['all', 'سب'], ['m0', 'اس مہینے'], ['m1', 'پچھلے مہینے'], ['y0', 'اس سال'], ['rng', 'تاریخ سے تاریخ']].map(([k2, t]) => `<option value="${k2}" ${f.when === k2 ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            ${f.when === 'rng' ? `<div class="nt-rng"><input type="date" id="fFrom" value="${f.from}"><span>تک</span><input type="date" id="fTo" value="${f.to}"></div>` : ''}
+          </div>
           <div class="nt-acts">
-            <button class="btn nt-add" type="button" data-a="add">＋ نئی یادداشت لکھیں</button>
+            <button class="btn nt-add" type="button" data-a="add">＋ نیا حوالہ لکھیں</button>
             <button class="btn ghost" type="button" data-a="send">${I_SHARE} بھیجیں / PDF</button>
             <button class="btn ghost" type="button" data-a="blank">🖨️ خالی صفحہ</button>
           </div>
-          <div class="nt-sheet">
-            <div class="nt-hd"><span>نمبر</span><span>ضروری یادداشت${V > 1 ? ` (جلد ${num(v)})` : ''}</span><span>صفحہ</span></div>
+          ${(f.vol || f.when !== 'all') ? `<p class="nt-fnote">دکھائے جا رہے ہیں: ${num(list.length)} حوالے — ${esc(fDesc(b, f))}</p>` : ''}
+          <div class="nt-sheet${V > 1 ? ' mv' : ''}">
+            <div class="nt-hd"><span>نمبر</span><span>حوالہ / عبارت</span>${V > 1 ? '<span>جلد</span>' : ''}<span>صفحہ</span><span></span></div>
             ${list.length ? list.map((n, i) => `<div class="nt-row" data-id="${n.id}">
               <span class="n">${num(i + 1)}</span>
               <span class="t" data-a="edit">${esc(n.text)}</span>
-              <span class="sd"><span class="pg" data-a="edit"><small>صفحہ</small>${n.page ? num(n.page) : '—'}</span>
-              <span class="cl">${n.img ? `<img class="nt-th" data-a="view" data-img="${n.img}" alt="صفحے کی تصویر">` : `<button type="button" class="nt-clip" data-a="clip" aria-label="تصویر لگائیں">${I_CLIP}</button>`}
-                <button type="button" class="nt-sh" data-a="one" aria-label="یہ یادداشت بھیجیں">${I_SHARE}</button></span></span>
-            </div>`).join('') : `<div class="nt-empty"><b>ابھی کوئی یادداشت نہیں</b>«نئی یادداشت لکھیں» دبائیں — عنوان، صفحہ نمبر لکھیں اور 📎 سے کتاب کے صفحے کی تصویر لگائیں۔</div>`}
+              ${V > 1 ? `<span class="vl" data-a="edit">${num(n.vol || 1)}</span>` : ''}
+              <span class="pg" data-a="edit">${n.page ? esc(n.page) : '—'}</span>
+              <span class="cl">${n.img ? `<img class="nt-th" data-a="view" data-img="${n.img}" alt="تصویر">` : ''}<button type="button" class="nt-sh" data-a="one" aria-label="بھیجیں">${I_SHARE}</button></span>
+            </div>`).join('') : `<div class="nt-empty"><b>${total ? 'اس فلٹر میں کوئی حوالہ نہیں' : 'ابھی کوئی حوالہ نہیں'}</b>${total ? 'اوپر سے جلد یا تاریخ بدل کر دیکھیں۔' : '«نیا حوالہ لکھیں» دبائیں — عبارت، جلد نمبر اور صفحہ نمبر لکھیں۔ تصویر لگانا اختیاری ہے۔'}</div>`}
           </div>
-          <p class="nt-hint">کسی سطر کو دبا کر ترمیم کریں · 📎 دبا کر کیمرے یا گیلری سے صفحے کی تصویر لگائیں</p>
+          <p class="nt-hint">کسی سطر کو دبا کر ترمیم کریں</p>
         </div>
       </section>`;
-    // تصویروں کے چھوٹے نشان
-    view.querySelectorAll('img[data-img]').forEach(async im => { const u = await imgUrl(im.dataset.img); if (u) im.src = u; else im.replaceWith(Object.assign(document.createElement('span'), { textContent: '—' })); });
-    $(view, '#ntVols')?.addEventListener('click', e => { const t = e.target.closest('[data-v]'); if (!t) return; volOf[b.id] = +t.dataset.v; saveVol(); page(cat, b); });
+    view.querySelectorAll('img[data-img]').forEach(async im => { const u = await imgUrl(im.dataset.img); if (u) im.src = u; else im.remove(); });
+    const re = () => page(cat, b);
+    $(view, '#fVol')?.addEventListener('change', e => { f.vol = +e.target.value; re(); });
+    $(view, '#fWhen').addEventListener('change', e => { f.when = e.target.value; if (f.when === 'rng' && !f.from) { const d = new Date(); f.to = isoD(d); d.setDate(1); f.from = isoD(d); } re(); });
+    $(view, '#fFrom')?.addEventListener('change', e => { f.from = e.target.value; re(); });
+    $(view, '#fTo')?.addEventListener('change', e => { f.to = e.target.value; re(); });
     $(view, '#ntb').addEventListener('click', e => {
       const t = e.target.closest('[data-a]'); if (!t) return;
       const a = t.dataset.a, row = t.closest('.nt-row'), n = row ? notes().find(x => x.id === row.dataset.id) : null;
-      if (a === 'add') openForm(b, null, v);
-      else if (a === 'send') openSend(b, { vol: v });
-      else if (a === 'blank') blankPdf(b, v, t);
+      if (a === 'add') openForm(b, null, f.vol || volOf[b.id] || 1);
+      else if (a === 'send') openSend(b, { f: Object.assign({}, f) });
+      else if (a === 'blank') blankPdf(b, f, t);
       else if (a === 'edit' && n) openForm(b, n);
-      else if (a === 'clip' && n) quickAttach(b, n);
       else if (a === 'view' && n) viewImg(b, n);
       else if (a === 'one' && n) openSend(b, { one: n });
     });
@@ -206,15 +252,16 @@
   function openForm(b, n, vol) {
     const V = vols(b);
     let img = n ? (n.img || '') : '', fresh = null, rot = 0, clean = true, saved = false, srcUrl = '';
-    const { wrap, close } = H().openSheet(n ? 'یادداشت میں ترمیم' : 'نئی ضروری یادداشت', `
+    const { wrap, close } = H().openSheet(n ? 'حوالے میں ترمیم' : 'نیا حوالہ', `
       <form class="sheet-b nt-form" id="ntForm" novalidate>
-        <label class="nt-lb">ضروری یادداشت (عنوان / مضمون)
+        <label class="nt-lb">حوالہ / عبارت
           <textarea id="ntText" placeholder="مثلاً: جنگِ آزادی میں علمائے کرام کا کردار">${esc(n?.text || '')}</textarea></label>
         <div class="nt-f2">
+          ${V > 1 ? `<label>جلد نمبر <small>(1 سے ${num(V)})</small><input id="ntVol" inputmode="numeric" autocomplete="off" dir="ltr" value="${n ? (n.vol || 1) : (vol || 1)}"></label>` : ''}
           <label>صفحہ نمبر<input id="ntPage" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.page || '')}" placeholder="332"></label>
-          ${V > 1 ? `<label>جلد<select id="ntVol">${Array.from({ length: V }, (_, i) => `<option value="${i + 1}" ${(n ? (n.vol || 1) : vol) === i + 1 ? 'selected' : ''}>جلد ${num(i + 1)}</option>`).join('')}</select></label>` : '<span></span>'}
         </div>
-        <div class="nt-att">
+        <button type="button" class="nt-attgo" id="ntAttGo" ${n && n.img ? 'hidden' : ''}>📎 کتاب کے صفحے کی تصویر لگائیں <small>(اختیاری)</small></button>
+        <div class="nt-att" id="ntAtt" ${n && n.img ? '' : 'hidden'}>
           <div class="nt-prev" id="ntPrev"></div>
           <div class="row">
             <button type="button" class="btn" data-p="cam">📷 کیمرے سے سکین</button>
@@ -225,9 +272,10 @@
         </div>
         <p class="nt-err" id="ntErr" role="alert"></p>
         <button class="btn save" type="submit">💾 ${n ? 'تبدیلی محفوظ کریں' : 'محفوظ کریں'}</button>
-        ${n ? '<button class="btn ghost nt-del" type="button" id="ntDel">🗑️ یہ یادداشت حذف کریں</button>' : '<p class="hint center">محفوظ کرنے کے بعد اگلی یادداشت کے لیے خانہ کھلا رہے گا</p>'}
+        ${n ? '<button class="btn ghost nt-del" type="button" id="ntDel">🗑️ یہ حوالہ حذف کریں</button>' : '<p class="hint center">محفوظ کرنے کے بعد اگلے حوالے کے لیے خانہ کھلا رہے گا</p>'}
       </form>`, () => { if (srcUrl) URL.revokeObjectURL(srcUrl); if (saved) refresh(); });
     const prev = $(wrap, '#ntPrev'), err = $(wrap, '#ntErr');
+    $(wrap, '#ntAttGo').onclick = () => { $(wrap, '#ntAtt').hidden = false; $(wrap, '#ntAttGo').hidden = true; };
     async function drawPrev() {
       if (fresh) {
         prev.innerHTML = `<img src="${URL.createObjectURL(fresh)}" alt="">
@@ -256,7 +304,7 @@
       if (p === 'rm') { fresh = null; img = ''; if (srcUrl) { URL.revokeObjectURL(srcUrl); srcUrl = ''; } drawPrev(); }
     });
     $(wrap, '#ntDel')?.addEventListener('click', async () => {
-      if (!confirm('یہ یادداشت حذف کریں؟')) return;
+      if (!confirm('یہ حوالہ حذف کریں؟')) return;
       const L = notes(), i = L.findIndex(x => x.id === n.id);
       if (i > -1) { if (L[i].img) await imgDel(L[i].img); L.splice(i, 1); H().save(); }
       saved = true; close(); toast('یادداشت حذف ہو گئی');
@@ -265,8 +313,9 @@
     $(wrap, '#ntForm').addEventListener('submit', async e => {
       e.preventDefault();
       const text = $(wrap, '#ntText').value.trim(), pg = String($(wrap, '#ntPage').value).trim();
-      const v = V > 1 ? +$(wrap, '#ntVol').value : 1;
-      if (!text) { err.textContent = 'یادداشت لکھنا ضروری ہے'; $(wrap, '#ntText').focus(); return; }
+      const v = V > 1 ? parseInt(String($(wrap, '#ntVol').value).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)), 10) : 1;
+      if (!text) { err.textContent = 'حوالہ / عبارت لکھنا ضروری ہے'; $(wrap, '#ntText').focus(); return; }
+      if (V > 1 && !(v >= 1 && v <= V)) { err.textContent = `جلد نمبر 1 سے ${V} تک لکھیں`; $(wrap, '#ntVol').focus(); return; }
       let imgId = img;
       if (fresh) {
         imgId = H().newId();
@@ -279,8 +328,9 @@
       H().save(); saved = true;
       if (n) { close(); toast('تبدیلی محفوظ ہو گئی'); return; }
       volOf[b.id] = v; saveVol();
-      toast(`یادداشت نمبر ${num(listOf(b, v).length)} محفوظ — اگلی لکھیں`);
+      toast(`حوالہ محفوظ — کل ${num(countOf(b.id))} — اگلا لکھیں`);
       $(wrap, '#ntText').value = ''; $(wrap, '#ntPage').value = ''; fresh = null; img = ''; if (srcUrl) { URL.revokeObjectURL(srcUrl); srcUrl = ''; } err.textContent = '';
+      $(wrap, '#ntAtt').hidden = true; $(wrap, '#ntAttGo').hidden = false;
       drawPrev(); refresh(); $(wrap, '#ntText').focus();
     });
   }
@@ -335,37 +385,33 @@
   const bookLine = b => [b.name, b.author].filter(Boolean).join(' — ');
   function scopeList(b, o) {
     if (o.one) return [o.one];
-    return o.all ? listOf(b, 0) : listOf(b, o.vol || 1);
+    return filtered(b, o.f || { vol: 0, when: 'all' });
   }
   function scopeTitle(b, o) {
-    if (o.one) return 'ضروری یادداشت';
-    return 'ضروری یادداشتیں' + (vols(b) > 1 && !o.all ? ` — جلد ${o.vol || 1}` : '');
+    if (o.one) return 'حوالہ';
+    const d = fDesc(b, o.f || { vol: 0, when: 'all' });
+    return 'حوالہ جات / ضروری یادداشتیں' + (d && (o.f && (o.f.vol || o.f.when !== 'all')) ? ` — ${d}` : '');
   }
+  const refLine = (b, n) => [vols(b) > 1 ? `جلد ${n.vol || 1}` : '', n.page ? `صفحہ ${n.page}` : ''].filter(Boolean).join('، ');
   function textOf(b, o) {
-    const k = K(), L = scopeList(b, o), V = vols(b);
-    let t = (k && k.brandText ? k.brandText() + '\n' : '') + `*${scopeTitle(b, o)}*\n📖 ${bookLine(b)}\n`;
-    let lastV = 0;
-    L.forEach(n => {
-      const nv = n.vol || 1;
-      if (V > 1 && (o.all || o.one) && nv !== lastV) { t += `\n*جلد ${nv}*\n`; lastV = nv; }
-      const i = listOf(b, nv).indexOf(n) + 1;
-      t += `${i}) ${n.text}${n.page ? ` — صفحہ ${n.page}` : ''}\n`;
-    });
+    const k = K(), L = scopeList(b, o);
+    let t = (k && k.brandText ? k.brandText() + '\n' : '') + `*${scopeTitle(b, o)}*\n📖 ${bookLine(b)}\n\n`;
+    L.forEach((n, i) => { const r = refLine(b, n); t += `${o.one ? '' : (i + 1) + ') '}${n.text}${r ? ` — (${r})` : ''}\n`; });
     return t.trim();
   }
 
   function openSend(b, o0) {
     const V = vols(b);
-    const o = Object.assign({ vol: 1, all: false, imgs: true }, o0);
+    const o = Object.assign({ f: { vol: 0, when: 'all' }, imgs: false }, o0);
     const L0 = o.one ? [o.one] : null;
-    const { wrap, close } = H().openSheet(o.one ? 'یادداشت بھیجیں' : 'یادداشتیں بھیجیں', `
+    const { wrap, close } = H().openSheet(o.one ? 'حوالہ بھیجیں' : 'حوالہ جات بھیجیں', `
       <div class="sheet-b nt-so" id="ntSo"></div>`);
     const box = $(wrap, '#ntSo');
     const draw = () => {
       const L = L0 || scopeList(b, o), withImg = L.filter(n => n.img).length;
       box.innerHTML = `
-        ${!o.one && V > 1 ? `<p class="lb">کیا بھیجنا ہے؟</p><div class="seg" data-g="sc"><button type="button" data-s="vol" class="${o.all ? '' : 'on'}">صرف جلد ${num(o.vol)}</button><button type="button" data-s="all" class="${o.all ? 'on' : ''}">پوری کتاب (${num(V)} جلدیں)</button></div>` : ''}
-        <p class="lb">${o.one ? esc(o.one.text) : `${num(L.length)} یادداشتیں`}${withImg ? ` · ${num(withImg)} تصاویر` : ''}</p>
+        <p class="lb">${o.one ? esc(o.one.text) : `${num(L.length)} حوالے${fDesc(b, o.f) ? ` — ${esc(fDesc(b, o.f))}` : ''}`}${withImg ? ` · ${num(withImg)} تصاویر` : ''}</p>
+        ${!o.one ? '<p class="lb" style="font-size:13px">جلد یا تاریخ کے حساب سے چھانٹنا ہو تو پچھلے صفحے پر اوپر سے فلٹر چنیں</p>' : ''}
         ${withImg ? `<div class="seg" data-g="im"><button type="button" data-i="1" class="${o.imgs ? 'on' : ''}">تصاویر کے ساتھ</button><button type="button" data-i="0" class="${o.imgs ? '' : 'on'}">صرف فہرست</button></div>` : ''}
         <div class="outs">
           <button class="btn" type="button" data-o="wa">واٹس ایپ</button>
@@ -373,13 +419,12 @@
           <button class="btn" type="button" data-o="pdf">📄 PDF / پرنٹ</button>
           <button class="btn ghost" type="button" data-o="copy">📋 کاپی</button>
         </div>
-        ${L.length ? '' : '<p class="nt-err">اس میں کوئی یادداشت نہیں</p>'}`;
+        ${L.length ? '' : '<p class="nt-err">اس میں کوئی حوالہ نہیں</p>'}`;
       box.querySelectorAll('.outs .btn').forEach(x => { x.disabled = !L.length; });
     };
     draw();
     box.addEventListener('click', async e => {
       const s = e.target.closest('[data-s]'), im = e.target.closest('[data-i]'), out = e.target.closest('[data-o]');
-      if (s) { o.all = s.dataset.s === 'all'; draw(); return; }
       if (im) { o.imgs = im.dataset.i === '1'; draw(); return; }
       if (!out) return;
       const k = K(); if (!k) return;
@@ -388,7 +433,7 @@
         if (kind === 'copy') { toast(await k.copyText(txt) ? 'کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
         if (kind === 'wa') {
           // ایک یادداشت + تصویر: تصویر اور متن اکٹھے
-          if (o.one && o.one.img && o.imgs && navigator.canShare) {
+          if (o.one && o.one.img && navigator.canShare) {
             const blob = await imgGet(o.one.img);
             if (blob) { const f = new File([blob], `safha-${o.one.page || 'x'}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text: txt }); return; } catch (x) { if (x.name === 'AbortError') return; } } }
           }
@@ -427,47 +472,45 @@
     const k = K(); await k.ready();
     const FONT = k.FONT, V = vols(b);
     const L = blankRows ? [] : scopeList(b, o);
-    const meas = document.createElement('canvas').getContext('2d'); meas.font = `30px ${FONT}`;
-    const tw = W - 2 * M - COLS.n - COLS.pg - 24;
+    const meas = document.createElement('canvas').getContext('2d');
+    const FS = 26, LH = 42;
+    const CN = 80, CV = V > 1 ? 110 : 0, CP = 130;
+    const tw = W - 2 * M - CN - CV - CP - 24;
+    const xN = W - M - CN / 2, xT = W - M - CN - 12, xV = M + CP + CV / 2, xP = M + CP / 2;
     const blocks = [];
     blocks.push({ h: k.letterH(), draw: (ctx, y) => k.letterDraw(ctx, y) });
-    blocks.push({ h: 116, draw: (ctx, y) => k.titleDraw(ctx, y, `${blankRows ? 'ضروری یادداشتیں' : scopeTitle(b, o)}`, `کتاب: ${k.fit(meas, b.name, 420)}`, blankRows ? (V > 1 ? `جلد ${o.vol || 1}` : '') : `کل ${L.length} یادداشتیں`) });
-    const head = vtxt => ({ h: 64, keep: 1, draw(ctx, y) {
-      ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 8, W - 2 * M, 52, 10); ctx.fill();
-      ctx.fillStyle = C.gold2; ctx.font = `24px ${FONT}`; ctx.textAlign = 'center';
-      const xN = W - M - COLS.n / 2, xP = M + COLS.pg / 2;
-      ctx.fillText('نمبر', xN, y + 44); ctx.fillText('صفحہ نمبر', xP, y + 44);
-      ctx.fillText('ضروری یادداشت' + (vtxt ? ` — ${vtxt}` : ''), M + COLS.pg + tw / 2 + 12, y + 44);
-    } });
+    const ttl = blankRows ? 'حوالہ جات / ضروری یادداشتیں' : scopeTitle(b, o);
+    blocks.push({ h: 116, draw: (ctx, y) => k.titleDraw(ctx, y, ttl, `کتاب: ${k.fit(meas, b.name, 420)}`, blankRows ? (V > 1 ? `${V} جلدیں` : '') : `کل ${L.length} حوالے`) });
+    const head = { h: 54, keep: 1, draw(ctx, y) {
+      ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 6, W - 2 * M, 46, 8); ctx.fill();
+      ctx.fillStyle = C.gold2; ctx.font = `22px ${FONT}`; ctx.textAlign = 'center';
+      ctx.fillText('نمبر', xN, y + 38); ctx.fillText('صفحہ', xP, y + 38); if (CV) ctx.fillText('جلد', xV, y + 38);
+      ctx.fillText('حوالہ / عبارت', M + CP + CV + tw / 2 + 12, y + 38);
+    } };
     const row = (i, n, alt) => {
-      meas.font = `30px ${FONT}`;
+      meas.font = `${FS}px ${FONT}`;
       const lines = n ? wrapLines(meas, n.text, tw) : [''];
-      const h = Math.max(70, lines.length * 54 + 22);
-      return { h, draw(ctx, y) {
+      const h = Math.max(52, lines.length * LH + 12);
+      return { h, tbl: true, draw(ctx, y) {
         ctx.fillStyle = alt ? C.alt : C.paper; ctx.fillRect(M, y, W - 2 * M, h);
-        ctx.strokeStyle = C.line; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = C.line; ctx.lineWidth = 1.2;
         ctx.beginPath(); ctx.moveTo(M, y + h - .5); ctx.lineTo(W - M, y + h - .5);
-        ctx.moveTo(W - M - COLS.n, y); ctx.lineTo(W - M - COLS.n, y + h);
-        ctx.moveTo(M + COLS.pg, y); ctx.lineTo(M + COLS.pg, y + h); ctx.stroke();
+        ctx.moveTo(W - M - CN, y); ctx.lineTo(W - M - CN, y + h);
+        ctx.moveTo(M + CP, y); ctx.lineTo(M + CP, y + h);
+        if (CV) { ctx.moveTo(M + CP + CV, y); ctx.lineTo(M + CP + CV, y + h); }
+        ctx.stroke();
         ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(M, y + h); ctx.moveTo(W - M, y); ctx.lineTo(W - M, y + h); ctx.stroke();
         if (!n) return;
-        ctx.textAlign = 'center'; ctx.fillStyle = C.muted; ctx.font = `26px ${FONT}`; ctx.fillText(String(i), W - M - COLS.n / 2, y + 46);
-        ctx.fillStyle = C.green; ctx.font = `30px ${FONT}`; ctx.fillText(n.page ? String(n.page) : '—', M + COLS.pg / 2, y + 46);
-        if (n.img && o.imgs) { ctx.font = `18px ${FONT}`; ctx.fillStyle = C.gold; ctx.fillText('تصویر نیچے', M + COLS.pg / 2, y + 74); }
-        ctx.textAlign = 'right'; ctx.fillStyle = C.fg; ctx.font = `30px ${FONT}`;
-        lines.forEach((l, j) => ctx.fillText(l, W - M - COLS.n - 14, y + 46 + j * 54));
+        const by = y + 34;
+        ctx.textAlign = 'center'; ctx.fillStyle = C.muted; ctx.font = `22px ${FONT}`; ctx.fillText(String(i), xN, by);
+        ctx.fillStyle = C.green; ctx.font = `${FS}px ${FONT}`; ctx.fillText(n.page ? String(n.page) : '—', xP, by);
+        if (CV) ctx.fillText(String(n.vol || 1), xV, by);
+        ctx.textAlign = 'right'; ctx.fillStyle = C.fg; ctx.font = `${FS}px ${FONT}`;
+        lines.forEach((l, jj) => ctx.fillText(l, xT, by + jj * LH));
       } };
     };
-    // جلد وار
-    const groups = [];
-    if (blankRows) groups.push({ v: o.vol || 1, list: [] });
-    else if (o.one) groups.push({ v: o.one.vol || 1, list: [o.one] });
-    else { const vs = [...new Set(L.map(n => n.vol || 1))].sort((a, c) => a - c); vs.forEach(v => groups.push({ v, list: L.filter(n => (n.vol || 1) === v) })); if (!groups.length) groups.push({ v: o.vol || 1, list: [] }); }
-    groups.forEach(g => {
-      blocks.push(head(V > 1 ? `جلد ${g.v}` : ''));
-      const all = listOf(b, g.v);
-      g.list.forEach((n, j) => blocks.push(row(all.indexOf(n) + 1, n, j % 2)));
-    });
+    blocks.push(head);
+    L.forEach((n, jj) => blocks.push(row(jj + 1, n, jj % 2)));
     // نیچے کی پٹی: پرنٹ کے لیے خالی سطریں (صفحہ بھرنے تک)
     blocks.push({ fill: mode === 'pdf', h: 20, draw() {} });
     // تصاویر
@@ -482,8 +525,8 @@
       loaded.forEach(({ n, im }) => {
         const maxH = mode === 'pdf' ? PH - TOP - BOT - 90 - 110 : 1700;
         let w = W - 2 * M - 20, h = im.height * w / im.width; if (h > maxH) { h = maxH; w = im.width * h / im.height; }
-        const idx = listOf(b, n.vol || 1).indexOf(n) + 1;
-        const cap = `${idx}) ${n.text}${n.page ? ` — صفحہ ${n.page}` : ''}${V > 1 ? ` — جلد ${n.vol || 1}` : ''}`;
+        const idx = L.indexOf(n) + 1, rr = refLine(b, n);
+        const cap = `${idx}) ${n.text}${rr ? ` — (${rr})` : ''}`;
         blocks.push({ h: 70 + h + 40, draw(ctx, y) {
           ctx.fillStyle = '#efe2bf'; k.roundRect(ctx, M, y + 8, W - 2 * M, 54, 10); ctx.fill();
           ctx.fillStyle = C.green; ctx.font = `26px ${FONT}`; ctx.textAlign = 'right'; ctx.fillText(k.fit(ctx, cap, W - 2 * M - 40), W - M - 20, y + 44);
@@ -493,7 +536,7 @@
         } });
       });
     }
-    const foot = (ctx, i, n, ph) => { ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(`${k.brandName()} — ${b.name} — ضروری یادداشتیں${n > 1 ? ` — صفحہ ${i + 1} / ${n}` : ''}`, W / 2, ph - 34); };
+    const foot = (ctx, i, n, ph) => { ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(`${k.brandName()} — ${b.name} — حوالہ جات${n > 1 ? ` — صفحہ ${i + 1} / ${n}` : ''}`, W / 2, ph - 34); };
     const newCv = h => { const cv = document.createElement('canvas'); cv.width = W; cv.height = h; const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, h); return [cv, ctx]; };
 
     if (mode === 'poster') {
@@ -508,7 +551,7 @@
     }
     // PDF: صفحات
     const pages = []; let curP = [], y = TOP;
-    const ROWH = 70;
+    const ROWH = 52;
     for (const x of blocks) {
       if (x.fill) {
         // اس صفحے کے آخر تک خالی سطریں
@@ -516,8 +559,8 @@
         continue;
       }
       if (x.page && curP.length) { pages.push(curP); curP = []; y = TOP; }
-      const need = x.keep ? x.h + 80 : x.h;
-      if (y + need > PH - BOT && curP.length) { pages.push(curP); curP = []; y = TOP; }
+      const need = x.keep ? x.h + 60 : x.h;
+      if (y + need > PH - BOT && curP.length) { pages.push(curP); curP = []; y = TOP; if (x.tbl) { curP.push(head); y += head.h; } }
       curP.push(x); y += x.h;
     }
     if (curP.length) pages.push(curP);
@@ -526,10 +569,10 @@
   }
 
   // 🖨️ خالی صفحہ — ہاتھ سے لکھ کر کتاب کے شروع میں لگانے کے لیے
-  async function blankPdf(b, v, btn) {
+  async function blankPdf(b, f, btn) {
     const k = K(); if (!k) return;
     const old = btn.innerHTML; btn.disabled = true; btn.textContent = 'بن رہا ہے…';
-    try { await k.deliver(await render(b, { vol: v, imgs: false }, 'pdf', true), `khali-safha-${b.name.slice(0, 20)}.pdf`, 'ضروری یادداشتیں — خالی صفحہ'); }
+    try { await k.deliver(await render(b, { f, imgs: false }, 'pdf', true), `khali-safha-${b.name.slice(0, 20)}.pdf`, 'ضروری یادداشتیں — خالی صفحہ'); }
     catch (e) { console.warn(e); toast('فائل نہیں بن سکی'); }
     finally { btn.disabled = false; btn.innerHTML = old; }
   }
@@ -553,4 +596,6 @@
   }
 
   window.MA_NOTES = { page, countOf, imgIds, imgGet, imgPut, imgHas, exportImgs, importImgs, removeBook, _test: { render, textOf } };
+  // ایپ پہلے کھل چکی ہو تو صفحہ دوبارہ بنائیں (یادداشتوں کا صفحہ / گنتی)
+  if (window.MA_APP && /\/b\//.test(location.hash)) window.MA_APP.route();
 })();
