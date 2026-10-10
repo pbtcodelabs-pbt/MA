@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA089) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA090) */
 (() => {
   'use strict';
 
@@ -438,15 +438,25 @@
   const waNum = p => { let d = String(p || '').replace(/\D/g, ''); if (d.startsWith('0')) d = '92' + d.slice(1); return d; };
 
   // ---------- نیا فن / نام بدلنا ----------
+  // نئے فن کے لیے عام نام — جو پہلے سے موجود ہوں وہ نہیں دکھتے
+  const CAT_SUGGEST = ['لغت', 'نحو', 'صرف', 'بلاغت', 'ادب', 'منطق', 'فلسفہ', 'عقائد', 'تصوف', 'اخلاق', 'فتاویٰ', 'اسماء الرجال', 'سوانح', 'تجوید و قراءت', 'علوم القرآن', 'شروحِ حدیث', 'مناظرہ', 'دعوت و تبلیغ', 'خطبات', 'دوائیں', 'تاریخِ اسلام', 'جغرافیہ', 'رسائل و جرائد', 'انگریزی کتب', 'بچوں کی کتب', 'درسِ نظامی'];
   function openCatForm(cat) {
     let saved = false;
     const { close } = openSheet(cat ? 'فن کا نام بدلیں' : 'نیا فن شامل کریں', `
       <form class="sheet-b" id="catForm" novalidate>
-        ${capRow('c-name', 'فن کا نام', I_CAT, `value="${esc(cat?.name || '')}" placeholder="مثلاً لغت"`)}
+        ${capRow('c-name', 'فن کا نام', I_CAT, `value="${esc(cat?.name || '')}" placeholder="یہاں لکھیں یا نیچے سے چنیں"`)}
+        ${cat ? '' : (() => { const have = new Set(cats().map(c => norm(c.name))); const sug = CAT_SUGGEST.filter(n => !have.has(norm(n))); return sug.length ? `<p class="cs-h" style="--i:1">فہرست سے چنیں:</p><div class="cs-list" id="csList" style="--i:1">${sug.map(n => `<button type="button">${esc(n)}</button>`).join('')}</div>` : ''; })()}
         <p class="err" id="c-err" role="alert"></p>
         <button class="btn save" type="submit" style="--i:2">💾 ${cat ? 'نام محفوظ کریں' : 'فن شامل کریں'}</button>
       </form>`, () => { if (!saved && !cat && location.hash === '#/newcat') history.back(); });
-    setTimeout(() => $('c-name').focus(), 50);
+    if (cat) setTimeout(() => $('c-name').focus(), 50);
+    $('csList')?.addEventListener('click', e => {
+      const t = e.target.closest('button'); if (!t) return;
+      $('c-name').value = t.textContent;
+      $('csList').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === t));
+      $('c-err').textContent = '';
+      document.querySelector('#catForm .save').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
     $('catForm').addEventListener('submit', e => {
       e.preventDefault();
       const name = $('c-name').value.trim();
@@ -811,7 +821,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1010SA089',
+    version: 'MA1010SA090',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
@@ -827,6 +837,14 @@
     else if (t.dataset.shareBook) window.MA_SHARE_UI.open({ books: [t.dataset.shareBook] });
     else window.MA_SHARE_UI.open({});
   });
+
+  // کی بورڈ کھلے تو نیچے والے خانے کی بورڈ کے اوپر رہیں
+  (() => {
+    const vv = window.visualViewport; if (!vv) return;
+    const f = () => { const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)); document.documentElement.style.setProperty('--kb', kb + 'px'); };
+    vv.addEventListener('resize', f); vv.addEventListener('scroll', f); f();
+  })();
+  document.addEventListener('focusin', e => { const el = e.target; if (el.closest && el.closest('.sheet') && el.matches('input,textarea,select')) setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300); });
 
   route();
   updateDock();

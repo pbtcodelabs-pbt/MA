@@ -1499,14 +1499,14 @@ html,body{overflow-x:hidden;max-width:100%}
 /* MA910FR081: قیمت اختیاری — خالی خانے میں «اختیاری» ہلکا اردو میں */
 #f-price::placeholder{font-family:var(--f-body);font-size:.8em;opacity:.55;letter-spacing:0}
 
-/* MA1010SA089: «نیا فن» — اوپر کی پٹی میں صرف ➕ کا چھوٹا بٹن، نیچے ننھا سا نام */
+/* MA1010SA090: «نیا فن» — اوپر کی پٹی میں صرف ➕ کا چھوٹا بٹن، نیچے ننھا سا نام */
 .nc-pill{flex:none;display:grid;justify-items:center;gap:0;text-decoration:none;color:#f1d27a;font-size:10.5px;line-height:1.3;margin-inline-end:2px}
 .nc-pill i{font-style:normal;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 20px/1 Arial,sans-serif;
   background:radial-gradient(circle at 35% 30%,#3fae86,#1f6a54 55%,#0f3a30);box-shadow:0 0 0 2px #e8c467,0 3px 0 #0b2e26}
 .nc-pill:active i{transform:translateY(2px);box-shadow:0 0 0 2px #e8c467,0 1px 0 #0b2e26}
 .muted-x{color:var(--muted);font-size:15px}
 
-/* MA1010SA089: فن سب سے اوپر الگ کیپسول میں */
+/* MA1010SA090: فن سب سے اوپر الگ کیپسول میں */
 .d-cat{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;margin:0 0 6px;text-decoration:none;
   padding:2px 4px 2px 16px;border-radius:99px;background:linear-gradient(180deg,#2f8f6f,#14463a);color:#fff1c1;box-shadow:0 0 0 2px #e8c467,0 4px 10px rgba(0,0,0,.2)}
 .d-cat span{background:#e8c467;color:#0b2e26;border-radius:99px;padding:0 10px;font-size:14px;line-height:1.9}
@@ -1522,10 +1522,19 @@ html,body{overflow-x:hidden;max-width:100%}
 .cp-list button{border:1.5px solid #1f6a54;background:#fff;color:#14463a;border-radius:99px;padding:0 14px;font:inherit;font-size:.95em;line-height:2.1;cursor:pointer}
 .cp-list button.on{background:#14463a;color:#fff1c1;border-color:#e8c467}
 
-/* MA1010SA089: مصنف / ناشر کی فہرست خانے کے نیچے */
+/* MA1010SA090: مصنف / ناشر کی فہرست خانے کے نیچے */
 .sg-list{margin:-4px 14px 4px;max-height:38vh;overflow:auto;background:#fff;border:1.5px solid #c8962f;border-radius:14px;box-shadow:0 8px 18px rgba(60,45,10,.22);display:grid}
 .sg-list button{border:0;border-bottom:1px solid #f0e6cc;background:none;text-align:start;padding:6px 14px;font:inherit;font-size:1em;line-height:1.9;color:#2b2620;cursor:pointer}
 .sg-list button:last-child{border-bottom:0}
 .sg-list button.on{background:#e9f4ee;color:#14463a}
 .sg-list button:active{background:#f6ecd2}
 .sheet-b > .sg-list{animation:none}
+
+/* MA1010SA090: کی بورڈ کے اوپر خانے؛ نئے فن کی فہرست */
+.sheet-wrap{bottom:var(--kb,0px)}
+.sheet{max-height:calc(100dvh - var(--kb,0px) - 24px)}
+.br-ov{bottom:var(--kb,0px)}
+.cs-h{margin:2px 4px -4px;color:var(--muted);font-size:.9em}
+.cs-list{display:flex;flex-wrap:wrap;gap:7px;max-height:34vh;overflow:auto;padding:2px}
+.cs-list button{border:1.5px solid #1f6a54;background:#fff;color:#14463a;border-radius:99px;padding:0 14px;font:inherit;font-size:.95em;line-height:2.1;cursor:pointer}
+.cs-list button.on{background:#14463a;color:#fff1c1;border-color:#e8c467}
