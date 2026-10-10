@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preload" href="fonts/jnn-kasheeda-title3.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="style.css?v=MA1010SA093">
+<link rel="stylesheet" href="style.css?v=MA1010SA094">
 </head>
 <body data-b-title>
 <div class="wrap">
@@ -32,13 +32,33 @@
       <div class="status">
         <a class="chip chip-btn" id="btnMain" href="./" style="text-decoration:none">🏠 مین</a>
         <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-        <span class="chip" id="verChip">MA1010SA093</span>
+        <span class="chip" id="verChip">MA1010SA094</span>
         <button class="chip chip-btn" id="btnBackup" type="button" aria-expanded="false" aria-controls="backupBox">بیک اپ</button>
         <button class="chip chip-btn" id="btnLogout" type="button">🚪 لاگ آؤٹ</button>
         <button class="chip chip-btn" id="btnClose" type="button">⏻ ایپ بند</button>
       </div>
       <div id="licSlot"></div>
       <div class="backup-box" id="backupBox" hidden>
+        <div class="bx-card bx-in">
+          <h3 class="bx-h">دوسرے فون سے آئی کتابیں شامل کریں</h3>
+          <ol class="bx-steps">
+            <li>شاگرد یا ساتھی کی بھیجی ہوئی فائل واٹس ایپ میں کھول کر فون میں <b>محفوظ (Download)</b> کر لیں۔</li>
+            <li>نیچے والا بٹن دبائیں اور فون کی فائلوں میں سے <b>ایسی فائل</b> چنیں:</li>
+          </ol>
+          <div class="bx-file"><span class="bx-fi">{ }</span><span class="bx-ft"><b dir="ltr">maktaba-kutub-2026-10-10.json</b><small>فائل کے نام کے آخر میں <b dir="ltr">.json</b> لکھا ہوتا ہے</small></span></div>
+          <p class="bx-warn">⚠️ PDF یا تصویر سے کتابیں نہیں آ سکتیں — صرف <b dir="ltr">.json</b> والی فائل چنیں۔</p>
+          <label class="btn bx-big merge-go" for="mergeFile"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" style="vertical-align:-0.25em" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> فائل چنیں اور کتابیں شامل کریں</label>
+          <input id="mergeFile" type="file" accept=".json,application/json,text/plain,application/octet-stream" hidden>
+          <p class="bx-msg" id="mergeMsg" role="status"></p>
+          <p class="bx-note">آپ کی اپنی کتابیں ویسی ہی رہیں گی، صرف نئی کتابیں شامل ہوں گی۔</p>
+        </div>
+        <div class="bx-card bx-out">
+          <h3 class="bx-h">اپنی کتابیں کسی کو بھیجیں</h3>
+          <p class="bx-note">یہ بٹن دبائیں، پھر واٹس ایپ چن کر بھیج دیں۔ (PDF نہیں — یہی فائل بھیجیں، تاکہ دوسرے فون میں کتابیں لگ سکیں)</p>
+          <button class="btn bx-big bx-send" id="btnShareFile" type="button"><svg viewBox="0 0 24 24" width="1.15em" height="1.15em" style="vertical-align:-0.22em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> کتابوں کی فائل بھیجیں</button>
+        </div>
+        <details class="bx-more">
+          <summary>⚙️ مکمل بیک اپ (Google Drive) اور دیگر</summary>
         <div class="drive-card">
           <div class="drive-h">
             <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0f9d58" d="M8 3h8l7 12h-8z"/><path fill="#4285f4" d="M1 15l4 7h14l-4-7z"/><path fill="#f4b400" d="M8 3L1 15l4 7 7-12z"/></svg>
@@ -57,22 +77,16 @@
           </div>
           <div class="drive-links"><button type="button" class="linkish" id="driveClientEdit">Client ID بدلیں</button> · <button type="button" class="linkish" id="driveSwitch">اکاؤنٹ بدلیں</button></div>
         </div>
-        <p class="local-h">فون میں فائل</p>
-        <div class="actions">
-          <button class="btn ghost small" id="btnExport" type="button">فائل ڈاؤن لوڈ</button>
-          <button class="btn ghost small" id="btnShareFile" type="button"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> فائل بھیجیں</button>
-          <label class="btn ghost small" for="importFile">فائل سے واپس</label>
-          <input id="importFile" type="file" accept=".json,application/json,text/plain,application/octet-stream" hidden>
-        </div>
-        <p class="local-h">دوسرے فون کی کتب ملائیں</p>
-        <p class="merge-note">شاگرد یا ساتھی کے فون سے آئی بیک اپ فائل چنیں۔ آپ کی اپنی کتب ویسی ہی رہیں گی، صرف نئی کتب شامل ہو جائیں گی۔</p>
-        <div class="actions">
-          <label class="btn small merge-go" for="mergeFile">➕ کتب شامل کریں</label>
-          <input id="mergeFile" type="file" accept=".json,application/json,text/plain,application/octet-stream" hidden>
-        </div>
-        <p class="local-h">مکتبے کی پہچان</p>
-        <div class="actions"><button class="btn ghost small" type="button" data-b-edit>✎ لوگو، نام اور پتہ بدلیں</button></div>
-        <p class="priv"><a href="privacy.html">پرائیویسی پالیسی</a></p>
+          <p class="local-h">پورا بیک اپ فون میں</p>
+          <div class="actions">
+            <button class="btn ghost small" id="btnExport" type="button">بیک اپ فائل محفوظ کریں</button>
+            <label class="btn ghost small" for="importFile">بیک اپ سے سب واپس لائیں</label>
+            <input id="importFile" type="file" accept=".json,application/json,text/plain,application/octet-stream" hidden>
+          </div>
+          <p class="local-h">مکتبے کی پہچان</p>
+          <div class="actions"><button class="btn ghost small" type="button" data-b-edit>✎ لوگو، نام اور پتہ بدلیں</button></div>
+          <p class="priv"><a href="privacy.html">پرائیویسی پالیسی</a></p>
+        </details>
       </div>
     </div>
   </header>
@@ -113,14 +127,14 @@
   </button>
 </nav>
 
-<script src="app.js?v=MA1010SA093"></script>
-<script src="share.js?v=MA1010SA093"></script>
-<script src="drive.js?v=MA1010SA093"></script>
-<script src="programs.js?v=MA1010SA093"></script>
-<script src="notes.js?v=MA1010SA093"></script>
-<script src="guard.js?v=MA1010SA093"></script>
-<script src="license.js?v=MA1010SA093"></script>
-<script src="brand.js?v=MA1010SA093"></script>
+<script src="app.js?v=MA1010SA094"></script>
+<script src="share.js?v=MA1010SA094"></script>
+<script src="drive.js?v=MA1010SA094"></script>
+<script src="programs.js?v=MA1010SA094"></script>
+<script src="notes.js?v=MA1010SA094"></script>
+<script src="guard.js?v=MA1010SA094"></script>
+<script src="license.js?v=MA1010SA094"></script>
+<script src="brand.js?v=MA1010SA094"></script>
 <script>
 // بیک اپ خانہ کھولنا/بند کرنا
 document.getElementById('btnBackup').addEventListener('click', e => {
@@ -153,6 +167,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-<script src="update.js?v=MA1010SA093"></script>
+<script src="update.js?v=MA1010SA094"></script>
 </body>
 </html>

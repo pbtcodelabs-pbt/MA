@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA093) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA094) */
 (() => {
   'use strict';
 
@@ -717,10 +717,10 @@
   // بیک اپ فائل واٹس ایپ وغیرہ پر بھیجنا
   $('btnShareFile').addEventListener('click', async () => {
     const json = JSON.stringify(Object.assign({}, db, { brand: undefined, notes: undefined }), null, 1);
-    const fname = `maktaba-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const fname = `maktaba-kutub-${new Date().toISOString().slice(0, 10)}.json`;
     try {
       const file = new File([json], fname, { type: 'application/json' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: fname, text: `کتب کی بیک اپ فائل — ${num(db.books.length)} کتب` }); return; }
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: fname, text: `میرا مکتبہ — ${num(db.books.length)} کتابوں کی فائل۔\nاسے فون میں محفوظ کریں، پھر ایپ میں «بیک اپ» ← «فائل چنیں اور کتابیں شامل کریں» سے یہ فائل چنیں۔` }); return; }
     } catch (err) { if (err && err.name === 'AbortError') return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = fname;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
@@ -757,12 +757,16 @@
   $('mergeFile').addEventListener('change', async e => {
     const f = e.target.files[0];
     if (!f) return;
+    const msg = $('mergeMsg'), say = (t, ok) => { msg.textContent = t; msg.className = 'bx-msg ' + (ok ? 'ok' : 'bad'); toast(ok ? t : 'یہ فائل نہیں چل سکی — وجہ بٹن کے نیچے لکھی ہے'); msg.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
+    const nm = (f.name || '').toLowerCase(), ty = f.type || '';
+    if (/\.pdf$/.test(nm) || ty === 'application/pdf') { say('یہ PDF فائل ہے — اس سے کتابیں نہیں آ سکتیں۔ بھیجنے والے سے کہیں کہ ایپ میں «بیک اپ» ← «کتابوں کی فائل بھیجیں» والے بٹن سے فائل بھیجے۔', false); e.target.value = ''; return; }
+    if (/^image\//.test(ty) || /\.(jpe?g|png|webp|gif)$/.test(nm)) { say('یہ تصویر ہے — اس سے کتابیں نہیں آ سکتیں۔ «.json» والی فائل چنیں۔', false); e.target.value = ''; return; }
     try {
       const d = JSON.parse(await f.text());
       if (!d || !Array.isArray(d.books)) throw new Error('bad');
       const r = mergeFrom(d);
-      toast(`✓ ${num(r.added)} نئی کتب شامل ہو گئیں` + (r.dup ? ` · ${num(r.dup)} پہلے سے موجود تھیں` : '') + (r.newCats ? ` · ${num(r.newCats)} نئے فن` : ''));
-    } catch (err) { toast('یہ فائل درست بیک اپ نہیں ہے۔'); }
+      say(`✓ ${num(r.added)} نئی کتابیں شامل ہو گئیں` + (r.dup ? ` · ${num(r.dup)} پہلے سے موجود تھیں` : '') + (r.newCats ? ` · ${num(r.newCats)} نئے فن` : ''), true);
+    } catch (err) { say('یہ کتابوں کی فائل نہیں ہے۔ «.json» والی وہ فائل چنیں جو ایپ کے «کتابوں کی فائل بھیجیں» بٹن سے بھیجی گئی ہو۔', false); }
     e.target.value = '';
   });
 
@@ -819,7 +823,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1010SA093',
+    version: 'MA1010SA094',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
@@ -843,6 +847,33 @@
     vv.addEventListener('resize', f); vv.addEventListener('scroll', f); f();
   })();
   document.addEventListener('focusin', e => { const el = e.target; if (el.closest && el.closest('.sheet') && el.matches('input,textarea,select')) setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300); });
+
+  // ---------- فون بک سے نمبر (ہر موبائل والے خانے کے ساتھ) ----------
+  const CP_OK = 'contacts' in navigator && 'ContactsManager' in window;
+  const CP_NAME = { 'l-phone': 'l-name', 'p-phone': 'p-inv' };
+  const fmtPk = t => { let d = String(t || '').replace(/[^\d+]/g, ''); if (d.startsWith('+92')) d = '0' + d.slice(3); else if (d.startsWith('0092')) d = '0' + d.slice(4); else if (d.startsWith('92') && d.length === 12) d = '0' + d.slice(2); return /^03\d{9}$/.test(d) ? d.slice(0, 4) + '-' + d.slice(4) : d; };
+  const IC_BOOK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="2.6"/><path d="M8 17c.6-2 2.1-3 4-3s3.4 1 4 3M3 7h2M3 12h2M3 17h2"/></svg>';
+  function addPick(inp) {
+    if (!CP_OK || inp.dataset.cp) return; inp.dataset.cp = '1';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cp-btn'; b.title = 'فون بک سے چنیں'; b.setAttribute('aria-label', 'فون بک سے چنیں');
+    b.innerHTML = IC_BOOK + '<span>فون بک</span>';
+    inp.insertAdjacentElement('afterend', b);
+    b.addEventListener('click', async e => {
+      e.preventDefault(); e.stopPropagation();
+      try {
+        const [c] = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+        if (!c) return;
+        const tel = (c.tel || []).find(Boolean); if (tel) { inp.value = fmtPk(tel); inp.dispatchEvent(new Event('input', { bubbles: true })); }
+        const nmId = CP_NAME[inp.id], nmEl = nmId && document.getElementById(nmId), name = (c.name || []).find(Boolean);
+        if (nmEl && name && !nmEl.value.trim()) { nmEl.value = name; nmEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      } catch (err) { if (err && err.name !== 'AbortError') toast('فون بک نہیں کھل سکی'); }
+    });
+  }
+  if (CP_OK) {
+    const scan = r => r.querySelectorAll && r.querySelectorAll('input[inputmode="tel"],input[type="tel"]').forEach(addPick);
+    new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) scan(n); }))).observe(document.body, { childList: true, subtree: true });
+    scan(document);
+  }
 
   route();
   updateDock();
