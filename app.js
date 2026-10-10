@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA087) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA088) */
 (() => {
   'use strict';
 
@@ -233,14 +233,14 @@
           <span class="crumb">کتاب نمبر ${num(all.indexOf(b) + 1)}</span>
         </div>
         <div class="panel-b detail" id="detb">
+          <a class="d-cat" href="#/c/${cat.id}"><span>فن</span><b>${esc(cat.name)}</b></a>
           <h2 class="d-title">${esc(b.name)}</h2>
           <dl>
             ${row('کتاب کا نام', esc(b.name))}
             ${row('مصنف', esc(b.author) || '—')}
             ${row('ناشر', esc(b.publisher) || '—')}
-            ${row('تعداد اجزاء', num(b.parts))}
+            ${row('اجزاء (جلدیں)', num(b.parts))}
             ${row('قیمت', b.price ? money(b.price) : '<span class="muted-x">— (ترمیم میں لکھ سکتے ہیں)</span>')}
-            ${row('فن', esc(cat.name))}
           </dl>
           <a class="btn nt-go" href="#/c/${cat.id}/b/${b.id}/notes">📝 ضروری یادداشتیں <b>${num(window.MA_NOTES ? window.MA_NOTES.countOf(b.id) : 0)}</b></a>
           ${b.loan ? `<div class="loan-card">
@@ -308,9 +308,12 @@
           </div>
         </div>
         <form id="addForm" class="sheet-b" novalidate style="font-size:${zoom}%">
-          <div class="cap" style="--i:0"><label class="cap-l" for="f-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>کتاب کا نام <b class="req">*</b></label><input id="f-name" autocomplete="off" value="${esc(b?.name)}" placeholder="مثلاً تفسیر ابن کثیر"></div>
-          <div class="cap" style="--i:1"><label class="cap-l" for="f-cat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h7v7H4zM13 6h7v7h-7zM4 15h7v5H4zM13 15h7v5h-7z"/></svg>فن <b class="req">*</b></label>
-            <select id="f-cat">${cats().map(c => `<option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+          <div class="catpick" style="--i:0" id="catPick">
+            <button type="button" class="cp-cur" id="cpCur" aria-haspopup="listbox"><span class="cp-l">فن</span><b id="cpName">${esc(cat.name)}</b><span class="cp-ar" aria-hidden="true">▾</span></button>
+            <div class="cp-list" id="cpList" role="listbox" hidden>${cats().map(c => `<button type="button" role="option" data-c="${c.id}" class="${c.id === cat.id ? 'on' : ''}">${esc(c.name)}</button>`).join('')}</div>
+            <select id="f-cat" hidden>${cats().map(c => `<option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>
+          </div>
+          <div class="cap" style="--i:1"><label class="cap-l" for="f-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>کتاب کا نام <b class="req">*</b></label><input id="f-name" autocomplete="off" value="${esc(b?.name)}" placeholder="مثلاً تفسیر ابن کثیر"></div>
           <div class="cap" style="--i:2"><label class="cap-l" for="f-author"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>مصنف <b class="req">*</b></label><input id="f-author" list="dl-author" autocomplete="off" value="${esc(b?.author)}" placeholder="لکھیں یا فہرست سے چنیں"></div>
           <div class="cap" style="--i:3"><label class="cap-l" for="f-publisher"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l2-5h12l2 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg>ناشر <b class="req">*</b></label><input id="f-publisher" list="dl-pub" autocomplete="off" value="${esc(b ? b.publisher : (last.publisher || ''))}" placeholder="جہاں سے کتاب چھپی ہے"></div>
           ${!b && last.publisher ? `<p class="hint" style="--i:3">ناشر (جہاں سے کتاب چھپی ہے) — پچھلے اندراج سے خود بھر جاتا ہے</p>` : ''}
@@ -337,7 +340,17 @@
       zoom = Math.min(150, Math.max(80, zoom + Number(btn.dataset.z)));
       $('addForm').style.fontSize = zoom + '%'; $('zv').textContent = zoom + '%'; lsSet(ZOOM_KEY, zoom);
     }));
-    setTimeout(() => $('f-name').focus(), 50);
+    // فن کا انتخاب: نئی کتاب پر فہرست خود کھلی، چننے کے بعد بند اور نام کے خانے پر
+    const cpList = $('cpList');
+    const cpOpen = on => { cpList.hidden = !on; $('catPick').classList.toggle('open', on); };
+    $('cpCur').addEventListener('click', () => cpOpen(cpList.hidden));
+    cpList.addEventListener('click', e => {
+      const t = e.target.closest('[data-c]'); if (!t) return;
+      $('f-cat').value = t.dataset.c; $('cpName').textContent = t.textContent;
+      cpList.querySelectorAll('[data-c]').forEach(x => x.classList.toggle('on', x === t));
+      cpOpen(false); $('f-name').focus();
+    });
+    if (b) setTimeout(() => $('f-name').focus(), 50); else cpOpen(true);
 
     $('addForm').addEventListener('submit', e => {
       e.preventDefault();
@@ -779,7 +792,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1010SA087',
+    version: 'MA1010SA088',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
