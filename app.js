@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA091) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA092) */
 (() => {
   'use strict';
 
@@ -443,15 +443,23 @@
     const { close } = openSheet(cat ? 'فن کا نام بدلیں' : 'نیا فن شامل کریں', `
       <form class="sheet-b" id="catForm" novalidate>
         ${capRow('c-name', 'فن کا نام', I_CAT, `value="${esc(cat?.name || '')}" placeholder="مثلاً لغت"`)}
+        ${cat ? '' : `<p class="cs-h" style="--i:1">یہ فن پہلے سے موجود ہیں (دوبارہ نہ بنائیں):</p><div class="cs-list have" id="csHave" style="--i:1">${cats().map(c => `<span data-n="${esc(norm(c.name))}">${esc(c.name)}</span>`).join('')}</div>`}
         <p class="err" id="c-err" role="alert"></p>
         <button class="btn save" type="submit" style="--i:2">💾 ${cat ? 'نام محفوظ کریں' : 'فن شامل کریں'}</button>
       </form>`, () => { if (!saved && !cat && location.hash === '#/newcat') history.back(); });
     setTimeout(() => $('c-name').focus(), 50);
+    // لکھتے وقت پہلے سے موجود ملتا جلتا فن نمایاں
+    const dupOf = v => { const q = norm(v).replace(/\s/g, ''); return q ? cats().find(c => c.id !== cat?.id && norm(c.name).replace(/\s/g, '') === q) : null; };
+    $('c-name').addEventListener('input', () => {
+      const q = norm($('c-name').value), d = dupOf($('c-name').value);
+      document.querySelectorAll('#csHave span').forEach(x => { x.classList.toggle('hit', !!q && x.dataset.n.includes(q)); x.classList.toggle('dup', !!d && x.textContent === d.name); });
+      $('c-err').textContent = d ? `«${d.name}» پہلے سے موجود ہے` : '';
+    });
     $('catForm').addEventListener('submit', e => {
       e.preventDefault();
       const name = $('c-name').value.trim();
       if (!name) { $('c-err').textContent = 'فن کا نام لکھیں'; return; }
-      if (cats().some(c => c.name === name && c.id !== cat?.id)) { $('c-err').textContent = 'اس نام کا فن پہلے سے موجود ہے'; return; }
+      if (dupOf(name)) { $('c-err').textContent = `«${dupOf(name).name}» پہلے سے موجود ہے — دوبارہ نہیں بن سکتا`; return; }
       if (cat) {
         db.catNames = db.catNames || {};
         if ((db.cats || []).some(c => c.id === cat.id)) db.cats.find(c => c.id === cat.id).name = name;
@@ -811,7 +819,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1010SA091',
+    version: 'MA1010SA092',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
