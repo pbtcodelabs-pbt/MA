@@ -1498,3 +1498,13 @@ html,body{overflow-x:hidden;max-width:100%}
 .pg-tk span{color:#f1d27a}
 /* MA910FR081: قیمت اختیاری — خالی خانے میں «اختیاری» ہلکا اردو میں */
 #f-price::placeholder{font-family:var(--f-body);font-size:.8em;opacity:.55;letter-spacing:0}
+
+/* MA1010SA085: «نیا فن» کتابوں سے الگ، اوپر نمایاں بٹن */
+.newcat-btn{display:flex;align-items:center;gap:12px;margin:2px 0 14px;padding:8px 12px;border-radius:16px;text-decoration:none;color:#0b2e26;
+  background:linear-gradient(180deg,#fffaf0,#f6ecd2);border:2px dashed #c8962f;box-shadow:0 4px 0 rgba(138,95,22,.35),0 8px 16px rgba(0,0,0,.18)}
+.newcat-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(138,95,22,.35)}
+.newcat-btn .nc-plus{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 34px/1 Arial,sans-serif;color:#fff;
+  background:radial-gradient(circle at 35% 30%,#3fae86,#1f6a54 55%,#0f3a30);box-shadow:0 0 0 3px #e8c467,0 4px 8px rgba(0,0,0,.3)}
+.newcat-btn .nc-t{display:grid;gap:0;min-width:0}
+.newcat-btn b{font-weight:400;font-size:22px;line-height:1.8;color:#14463a}
+.newcat-btn small{font-size:14px;line-height:1.8;color:#7a6440}
