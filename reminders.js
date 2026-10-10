@@ -157,7 +157,7 @@
       ? ['-P3D', '-P1D', '-PT6H', '-PT3H', '-PT2H', '-PT1H', '-PT50M', '-PT40M', '-PT30M', '-PT20M', '-PT10M', 'PT0M']
       : ['-P3D', '-P1D', 'PT8H', 'PT10H', 'PT12H', 'PT14H', 'PT16H', 'PT18H'];
     const title = `پروگرام: ${whereTxt(p)}`;
-    const desc = [p.title, whenTxt(p), p.inviter && `دعوت: ${p.inviter}`, p.phone, p.note].filter(Boolean).join('\n');
+    const desc = [p.title, whenTxt(p), p.inviter && `میزبان: ${p.inviter}`, p.phone, p.note].filter(Boolean).join('\n');
     const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Mera Maktaba//MA//UR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
       `UID:${p.id}@maktaba-aziz`, `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, '')}`,
       hasT ? `DTSTART:${st}` : `DTSTART;VALUE=DATE:${ymd}`, hasT ? `DTEND:${en}` : '',

@@ -119,7 +119,7 @@
       <span class="pg-txt">
         ${p.title ? `<em>${esc(p.title)}</em>` : ''}
         <b>${lineTxt(p)}</b>
-        <small>${p.time ? esc(timeTxt(p.time)) + ' · ' : ''}${p.inviter ? 'دعوت: ' + esc(p.inviter) : ''}</small>
+        <small>${p.time ? esc(timeTxt(p.time)) + ' · ' : ''}${p.inviter ? 'میزبان: ' + esc(p.inviter) : ''}</small>
       </span>
       <span class="pg-end">${p.poster ? `<img class="pg-thumb" src="${p.poster}" alt="">` : ''}<span class="pg-left ${L.c}">${L.t}</span></span>
     </a>`;
@@ -145,7 +145,7 @@
             ${p.city ? `<div class="po-card"><span class="po-ico">📍</span><span><small>شہر</small><b>${esc(p.city)}</b></span></div>` : ''}
           </div>
           ${p.inviter || p.phone ? `<div class="po-inviter">
-            <div class="pi-who"><span class="po-ico">${H().icons.I_USER}</span><span><small>دعوت دینے والے</small><b>${esc(p.inviter || '—')}</b>${phone ? `<bdi dir="ltr">${phone}</bdi>` : ''}</span></div>
+            <div class="pi-who"><span class="po-ico">${H().icons.I_USER}</span><span><small>میزبان</small><b>${esc(p.inviter || '—')}</b>${phone ? `<bdi dir="ltr">${phone}</bdi>` : ''}</span></div>
             ${phone ? `<div class="pi-btns">
               <a class="pi-call" href="tel:${phone}">${H().icons.I_PHONE}<span>کال کریں</span></a>
               <a class="pi-wa" href="https://wa.me/${wa}?text=${encodeURIComponent('السلام علیکم ورحمۃ اللہ وبرکاتہ')}" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.3-.2-.5-.3z"/></svg><span>واٹس ایپ</span></a>
@@ -211,7 +211,7 @@
       whenTxt(p) ? `🕒 وقت: ${whenTxt(p)}` : '',
       `🕌 بمقام: ${p.place || '—'}`,
       p.city ? `📍 شہر: ${p.city}` : '',
-      p.inviter || p.phone ? `👤 دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : '',
+      p.inviter || p.phone ? `👤 میزبان: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : '',
       p.note ? `📝 ${p.note}` : ''
     ].filter(Boolean).join('\n') + brandSign();
   }
@@ -256,7 +256,7 @@
           ${fld('p-tnote', 'نماز', `list="dl-tnote" value="${esc(p ? (p.timeNote || '') : 'بعد از نماز عشاء')}" placeholder="بعد از نماز عشاء"`)}
           ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="مثلاً کلور کوٹ"`)}
           ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="مثلاً جامع مسجد نور"`, 'full')}
-          ${fld('p-inv', 'دعوت دینے والے', `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
+          ${fld('p-inv', 'میزبان', `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
           ${fld('p-phone', 'موبائل', `class="ltr" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`)}
           <div class="pf-f full pp-row"><span>اشتہار</span><div class="pp-box" id="ppBox"></div><input type="file" id="p-img" accept="image/*" hidden></div>
           ${fld('p-note', 'نوٹ (اختیاری)', `value="${esc(p?.note || '')}"`, 'full')}
@@ -286,7 +286,7 @@
       try { poster = await shrink(f); } catch (err) { H().toast('یہ تصویر نہیں کھل سکی'); }
       drawPoster();
     });
-    // پہلے والے دعوت دینے والے کا نمبر خود بھر جائے
+    // پہلے والے میزبان کا نمبر خود بھر جائے
     $('p-inv').addEventListener('change', () => {
       const prev = [...progs()].reverse().find(x => x.inviter === $('p-inv').value.trim());
       if (prev && !$('p-phone').value) $('p-phone').value = prev.phone || '';
@@ -352,7 +352,7 @@
     document.querySelector('.pr-btns').addEventListener('click', async e => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const k = window.MA_SHARE_UI?.kit;
-      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   دعوت: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
+      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   میزبان: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی — واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'رپورٹ کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
       const old = b.textContent; b.disabled = true; b.textContent = 'بن رہی ہے…';
@@ -368,7 +368,7 @@
     const W = 1240, PH = 1754, M = 50, TOP = 40, BOT = 80, ROW = 92;
     const FONT = k.FONT, TFONT = k.TFONT;
     const C = { green: '#14463a', green2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#f8f2e2' };
-    const cols = [{ k: 'n', w: 60, t: 'نمبر' }, { k: 'date', w: 200, t: 'تاریخ' }, { k: 'when', w: 200, t: 'وقت' }, { k: 'place', w: 0, t: 'بمقام / شہر' }, { k: 'inv', w: 300, t: 'دعوت دینے والے' }];
+    const cols = [{ k: 'n', w: 60, t: 'نمبر' }, { k: 'date', w: 200, t: 'تاریخ' }, { k: 'when', w: 200, t: 'وقت' }, { k: 'place', w: 0, t: 'بمقام / شہر' }, { k: 'inv', w: 300, t: 'میزبان' }];
     cols[3].w = W - 2 * M - cols.reduce((s, c) => s + c.w, 0);
     let x = W - M; cols.forEach(c => { c.r = x; x -= c.w; });
     const blocks = [];
