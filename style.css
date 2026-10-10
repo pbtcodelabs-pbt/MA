@@ -1485,7 +1485,7 @@ html,body{overflow-x:hidden;max-width:100%}
 /* MA910FR081: مکتبے کی پہچان — ہر صارف کا اپنا لوگو اور نام */
 .emblem{cursor:pointer}
 .emblem.no-logo{display:none !important}
-.emblem.custom-logo img{opacity:1 !important;width:84%;height:84%;border-radius:50%;object-fit:contain}
+.emblem.custom-logo img{opacity:1 !important;width:84%;height:84%;border-radius:50%;object-fit:cover;background:#fff}
 .mh-name{margin:0;text-align:center;font-family:var(--f-body);font-size:15px;line-height:1.6;color:var(--gold-1);opacity:.9}
 .mh-name:empty{display:none}
 .patron span:empty,.patron2 span:empty,.patron2 a:empty{display:none}

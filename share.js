@@ -236,7 +236,7 @@
       ctx.save();
       ctx.beginPath(); ctx.arc(lx + D / 2, ly + D / 2, D / 2 + 6, 0, Math.PI * 2); ctx.fillStyle = C.gold2; ctx.fill();
       ctx.beginPath(); ctx.arc(lx + D / 2, ly + D / 2, D / 2, 0, Math.PI * 2); ctx.fillStyle = '#fffaf0'; ctx.fill(); ctx.clip();
-      const r = Math.min(D / logoImg.width, D / logoImg.height) * .92, iw = logoImg.width * r, ih = logoImg.height * r;
+      const r = Math.min(D / logoImg.width, D / logoImg.height) * (BG().round === '1' ? 1 : .92), iw = logoImg.width * r, ih = logoImg.height * r;
       ctx.drawImage(logoImg, lx + (D - iw) / 2, ly + (D - ih) / 2, iw, ih);
       ctx.restore();
       // بائیں طرف بھی اتنی جگہ چھوڑیں تاکہ عبارت بیچ میں رہے
