@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA086) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1010SA087) */
 (() => {
   'use strict';
 
@@ -239,7 +239,7 @@
             ${row('مصنف', esc(b.author) || '—')}
             ${row('ناشر', esc(b.publisher) || '—')}
             ${row('تعداد اجزاء', num(b.parts))}
-            ${b.price ? row('قیمت', money(b.price)) : ''}
+            ${row('قیمت', b.price ? money(b.price) : '<span class="muted-x">— (ترمیم میں لکھ سکتے ہیں)</span>')}
             ${row('فن', esc(cat.name))}
           </dl>
           <a class="btn nt-go" href="#/c/${cat.id}/b/${b.id}/notes">📝 ضروری یادداشتیں <b>${num(window.MA_NOTES ? window.MA_NOTES.countOf(b.id) : 0)}</b></a>
@@ -779,7 +779,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1010SA086',
+    version: 'MA1010SA087',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
