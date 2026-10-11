@@ -365,7 +365,7 @@
   async function reportPdf(list) {
     const k = window.MA_SHARE_UI.kit;
     await k.ready();
-    const W = 1240, PH = 1754, M = 50, TOP = 40, BOT = 80, ROW = 92;
+    const { W, H: PH, M, TOP, BOT } = k.PAGE, ROW = 92;
     const FONT = k.FONT, TFONT = k.TFONT;
     const C = { green: '#14463a', green2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#f8f2e2' };
     const cols = [{ k: 'n', w: 60, t: 'نمبر' }, { k: 'date', w: 200, t: 'تاریخ' }, { k: 'when', w: 200, t: 'وقت' }, { k: 'place', w: 0, t: 'بمقام / شہر' }, { k: 'inv', w: 300, t: 'میزبان' }];
@@ -374,12 +374,12 @@
     const blocks = [];
     blocks.push({ h: k.letterH(), draw(ctx, y) { k.letterDraw(ctx, y, ['#2c1f4a', '#14463a']); } });
     blocks.push({ h: 116, draw(ctx, y) { k.titleDraw(ctx, y, `شیڈیول — ${rangeTxt()}`, `رپورٹ کی تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); } });
-    blocks.push({ h: 56, keep: 2, draw(ctx, y) {
+    blocks.push({ h: 56, keep: ROW, head: true, draw(ctx, y) {
       ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 6, W - 2 * M, 48, 10); ctx.fill();
       ctx.fillStyle = C.gold2; ctx.font = `24px ${FONT}`; ctx.textAlign = 'right';
       cols.forEach(c => ctx.fillText(c.t, c.r - 12, y + 40));
     } });
-    list.forEach((p, i) => blocks.push({ h: ROW, draw(ctx, y) {
+    list.forEach((p, i) => blocks.push({ h: ROW, tbl: true, draw(ctx, y) {
       if (i % 2) { ctx.fillStyle = C.alt; ctx.fillRect(M, y, W - 2 * M, ROW); }
       ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M, y + ROW - .5); ctx.lineTo(W - M, y + ROW - .5); ctx.stroke();
       ctx.textAlign = 'right';
@@ -393,17 +393,8 @@
       two(cols[3], [p.title, p.place].filter(Boolean).join(' — ') || '—', p.city);
       two(cols[4], p.inviter || '—', p.phone, 23);
     } }));
-    const pages = []; let cur = [], y = TOP;
-    blocks.forEach(b => { const need = b.keep ? b.h + ROW * b.keep : b.h; if (y + need > PH - BOT && cur.length) { pages.push(cur); cur = []; y = TOP; } cur.push(b); y += b.h; });
-    if (cur.length) pages.push(cur);
-    const jpgs = pages.map((pg, i) => {
-      const cv = document.createElement('canvas'); cv.width = W; cv.height = PH;
-      const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, PH);
-      let yy = TOP; pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
-      ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-      ctx.fillText(`شیڈیول — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'} — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
-      return cv.toDataURL('image/jpeg', 0.9);
-    });
+    const pages = k.paginate(blocks);
+    const jpgs = k.renderPages(pages, `شیڈیول — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'}`);
     return k.makePdf(jpgs, W, PH);
   }
 

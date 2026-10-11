@@ -454,7 +454,7 @@
   }
 
   // ---------- کینوس: پوسٹر اور PDF ----------
-  const W = 1240, M = 50, PH = 1754, TOP = 40, BOT = 80;
+  const W = 1240, M = 80, PH = 1754, TOP = 74, BOT = 118;   // A4 — فریم کے اندر
   const C = { green: '#14463a', gold: '#c8962f', gold2: '#e8c467', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#fbf6e8', paper: '#fffdf6' };
   const COLS = { n: 90, pg: 170 };
   function wrapLines(ctx, text, w) {
@@ -536,7 +536,7 @@
         } });
       });
     }
-    const foot = (ctx, i, n, ph) => { ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(`${k.brandName()} — ${b.name} — حوالہ جات${n > 1 ? ` — صفحہ ${i + 1} / ${n}` : ''}`, W / 2, ph - 34); };
+    const foot = (ctx, i, n, ph) => { if (ph === PH && k.footDraw) { k.footDraw(ctx, `${k.brandName()} — ${b.name} — حوالہ جات`, i, n); return; } ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(`${k.brandName()} — ${b.name} — حوالہ جات${n > 1 ? ` — صفحہ ${i + 1} / ${n}` : ''}`, W / 2, ph - 34); };
     const newCv = h => { const cv = document.createElement('canvas'); cv.width = W; cv.height = h; const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, h); return [cv, ctx]; };
 
     if (mode === 'poster') {
@@ -564,7 +564,7 @@
       curP.push(x); y += x.h;
     }
     if (curP.length) pages.push(curP);
-    const jpgs = pages.map((pg, i) => { const [cv, ctx] = newCv(PH); let yy = TOP; pg.forEach(x => { x.draw(ctx, yy); yy += x.h; }); foot(ctx, i, pages.length, PH); return cv.toDataURL('image/jpeg', 0.88); });
+    const jpgs = pages.map((pg, i) => { const [cv, ctx] = newCv(PH); if (k.framePage) { k.framePage(ctx); ctx.direction = 'rtl'; } let yy = TOP; pg.forEach(x => { x.draw(ctx, yy); yy += x.h; }); foot(ctx, i, pages.length, PH); return cv.toDataURL('image/jpeg', 0.88); });
     return k.makePdf(jpgs, W, PH);
   }
 

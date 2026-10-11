@@ -9,7 +9,7 @@
 
   let sel = new Set();
   let open = new Set();
-  let opts = { price: true, details: true };
+  let opts = { price: true, details: true, cols: (() => { try { return Number(localStorage.getItem('maktaba-aziz-pdf-cols')) || 1; } catch (e) { return 1; } })() };
   let q = '';
   let mode = 'books';      // 'books' یا 'loans' (پڑھنے کے لیے گئی کتب)
   let subtitle = '';       // رپورٹ کا عنوان، مثلاً «مصنف: …»
@@ -46,6 +46,7 @@
             <label class="tick"><input type="checkbox" id="shAll"><span>سب منتخب</span></label>
             <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shPrice" ${opts.price ? 'checked' : ''}><span>قیمت</span></label>
             <label class="tick" ${mode === 'loans' ? 'hidden' : ''}><input type="checkbox" id="shDet" ${opts.details ? 'checked' : ''}><span>مصنف و ناشر</span></label>
+            <span class="sh-cols" role="group" aria-label="PDF میں کالم"><span>PDF کالم</span>${[1, 2, 3, 4].map(n => `<button type="button" data-pcols="${n}" class="${opts.cols === n ? 'on' : ''}">${n}</button>`).join('')}</span>
             <b class="sh-count" id="shCount"></b>
           </div>
         </div>
@@ -68,6 +69,11 @@
     $('shQ').addEventListener('input', e => { q = e.target.value; renderList(); });
     $('shPrice').addEventListener('change', e => { opts.price = e.target.checked; });
     $('shDet').addEventListener('change', e => { opts.details = e.target.checked; });
+    wrap.querySelector('.sh-cols').addEventListener('click', e => {
+      const b = e.target.closest('[data-pcols]'); if (!b) return;
+      opts.cols = Number(b.dataset.pcols); try { localStorage.setItem('maktaba-aziz-pdf-cols', opts.cols); } catch (err) {}
+      wrap.querySelectorAll('.sh-cols [data-pcols]').forEach(x => x.classList.toggle('on', x === b));
+    });
     $('shAll').addEventListener('change', e => {
       const vis = visibleBooks();
       vis.forEach(b => e.target.checked ? sel.add(b.id) : sel.delete(b.id));
@@ -176,7 +182,7 @@
   // ---------- رپورٹ کینوس پر ----------
   const FONT = '"Digits","JNN","Jameel Noori Nastaleeq","Noto Nastaliq Urdu",serif';
   const TFONT = '"JNN Kasheeda","Jameel Noori Nastaleeq Kasheeda","JNN",serif';
-  const W = 1240, M = 50;   // A4 چوڑائی @150dpi
+  const W = 1240, M = 80;   // A4 چوڑائی @150dpi (M: صفحے کے فریم کے اندر کا حاشیہ)
   const C = { green: '#14463a', green2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', cream: '#fffaf0', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#f8f2e2' };
 
   // مکتبے کی پہچان (brand.js)
@@ -374,25 +380,202 @@
     return new Promise(res => cv.toBlob(res, 'image/png'));
   }
 
-  // PDF: A4 صفحات
+  // ---------- A4 صفحہ: باہر ہلکا گہرا رنگ، اندر سفید، گول کونوں والا سنہری فریم ----------
+  const PH = 1754, TOP = 74, BOT = 118;
+  function framePage(ctx) {
+    ctx.save();
+    ctx.fillStyle = '#ddd0ab'; ctx.fillRect(0, 0, W, PH);
+    const g = ctx.createRadialGradient(W / 2, PH / 2, 200, W / 2, PH / 2, 1100);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(90,70,20,.18)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, PH);
+    ctx.shadowColor = 'rgba(60,40,0,.28)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#ffffff'; roundRect(ctx, 34, 34, W - 68, PH - 68, 36); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 4; roundRect(ctx, 34, 34, W - 68, PH - 68, 36); ctx.stroke();
+    ctx.strokeStyle = 'rgba(200,150,47,.45)'; ctx.lineWidth = 1.5; roundRect(ctx, 46, 46, W - 92, PH - 92, 28); ctx.stroke();
+    ctx.restore();
+  }
+  function footDraw(ctx, text, i, n) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(200,150,47,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(M, PH - BOT + 22); ctx.lineTo(W - M, PH - BOT + 22); ctx.stroke();
+    ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.direction = 'rtl';
+    ctx.fillText(`${text}${n > 1 ? `  —  صفحہ ${i + 1} / ${n}` : ''}`, W / 2, PH - BOT + 62);
+    ctx.restore();
+  }
+  // بلاکس کو صفحوں میں بانٹیں: کوئی سطر بیچ سے نہ کٹے؛ جدول اگلے صفحے پر جائے تو سر دوبارہ
+  function paginate(blocks, repeatHead) {
+    const pages = []; let cur = [], y = TOP, lastHead = null;
+    for (const b of blocks) {
+      if (b.head) lastHead = b;
+      if (b.page && cur.length) { pages.push(cur); cur = []; y = TOP; }
+      const need = b.h + (b.keep || 0);
+      if (y + need > PH - BOT && cur.length) {
+        pages.push(cur); cur = []; y = TOP;
+        const rh = b.tbl && (repeatHead || lastHead);
+        if (rh) { cur.push(rh); y += rh.h; }
+      }
+      cur.push(b); y += b.h;
+    }
+    if (cur.length) pages.push(cur);
+    return pages;
+  }
+  function renderPages(pages, footText) {
+    return pages.map((pg, i) => {
+      const [cv, ctx] = newCanvas(PH); framePage(ctx);
+      let yy = TOP; pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
+      footDraw(ctx, footText, i, pages.length);
+      return cv.toDataURL('image/jpeg', 0.9);
+    });
+  }
+  // متن کو دی گئی چوڑائی میں سطروں میں توڑیں (کچھ نہ کٹے)
+  function wrap(ctx, text, w) {
+    const out = [];
+    String(text ?? '').split(/\n/).forEach(par => {
+      let line = '';
+      par.split(/[ \t]+/).filter(Boolean).forEach(word => {
+        while (ctx.measureText(word).width > w && word.length > 1) {   // بہت لمبا لفظ
+          let k = word.length; while (k > 1 && ctx.measureText(word.slice(0, k)).width > w) k--;
+          if (line) { out.push(line); line = ''; }
+          out.push(word.slice(0, k)); word = word.slice(k);
+        }
+        const t = line ? line + ' ' + word : word;
+        if (ctx.measureText(t).width <= w || !line) line = t; else { out.push(line); line = word; }
+      });
+      out.push(line);
+    });
+    return out.filter((l, i) => l || i === 0);
+  }
+
+  // PDF: A4 صفحات — 1 سے 4 کالم، ہر صفحہ فریم کے اندر
   async function pdf() {
     await ready();
-    const bl = blocks();
-    const PH = 1754, TOP = 40, BOT = 80;
-    const pages = [];
-    let cur = [], y = TOP;
-    bl.forEach((b, i) => {
-      const need = b.keep ? b.h + 62 * b.keep : b.h;
-      if (y + need > PH - BOT && cur.length) { pages.push(cur); cur = []; y = TOP; }
-      cur.push(b); y += b.h;
+    const N = Math.min(4, Math.max(1, opts.cols || 1));
+    const g = grouped(), all = g.flatMap(x => x.list);
+    const meas = newCanvas(10)[1];
+    const S = [null, { f: 26, s: 21 }, { f: 22, s: 18 }, { f: 19, s: 16 }, { f: 17, s: 14.5 }][N];
+    const LH = f => Math.round(f * 1.72);
+    const GAP = 22, CW = (W - 2 * M - GAP * (N - 1)) / N;
+    const pages = [];   // ہر صفحہ: [{draw(ctx)}]
+    let page, col, y, y0, colBottom;
+    const yMax = PH - BOT;
+    const contH = 78;
+    const newPage = first => {
+      page = []; pages.push(page); col = 0;
+      if (first) {
+        const lh = letterH();
+        page.push(ctx => { letterDraw(ctx, TOP); titleDraw(ctx, TOP + lh, headLine(), `تاریخ: ${today()}`, `کل ${fmt(all.length)} کتب`); });
+        y0 = TOP + lh + 116;
+      } else {
+        page.push(ctx => {
+          ctx.textAlign = 'right'; ctx.fillStyle = C.green; ctx.font = `30px ${BF()}`; ctx.fillText(fit(ctx, BN(), 520), W - M, TOP + 40);
+          ctx.textAlign = 'left'; ctx.fillStyle = C.muted; ctx.font = `21px ${FONT}`; ctx.fillText(fit(ctx, `${headLine()} — جاری`, 480), M, TOP + 38);
+          ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, TOP + 60); ctx.lineTo(W - M, TOP + 60); ctx.stroke();
+        });
+        y0 = TOP + contH;
+      }
+      y = y0; colBottom = y0;
+    };
+    const colX = () => W - M - col * (CW + GAP) - CW;   // دائیں سے پہلا کالم
+    const nextCol = () => { colBottom = Math.max(colBottom, y); col++; if (col >= N) newPage(false); else y = y0; };
+    const place = (h, draw) => { const x = colX(), yy = y; page.push(ctx => draw(ctx, x, yy, CW)); y += h; colBottom = Math.max(colBottom, y); };
+
+    // جدول کے کالم (صرف 1 کالم والی ترتیب)
+    const tcols = (() => {
+      const c = [{ k: 'n', w: 70, t: 'نمبر' }, { k: 'name', w: 0, t: 'کتاب کا نام' }];
+      if (mode === 'loans') c.push({ k: 'lname', w: 240, t: 'لینے والا' }, { k: 'lphone', w: 190, t: 'موبائل' }, { k: 'ldate', w: 150, t: 'تاریخ' }, { k: 'ldays', w: 80, t: 'دن' });
+      else { if (opts.details) c.push({ k: 'author', w: 230, t: 'مصنف' }, { k: 'publisher', w: 210, t: 'ناشر' }); c.push({ k: 'parts', w: 90, t: 'اجزاء' }); if (opts.price) c.push({ k: 'price', w: 130, t: 'قیمت (Rs)' }); }
+      c[1].w = CW - c.reduce((s2, x) => s2 + x.w, 0);
+      return c;
+    })();
+    const cellVal = (b, k, i) => {
+      const L = b.loan || {};
+      return k === 'n' ? String(i + 1) : k === 'parts' ? fmt(b.parts) : k === 'price' ? (+b.price ? fmt(b.price) : '—')
+        : k === 'lname' ? (L.name || '—') : k === 'lphone' ? (L.phone ? `⁦${L.phone}⁩` : '—') : k === 'ldate' ? dmy(L.date) : k === 'ldays' ? String(daysSince(L.date))
+        : (b[k] || '—');
+    };
+    const detailTxt = b => {
+      if (mode === 'loans') { const L = b.loan || {}; return [L.name || '—', L.phone ? `⁦${L.phone}⁩` : '', `${dmy(L.date)} (${daysSince(L.date)} دن)`].filter(Boolean).join(' · '); }
+      const d = [];
+      if (opts.details) { if (b.author) d.push(b.author); if (b.publisher) d.push(b.publisher); }
+      d.push(`اجزاء\u00a0${fmt(b.parts)}`);
+      if (opts.price && +b.price) d.push(`Rs\u00a0${fmt(b.price)}`);
+      return d.join(' · ');
+    };
+    // ایک کتاب کی سطر: اونچائی ناپیں اور بنائیں
+    const rowOf = (b, i) => {
+      if (N === 1) {
+        const lines = {}; let h = LH(S.f) + 14;
+        tcols.forEach(c => { const fs = c.k === 'name' ? S.f : S.s; meas.font = `${fs}px ${FONT}`; lines[c.k] = wrap(meas, cellVal(b, c.k, i), c.w - 22); h = Math.max(h, lines[c.k].length * LH(fs) + 14); });
+        return { h, draw(ctx, x, yy, w) {
+          if (i % 2) { ctx.fillStyle = C.alt; ctx.fillRect(x, yy, w, h); }
+          ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, yy + h - .5); ctx.lineTo(x + w, yy + h - .5); ctx.stroke();
+          let r = x + w; ctx.textAlign = 'right';
+          tcols.forEach(c => {
+            const big = c.k === 'name', fs = big ? S.f : S.s, lh = LH(fs);
+            ctx.font = `${fs}px ${FONT}`; ctx.fillStyle = big ? C.fg : c.k === 'n' ? C.muted : '#4a4339';
+            lines[c.k].forEach((l, j) => ctx.fillText(l, r - 11, yy + fs + 12 + j * lh));
+            r -= c.w;
+          });
+        } };
+      }
+      const nw = Math.round(S.f * 2.1), tw = CW - nw - 14;
+      meas.font = `${S.f}px ${FONT}`; const nl = wrap(meas, b.name, tw);
+      meas.font = `${S.s}px ${FONT}`; const dl = wrap(meas, detailTxt(b), tw);
+      const h = nl.length * LH(S.f) + dl.length * LH(S.s) + 12;
+      return { h, draw(ctx, x, yy, w) {
+        if (i % 2) { ctx.fillStyle = C.alt; ctx.fillRect(x, yy, w, h); }
+        ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, yy + h - .5); ctx.lineTo(x + w, yy + h - .5); ctx.stroke();
+        ctx.textAlign = 'center'; ctx.fillStyle = C.green; ctx.font = `${S.s}px ${FONT}`; ctx.fillText(String(i + 1), x + w - nw / 2, yy + S.f + 8);
+        ctx.textAlign = 'right'; let ty = yy + S.f + 8;
+        ctx.fillStyle = C.fg; ctx.font = `${S.f}px ${FONT}`; nl.forEach(l => { ctx.fillText(l, x + w - nw - 6, ty); ty += LH(S.f); });
+        ctx.fillStyle = C.muted; ctx.font = `${S.s}px ${FONT}`; ty += LH(S.s) - LH(S.f) + 2; dl.forEach(l => { ctx.fillText(l, x + w - nw - 6, ty); ty += LH(S.s); });
+      } };
+    };
+    // فن کا سر (جدول کے سر کے ساتھ)
+    const headOf = (cat, cnt, cont) => {
+      const bh = Math.round(S.f * 2.05), th = N === 1 ? Math.round(S.s * 2.3) : 0, h = bh + th + 10;
+      return { h, draw(ctx, x, yy, w) {
+        ctx.fillStyle = C.green; roundRect(ctx, x, yy + 6, w, bh, 12); ctx.fill();
+        ctx.textAlign = 'right'; ctx.fillStyle = C.gold2; ctx.font = `${S.f + 4}px ${FONT}`;
+        ctx.fillText(fit(ctx, cat.name + (cont ? ' (جاری)' : ''), w - 150), x + w - 16, yy + 6 + bh * .7);
+        ctx.textAlign = 'left'; ctx.fillStyle = '#f3e6c2'; ctx.font = `${S.s}px ${FONT}`; ctx.fillText(`${fmt(cnt)} کتب`, x + 14, yy + 6 + bh * .68);
+        if (th) {
+          ctx.fillStyle = '#efe2bf'; ctx.fillRect(x, yy + bh + 8, w, th);
+          ctx.fillStyle = C.green; ctx.font = `${S.s}px ${FONT}`; ctx.textAlign = 'right';
+          let r = x + w; tcols.forEach(c => { ctx.fillText(c.t, r - 11, yy + bh + 8 + th * .7); r -= c.w; });
+        }
+      } };
+    };
+
+    newPage(true);
+    g.forEach(({ cat, list }) => {
+      const rows = list.map(rowOf);
+      let hd = headOf(cat, list.length, false);
+      if (y + hd.h + rows[0].h > yMax) nextCol();
+      place(hd.h, hd.draw);
+      rows.forEach(r => {
+        if (y + r.h > yMax) { nextCol(); const c2 = headOf(cat, list.length, true); place(c2.h, c2.draw); }
+        place(r.h, r.draw);
+      });
+      y += 10;
     });
-    if (cur.length) pages.push(cur);
+    // آخر میں کل کا خلاصہ — پوری چوڑائی
+    const sumH = 96;
+    let sy = Math.max(colBottom, y) + 10;
+    if (sy + sumH > yMax) { newPage(false); sy = y0; }
+    page.push(ctx => {
+      ctx.fillStyle = C.cream; ctx.strokeStyle = C.gold; ctx.lineWidth = 2;
+      roundRect(ctx, M, sy + 10, W - 2 * M, 72, 14); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = C.green; ctx.font = `28px ${FONT}`; ctx.textAlign = 'center';
+      let t = `کل: ${fmt(all.length)} کتب   ·   ${fmt(all.reduce((s2, b) => s2 + (+b.parts || 0), 0))} اجزاء`;
+      if (opts.price && mode !== 'loans') t += `   ·   کل قیمت Rs ${fmt(all.reduce((s2, b) => s2 + (+b.price || 0), 0))}`;
+      if (mode === 'loans') t = `کل: ${fmt(all.length)} کتب پڑھنے کے لیے گئی ہوئی ہیں`;
+      ctx.fillText(fit(ctx, t, W - 2 * M - 40), W / 2, sy + 56);
+    });
     const jpgs = pages.map((pg, i) => {
-      const [cv, ctx] = newCanvas(PH);
-      let yy = TOP;
-      pg.forEach(b => { b.draw(ctx, yy); yy += b.h; });
-      ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-      ctx.fillText(`${BN()} — صفحہ ${i + 1} / ${pages.length}`, W / 2, PH - 36);
+      const [cv, ctx] = newCanvas(PH); framePage(ctx); ctx.direction = 'rtl';
+      pg.forEach(d => { ctx.save(); d(ctx); ctx.restore(); });
+      footDraw(ctx, `${BN()} — ${headLine()}`, i, pages.length);
       return cv.toDataURL('image/jpeg', 0.9);
     });
     return makePdf(jpgs, W, PH);
@@ -480,5 +663,5 @@
     }
   }
 
-  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, brandText, letterH, letterDraw, titleDraw, brandName: BN }, _test: { buildText, poster, pdf, select: ids => { ids.forEach(i => sel.add(i)); } } };
+  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN }, _test: { buildText, poster, pdf, select: ids => { ids.forEach(i => sel.add(i)); } } };
 })();
