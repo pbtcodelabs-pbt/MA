@@ -253,7 +253,7 @@
     const { close, wrap } = H().openSheet(p ? 'پروگرام میں ترمیم' : 'نیا پروگرام', `
       <form class="sheet-b pf-form" id="pgForm" novalidate>
         <div class="pf-grid">
-          ${fld('p-date', 'تاریخ', `type="date" class="ltr" value="${esc(p?.date || '')}"`)}
+          <div class="pf-f full wd-wrap"><span>تاریخ <b class="wd-day" id="wdDay"></b></span><div class="wd"><div class="wd-col" id="wdD" aria-label="تاریخ"></div><div class="wd-col wide" id="wdM" aria-label="مہینہ"></div><div class="wd-col" id="wdY" aria-label="سال"></div></div><input type="hidden" id="p-date" value="${esc(p?.date || iso(new Date()))}"></div>
           <label class="pf-f" for="p-tnote"><span>وقت</span><select id="p-tnote">${(() => { const cur = p ? (p.timeNote || '') : 'بعد از نماز عشاء'; const list = TIME_NOTES.includes(cur) || !cur ? TIME_NOTES : [cur, ...TIME_NOTES]; return list.map(v => `<option${v === cur ? ' selected' : ''}>${v}</option>`).join(''); })()}</select></label>
           ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="جامع مسجد نور"`)}
           ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="کلور کوٹ"`)}
@@ -293,7 +293,35 @@
       const prev = [...progs()].reverse().find(x => x.inviter === $('p-inv').value.trim());
       if (prev && !$('p-phone').value) $('p-phone').value = prev.phone || '';
     });
-    setTimeout(() => (p ? $('p-place') : $('p-date')).focus(), 60);
+    // تاریخ کے تین پہیے: دن، مہینہ، سال — گھما کر چنیں، ساتھ ہفتے کا دن
+    (() => {
+      const IH = 36, now = new Date().getFullYear();
+      const years = []; for (let y = now - 3; y <= now + 6; y++) years.push(y);
+      let [Y, Mo, D] = ($('p-date').value || iso(new Date())).split('-').map(Number);
+      if (!years.includes(Y)) years.push(Y), years.sort((a, b) => a - b);
+      const dim = () => new Date(Y, Mo, 0).getDate();
+      const sync = () => {
+        D = Math.min(D, dim());
+        const v = `${Y}-${String(Mo).padStart(2, '0')}-${String(D).padStart(2, '0')}`;
+        $('p-date').value = v; $('wdDay').textContent = `${DAYS[dateOf(v).getDay()]} · ${D} ${MONTHS[Mo - 1]} ${Y}`;
+      };
+      function wheel(el, items, idx, onPick) {
+        el.innerHTML = `<div class="wd-pad"></div>${items.map((t, i) => `<div class="wd-i" data-i="${i}">${t}</div>`).join('')}<div class="wd-pad"></div>`;
+        el.scrollTop = idx * IH;
+        const mark = i => el.querySelectorAll('.wd-i').forEach(x => x.classList.toggle('on', +x.dataset.i === i));
+        mark(idx);
+        let t = null, last = idx;
+        el.onscroll = () => { const i = Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / IH))); if (i !== last) { last = i; mark(i); onPick(i); } clearTimeout(t); t = setTimeout(() => { if (Math.abs(el.scrollTop - last * IH) > 1) el.scrollTo({ top: last * IH, behavior: 'smooth' }); }, 120); };
+        el.onclick = e => { const it = e.target.closest('.wd-i'); if (it) el.scrollTo({ top: +it.dataset.i * IH, behavior: 'smooth' }); };
+      }
+      const days = () => Array.from({ length: dim() }, (_, i) => i + 1);
+      const drawDays = () => wheel($('wdD'), days(), Math.min(D, dim()) - 1, i => { D = i + 1; sync(); });
+      drawDays();
+      wheel($('wdM'), MONTHS, Mo - 1, i => { const n = dim(); Mo = i + 1; if (dim() !== n) drawDays(); sync(); });
+      wheel($('wdY'), years, years.indexOf(Y), i => { const n = dim(); Y = years[i]; if (dim() !== n) drawDays(); sync(); });
+      sync();
+    })();
+    setTimeout(() => (p ? $('p-place') : null)?.focus(), 60);
     $('pgForm').addEventListener('submit', e => {
       e.preventDefault();
       const err = $('p-err');
@@ -302,7 +330,8 @@
         place: $('p-place').value.trim(), city: $('p-city').value.trim(), province: $('p-prov').value, inviter: $('p-inv').value.trim(), phone: $('p-phone').value.trim(),
         note: $('p-note').value.trim(), poster
       };
-      if (!rec.date) { err.textContent = 'پروگرام کی تاریخ لکھنا ضروری ہے'; $('p-date').focus(); return; }
+      if (!rec.date) { err.textContent = 'پروگرام کی تاریخ چنیں'; return; }
+      rec.day = dayName(rec.date);
       if (!rec.place && !rec.city) { err.textContent = 'بمقام یا شہر میں سے کچھ لکھیں'; $('p-place').focus(); return; }
       let id;
       if (p) { Object.assign(p, rec); id = p.id; }
