@@ -310,7 +310,7 @@
         el.scrollTop = idx * IH;
         const its = [...el.querySelectorAll('.wd-i')];
         // پہیے کا احساس: بیچ والا بڑا اور صاف، اوپر نیچے والے چھوٹے، دھندلے اور جھکے ہوئے
-        const fx = () => { const st = el.scrollTop; its.forEach((x, i) => { const d = (i * IH - st) / IH, a = Math.min(2.2, Math.abs(d)); x.style.transform = `perspective(200px) rotateX(${(-d * 22).toFixed(1)}deg) scale(${(1 - a * .12).toFixed(3)})`; x.style.opacity = (1 - a * .42).toFixed(2); }); };
+        const fx = () => { const st = el.scrollTop; its.forEach((x, i) => { const d = (i * IH - st) / IH, a = Math.min(2.2, Math.abs(d)); x.style.transform = `perspective(200px) rotateX(${(-d * 22).toFixed(1)}deg) scale(${(1 - a * .12).toFixed(3)})`; x.style.opacity = '1'; }); };
         const mark = i => { its.forEach(x => x.classList.toggle('on', +x.dataset.i === i)); fx(); };
         el.addEventListener('scroll', () => requestAnimationFrame(fx), { passive: true });
         mark(idx);
