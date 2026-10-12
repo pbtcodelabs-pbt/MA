@@ -253,7 +253,7 @@
     const { close, wrap } = H().openSheet(p ? 'پروگرام میں ترمیم' : 'نیا پروگرام', `
       <form class="sheet-b pf-form" id="pgForm" novalidate>
         <div class="pf-grid">
-          <div class="pf-f full wd-wrap"><span>تاریخ <b class="wd-day" id="wdDay"></b></span><div class="wd"><div class="wd-col" id="wdD" aria-label="تاریخ"></div><div class="wd-col wide" id="wdM" aria-label="مہینہ"></div><div class="wd-col" id="wdY" aria-label="سال"></div></div><input type="hidden" id="p-date" value="${esc(p?.date || iso(new Date()))}"></div>
+          <div class="pf-f full wd-wrap"><span>تاریخ</span><div class="wd-dayc"><b id="wdDay"></b></div><div class="wd"><div class="wd-col" id="wdD" aria-label="تاریخ"></div><div class="wd-col wide" id="wdM" aria-label="مہینہ"></div><div class="wd-col" id="wdY" aria-label="سال"></div></div><input type="hidden" id="p-date" value="${esc(p?.date || iso(new Date()))}"></div>
           <label class="pf-f" for="p-tnote"><span>وقت</span><select id="p-tnote">${(() => { const cur = p ? (p.timeNote || '') : 'بعد از نماز عشاء'; const list = TIME_NOTES.includes(cur) || !cur ? TIME_NOTES : [cur, ...TIME_NOTES]; return list.map(v => `<option${v === cur ? ' selected' : ''}>${v}</option>`).join(''); })()}</select></label>
           ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="جامع مسجد نور"`)}
           ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="کلور کوٹ"`)}
@@ -303,12 +303,16 @@
       const sync = () => {
         D = Math.min(D, dim());
         const v = `${Y}-${String(Mo).padStart(2, '0')}-${String(D).padStart(2, '0')}`;
-        $('p-date').value = v; $('wdDay').textContent = `${DAYS[dateOf(v).getDay()]} · ${D} ${MONTHS[Mo - 1]} ${Y}`;
+        $('p-date').value = v; $('wdDay').textContent = DAYS[dateOf(v).getDay()];
       };
       function wheel(el, items, idx, onPick) {
         el.innerHTML = `<div class="wd-pad"></div>${items.map((t, i) => `<div class="wd-i" data-i="${i}">${t}</div>`).join('')}<div class="wd-pad"></div>`;
         el.scrollTop = idx * IH;
-        const mark = i => el.querySelectorAll('.wd-i').forEach(x => x.classList.toggle('on', +x.dataset.i === i));
+        const its = [...el.querySelectorAll('.wd-i')];
+        // پہیے کا احساس: بیچ والا بڑا اور صاف، اوپر نیچے والے چھوٹے، دھندلے اور جھکے ہوئے
+        const fx = () => { const st = el.scrollTop; its.forEach((x, i) => { const d = (i * IH - st) / IH, a = Math.min(2.2, Math.abs(d)); x.style.transform = `perspective(220px) rotateX(${(-d * 24).toFixed(1)}deg) scale(${(1 - a * .14).toFixed(3)})`; x.style.opacity = (1 - a * .38).toFixed(2); x.style.filter = a > .12 ? `blur(${(a * 1.3).toFixed(2)}px)` : 'none'; }); };
+        const mark = i => { its.forEach(x => x.classList.toggle('on', +x.dataset.i === i)); fx(); };
+        el.addEventListener('scroll', () => requestAnimationFrame(fx), { passive: true });
         mark(idx);
         let t = null, last = idx;
         el.onscroll = () => { const i = Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / IH))); if (i !== last) { last = i; mark(i); onPick(i); } clearTimeout(t); t = setTimeout(() => { if (Math.abs(el.scrollTop - last * IH) > 1) el.scrollTo({ top: last * IH, behavior: 'smooth' }); }, 120); };
