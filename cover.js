@@ -21,7 +21,7 @@
 
   function open(bookId) {
     const db = H().db(), b = db.books.find(x => x.id === bookId); if (!b) return;
-    let src = null, shape = (b.cover && b.cover.shape) || 'full', zoom = 1, br = 1, ct = 1, ox = 0, oy = 0, saved = false;
+    let src = null, shape = (b.cover && b.cover.shape) || 'full', zoom = 1, br = 1, ct = 1, ox = 0, oy = 0, saved = false, cr = b.cover && b.cover.r != null ? b.cover.r : 7, cm = b.cover && b.cover.m != null ? b.cover.m : 3;
     const { wrap, close } = H().openSheet('کتاب کا ٹائٹل (تصویر)', `
       <div class="sheet-b cv-ed">
         <p class="cv-bk">📖 ${H().esc(b.name)}</p>
@@ -34,6 +34,8 @@
         </div>
         <div class="cv-sl"><b>زوم</b><input type="range" id="cvZ" min="50" max="400" step="5" value="100"><em id="cvZv">100%</em></div>
         <div class="cv-sl"><b>روشنی</b><input type="range" id="cvB" min="50" max="180" step="5" value="100"><em id="cvBv">100%</em></div>
+        <div class="cv-sl cv-fx"><b>کونے گول</b><input type="range" id="cvR" min="0" max="20" step="1" value="${cr}"><em id="cvRv">${cr}</em></div>
+        <div class="cv-sl cv-fx"><b>کنارہ</b><input type="range" id="cvM" min="0" max="10" step="1" value="${cm}"><em id="cvMv">${cm}</em></div>
         <div class="cv-sl"><b>کنٹراسٹ</b><input type="range" id="cvT" min="60" max="170" step="5" value="100"><em id="cvTv">100%</em></div>
         <div class="cv-row2"><button type="button" class="btn ghost small" data-c="rot">↻ گھمائیں</button><button type="button" class="btn ghost small" data-c="center">⊕ بیچ میں</button><span class="cv-hint">تصویر کو انگلی سے کھسکائیں</span></div>
         <p class="err" id="cvErr"></p>
@@ -57,10 +59,12 @@
         const [W, Hh] = size(); cv.width = W; cv.height = Hh;
         draw(cv, W, Hh);
         $(wrap, '#cvMask').className = 'cv-mask ' + shape;
+        wrap.querySelectorAll('.cv-fx').forEach(x => { x.hidden = shape === 'round'; });
+        cv.style.borderRadius = shape === 'round' ? '50%' : (cr * 1.6) + 'px';
         $(wrap, '#cvTip').hidden = !!src;
         // چھوٹا نمونہ: کتاب کے آئیکن پر
         const u = src ? cv.toDataURL('image/jpeg', .7) : '';
-        $(wrap, '#cvMini').innerHTML = `<span class="bkx${u ? ' cv-' + shape : ''}" style="--c:#8e2f2a;--bs:1.3">` +
+        $(wrap, '#cvMini').innerHTML = `<span class="bkx${u ? ' cv-' + shape : ''}" style="--c:#8e2f2a;--bs:1.6;--cvr:${cr};--cvm:${cm}">` +
           `<span class="bkx-top"></span><span class="bkx-cover">${u && shape === 'full' ? `<img class="bkx-full" src="${u}" alt="">` : ''}<span class="bkx-label">${u && shape !== 'full' ? `<img class="bkx-cvimg" src="${u}" alt="">` : H().esc(b.name)}</span></span><span class="bkx-spine"></span></span>`;
       });
     }
@@ -78,6 +82,8 @@
     $(wrap, '#cvCam').onchange = e => { pick(e.target.files[0]); e.target.value = ''; };
     $(wrap, '#cvGal').onchange = e => { pick(e.target.files[0]); e.target.value = ''; };
     const sl = (id, set, lab) => $(wrap, id).addEventListener('input', e => { set(+e.target.value / 100); $(wrap, lab).textContent = e.target.value + '%'; paint(); });
+    $(wrap, '#cvR').addEventListener('input', e => { cr = +e.target.value; $(wrap, '#cvRv').textContent = cr; paint(); });
+    $(wrap, '#cvM').addEventListener('input', e => { cm = +e.target.value; $(wrap, '#cvMv').textContent = cm; paint(); });
     sl('#cvZ', v => { zoom = v; }, '#cvZv'); sl('#cvB', v => { br = v; }, '#cvBv'); sl('#cvT', v => { ct = v; }, '#cvTv');
     // انگلی سے کھسکانا
     let drag = null;
@@ -100,7 +106,7 @@
         const id = 'cv_' + b.id + '_' + Date.now();
         try { await N().imgPut(id, blob); } catch (x) { err.textContent = 'تصویر محفوظ نہیں ہو سکی — فون میں جگہ دیکھیں'; return; }
         if (b.cover && b.cover.id) await N().imgDel(b.cover.id);
-        b.cover = { id, shape }; H().save(); saved = true; close(); H().toast('✓ کتاب کا ٹائٹل لگ گیا');
+        b.cover = { id, shape, r: cr, m: cm }; H().save(); saved = true; close(); H().toast('✓ کتاب کا ٹائٹل لگ گیا');
       }
     });
   }

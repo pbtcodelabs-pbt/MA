@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1210MO103) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1210MO104) */
 (() => {
   'use strict';
 
@@ -107,7 +107,7 @@
   // کھڑی موٹی کتاب: سامنے جِلد (نام کے ساتھ)، ایک طرف صفحات، دوسری طرف پشت
   // ترچھی کھڑی کتاب: سامنے گتا + دائیں طرف جِلد کی پشت (سنہری پٹیاں)، ورق بائیں طرف
   const book3d = (label, color, extra = '', out = false, cover = null) =>
-    `<span class="bkx${out ? ' out' : ''}${cover ? ' cv-' + cover.shape : ''}" style="--c:${color}">` +
+    `<span class="bkx${out ? ' out' : ''}${cover ? ' cv-' + cover.shape : ''}" style="--c:${color}${cover ? `;--cvr:${cover.r != null ? cover.r : 7};--cvm:${cover.m != null ? cover.m : 3}` : ''}">` +
     (out ? `<span class="bkx-rib">جاری</span>` : '') +
     `<span class="bkx-top"></span>` +
     `<span class="bkx-cover">${cover && cover.shape === 'full' ? `<img class="bkx-full" data-cv="${cover.id}" alt="">` : ''}${extra}<span class="bkx-label">${cover && cover.shape !== 'full' ? `<img class="bkx-cvimg" data-cv="${cover.id}" alt="">` : label}</span></span>` +
@@ -836,7 +836,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1210MO103',
+    version: 'MA1210MO104',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
