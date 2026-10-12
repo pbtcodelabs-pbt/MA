@@ -88,14 +88,14 @@
     return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
   }
   // گول لوگو: S×S، دائرے کے اندر پورا بھرا ہوا؛ zoom = 1 معمول، بڑا = زیادہ قریب
-  async function roundLogo(src, zoom = 1) {
+  async function roundLogo(src, zoom = 1, ox = 0, oy = 0) {
     const im = await loadIm(src);
     const M = 900, r0 = Math.min(1, M / Math.max(im.width, im.height));
     const w = Math.max(1, Math.round(im.width * r0)), h = Math.max(1, Math.round(im.height * r0));
     const c1 = document.createElement('canvas'); c1.width = w; c1.height = h;
     const x1 = c1.getContext('2d', { willReadFrequently: true }); x1.drawImage(im, 0, 0, w, h);
     let box = { x: 0, y: 0, w, h }; try { box = trimBox(x1, w, h); } catch (e) {}
-    const side = Math.max(box.w, box.h) / zoom, cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    const side = Math.max(box.w, box.h) / zoom, cx = box.x + box.w / 2 + ox * Math.max(box.w, box.h), cy = box.y + box.h / 2 + oy * Math.max(box.w, box.h);
     const S = 480, cv = document.createElement('canvas'); cv.width = S; cv.height = S;
     const ctx = cv.getContext('2d');
     ctx.save(); ctx.beginPath(); ctx.arc(S / 2, S / 2, S / 2, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
@@ -136,6 +136,7 @@
   .br-ring img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
   .br-zoom{display:flex;align-items:center;gap:8px;font-size:14px;color:#6b4a1a;margin:-2px 0 10px}
   .br-zoom input{flex:1;accent-color:#14463a;height:28px}
+  #br-prev{touch-action:none;cursor:grab}
   .br-zoom[hidden]{display:none}
   .br-ring span{color:#f1d27a;font-size:15px;line-height:1.6;text-align:center;padding:4px}
   .br-lb{display:flex;flex-direction:column;gap:8px;flex:1}
@@ -171,7 +172,7 @@
           <input type="file" id="br-file" accept="image/*" hidden>
         </div>
       </div>
-      <label class="br-zoom" id="br-zw" hidden>چھوٹا<input type="range" id="br-zoom" min="70" max="160" step="5" value="100" aria-label="لوگو چھوٹا یا بڑا">بڑا</label>
+      <label class="br-zoom" id="br-zw" hidden>چھوٹا<input type="range" id="br-zoom" min="50" max="400" step="5" value="100" aria-label="لوگو چھوٹا یا بڑا">بڑا</label>
       ${fld('name', 'مکتبے کا نام', '', 'placeholder="مثلاً مکتبہ رحمانیہ"')}
       ${fld('line1', 'پہچان ۱', 'مثلاً سرپرست یا مالک کا نام', 'placeholder="مثلاً مولانا محمد …"')}
       ${fld('line2', 'پہچان ۲', 'عہدہ، مثلاً مہتمم، مدیر', 'placeholder="مثلاً مہتمم"')}
@@ -185,7 +186,15 @@
     const prev = ov.querySelector('#br-prev'), file = ov.querySelector('#br-file'), ok = ov.querySelector('#br-ok');
     const zw = ov.querySelector('#br-zw'), zIn = ov.querySelector('#br-zoom');
     let zt = null;
-    zIn.addEventListener('input', () => { clearTimeout(zt); zt = setTimeout(async () => { if (!orig) return; try { logo = await roundLogo(orig, zIn.value / 100); showPrev(); } catch (e) {} }, 120); });
+    let ox = 0, oy = 0;   // تصویر کو انگلی سے کھسکانا
+    const redo = () => { clearTimeout(zt); zt = setTimeout(async () => { if (!orig) return; try { logo = await roundLogo(orig, zIn.value / 100, ox, oy); showPrev(); } catch (e) {} }, 90); };
+    zIn.addEventListener('input', redo);
+    let drag = null;
+    prev.addEventListener('pointerdown', e => { if (!orig) return; drag = { x: e.clientX, y: e.clientY, ox, oy }; prev.setPointerCapture(e.pointerId); e.preventDefault(); });
+    prev.addEventListener('pointermove', e => { if (!drag) return; if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 5) drag.moved = true; const sz = prev.clientWidth || 150, z = zIn.value / 100; ox = drag.ox - (e.clientX - drag.x) / sz / z; oy = drag.oy - (e.clientY - drag.y) / sz / z; ox = Math.max(-.6, Math.min(.6, ox)); oy = Math.max(-.6, Math.min(.6, oy)); redo(); });
+    let justDragged = false;
+    const endDrag = () => { if (drag && drag.moved) { justDragged = true; setTimeout(() => { justDragged = false; }, 350); } drag = null; };
+    prev.addEventListener('pointerup', endDrag); prev.addEventListener('pointercancel', endDrag);
     const showPrev = () => {
       const src = logo === 'default' ? DEFAULT_LOGO : logo;
       prev.innerHTML = src ? `<img src="${src}" alt="">` : '<span>لوگو<br>یہاں</span>';
@@ -196,9 +205,9 @@
       const f = file.files[0]; if (!f) return;
       try {
         ok.textContent = 'لوگو تیار ہو رہا ہے…';
-        orig = await fileToData(f); zIn.value = 100;
+        orig = await fileToData(f); zIn.value = 100; ox = 0; oy = 0;
         logo = await roundLogo(orig, 1); round = '1'; showPrev(); zw.hidden = false;
-        ok.textContent = 'لوگو گول کر کے لگ گیا — چاہیں تو نیچے سے چھوٹا/بڑا کریں، پھر محفوظ کریں';
+        ok.textContent = 'لوگو گول کر کے لگ گیا — نیچے سے چھوٹا/بڑا کریں، اور تصویر کو انگلی سے کھسکا کر بیچ میں لائیں، پھر محفوظ کریں';
       }
       catch (e) { ok.textContent = 'یہ تصویر نہیں کھل سکی، کوئی اور تصویر چنیں'; }
       file.value = '';
@@ -208,7 +217,7 @@
       const a = e.target.closest('[data-a]'); if (!a) return;
       const act = a.dataset.a;
       if (act === 'x') close();
-      else if (act === 'pick') file.click();
+      else if (act === 'pick') { if (!justDragged) file.click(); }
       else if (act === 'rm') { logo = ''; orig = ''; zw.hidden = true; showPrev(); ok.textContent = ''; }
       else if (act === 'save') {
         const o = { logo, round: logo && logo !== 'default' ? round || '1' : '' };

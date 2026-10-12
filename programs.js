@@ -10,7 +10,8 @@
   const MONTHS = ['جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون', 'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'];
   const DAYS = ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'];
   const TIME_NOTES = ['بعد از نماز فجر', 'بعد از نماز ظہر', 'بعد از نماز عصر', 'بعد از نماز مغرب', 'بعد از نماز عشاء'];
-  const FILTERS = [['15', '15 دن'], ['30', '30 دن'], ['60', '60 دن'], ['90', '90 دن'], ['all', 'سب آنے والے'], ['past', 'گزشتہ'], ['custom', 'مرضی کی تاریخ']];
+  const FILTERS = [['15', '15 دن'], ['30', '30 دن'], ['60', '60 دن'], ['90', '90 دن'], ['all', 'سب آنے والے'], ['custom', 'مرضی کی تاریخ']];
+  const PROVINCES = ['پنجاب', 'سندھ', 'خیبر پختونخوا', 'بلوچستان', 'اسلام آباد', 'گلگت بلتستان', 'آزاد کشمیر'];
   const FKEY = 'maktaba-aziz-prog-filter';
 
   const progs = () => { const d = H().db(); d.progs = d.progs || []; return d.progs; };
@@ -52,6 +53,7 @@
 
   // ---------- فلٹر ----------
   let F = (() => { try { return JSON.parse(localStorage.getItem(FKEY)) || {}; } catch (e) { return {}; } })();
+  if (F.k === 'past') F.k = '30';
   F = { k: F.k || '30', from: F.from || iso(new Date()), to: F.to || addDays(30) };
   const saveF = () => { try { localStorage.setItem(FKEY, JSON.stringify(F)); } catch (e) {} };
   function filtered() {
@@ -89,6 +91,7 @@
         </div>
         <div class="panel-b">
           <div class="pg-filters" role="tablist">${FILTERS.map(([k, t]) => `<button type="button" class="pf${F.k === k ? ' on' : ''}" data-f="${k}">${t}</button>`).join('')}</div>
+          <a class="pg-old-go" href="#/prog/old">📁 سابقہ پروگرام <b>${num(progs().filter(isPast).length)}</b><span>‹</span></a>
           <div class="pg-tk"><span>مین صفحے کی چلتی پٹی:</span>${[[0, 'بند'], [1, 'آج'], [2, '2 دن'], [3, '3 دن']].map(([d, t]) => `<button type="button" class="pf${tkDays() === d ? ' on' : ''}" data-tk="${d}">${t}</button>`).join('')}</div>
           ${F.k === 'custom' ? `<div class="pg-range"><label>سے <input type="date" id="pgFrom" class="numin" value="${F.from}"></label><label>تک <input type="date" id="pgTo" class="numin" value="${F.to}"></label></div>` : ''}
           <div class="pg-sum"><span>${esc(rangeTxt())}</span><b>${num(list.length)} پروگرام</b></div>
@@ -133,7 +136,7 @@
     const wa = H().waNum(p.phone);
     H().view.innerHTML = `
       <section class="panel prog-panel">
-        <div class="panel-h prog-h"><a class="back" href="#/prog">→ شیڈیول</a><span class="pg-left ${leftTxt(p).c}">${dayName(p.date)}</span></div>
+        <div class="panel-h prog-h"><a class="back" href="${isPast(p) ? '#/prog/old' : '#/prog'}">→ ${isPast(p) ? 'سابقہ پروگرام' : 'شیڈیول'}</a><span class="pg-left ${leftTxt(p).c}">${dayName(p.date)}</span></div>
         <div class="panel-b pg-one" id="pgOne">
           ${p.title ? `<p class="po-topic">${esc(p.title)}</p>` : ''}
           <h2 class="po-place">${esc(p.place || 'پروگرام')}${p.city ? `<span>${esc(p.city)}</span>` : ''}</h2>
@@ -142,7 +145,7 @@
             <div class="po-card"><span class="po-ico">${H().icons.I_CAL}</span><span><small>تاریخ</small><b>${longDate(p.date)} · ${dayName(p.date)}</b></span></div>
             ${whenTxt(p) ? `<div class="po-card"><span class="po-ico">🕒</span><span><small>وقت</small><b>${esc(whenTxt(p))}</b></span></div>` : ''}
             <div class="po-card"><span class="po-ico">🕌</span><span><small>بمقام</small><b>${esc(p.place || '—')}</b></span></div>
-            ${p.city ? `<div class="po-card"><span class="po-ico">📍</span><span><small>شہر</small><b>${esc(p.city)}</b></span></div>` : ''}
+            ${p.city || p.province ? `<div class="po-card"><span class="po-ico">📍</span><span><small>شہر</small><b>${esc([p.city, p.province].filter(Boolean).join('، '))}</b></span></div>` : ''}
           </div>
           ${p.inviter || p.phone ? `<div class="po-inviter">
             <div class="pi-who"><span class="po-ico">${H().icons.I_USER}</span><span><small>میزبان</small><b>${esc(p.inviter || '—')}</b>${phone ? `<bdi dir="ltr">${phone}</bdi>` : ''}</span></div>
@@ -254,6 +257,7 @@
           <label class="pf-f" for="p-tnote"><span>وقت</span><select id="p-tnote">${(() => { const cur = p ? (p.timeNote || '') : 'بعد از نماز عشاء'; const list = TIME_NOTES.includes(cur) || !cur ? TIME_NOTES : [cur, ...TIME_NOTES]; return list.map(v => `<option${v === cur ? ' selected' : ''}>${v}</option>`).join(''); })()}</select></label>
           ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="جامع مسجد نور"`)}
           ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="کلور کوٹ"`)}
+          <label class="pf-f" for="p-prov"><span>صوبہ</span><select id="p-prov"><option value="">—</option>${PROVINCES.map(v => `<option${p && p.province === v ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
           ${fld('p-inv', 'میزبان', `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
           ${fld('p-phone', 'موبائل', `class="ltr" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`)}
           ${fld('p-title', 'عنوان', `value="${esc(p?.title || '')}" placeholder="اختیاری"`)}
@@ -295,7 +299,7 @@
       const err = $('p-err');
       const rec = {
         title: $('p-title').value.trim(), date: $('p-date').value, time: '', timeNote: $('p-tnote').value.trim(),
-        place: $('p-place').value.trim(), city: $('p-city').value.trim(), inviter: $('p-inv').value.trim(), phone: $('p-phone').value.trim(),
+        place: $('p-place').value.trim(), city: $('p-city').value.trim(), province: $('p-prov').value, inviter: $('p-inv').value.trim(), phone: $('p-phone').value.trim(),
         note: $('p-note').value.trim(), poster
       };
       if (!rec.date) { err.textContent = 'پروگرام کی تاریخ لکھنا ضروری ہے'; $('p-date').focus(); return; }
@@ -396,19 +400,137 @@
     return k.makePdf(jpgs, W, PH);
   }
 
+
+  // ================= سابقہ پروگرام (ریکارڈ) =================
+  const OKEY = 'maktaba-aziz-prog-old';
+  let O = Object.assign({ k: 'all', from: addDays(-30), to: iso(new Date()), city: '', prov: '' }, (() => { try { return JSON.parse(localStorage.getItem(OKEY)) || {}; } catch (e) { return {}; } })());
+  const saveO = () => { try { localStorage.setItem(OKEY, JSON.stringify(O)); } catch (e) {} };
+  const OPER = [['7', 'ایک ہفتہ'], ['30', 'ایک مہینہ'], ['90', 'تین مہینے'], ['365', 'ایک سال'], ['all', 'سب'], ['custom', 'مرضی کی تاریخ']];
+  function oldList() {
+    let L = progs().filter(isPast);
+    if (O.k === 'custom') L = L.filter(p => p.date >= O.from && p.date <= O.to);
+    else if (O.k !== 'all') { const fromD = addDays(-Number(O.k)); L = L.filter(p => p.date >= fromD); }
+    if (O.city) L = L.filter(p => (p.city || '').trim() === O.city);
+    if (O.prov) L = L.filter(p => (p.province || '') === O.prov);
+    return L.sort((a, b) => target(b) - target(a));
+  }
+  function oldRange() {
+    const per = O.k === 'custom' ? `${dmy(O.from)} تا ${dmy(O.to)}` : O.k === 'all' ? 'تمام' : `پچھلے ${(OPER.find(x => x[0] === O.k) || [0, ''])[1]}`;
+    return [per, O.city && `شہر: ${O.city}`, O.prov && `صوبہ: ${O.prov}`].filter(Boolean).join(' · ');
+  }
+  function pageOld() {
+    const all = progs().filter(isPast), list = oldList();
+    const cities = [...new Set(all.map(p => (p.city || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ur'));
+    const provs = [...new Set(all.map(p => p.province).filter(Boolean))];
+    H().view.innerHTML = `
+      <section class="panel prog-panel pg-old">
+        <div class="panel-h prog-h"><a class="back" href="#/prog">→ شیڈیول</a><h2 class="prog-title" style="font-size:26px !important">سابقہ پروگرام</h2></div>
+        <div class="panel-b">
+          <div class="pg-filters">${OPER.map(([k, t]) => `<button type="button" class="pf${O.k === k ? ' on' : ''}" data-o="${k}">${t}</button>`).join('')}</div>
+          ${O.k === 'custom' ? `<div class="pg-range"><label>سے <input type="date" id="oFrom" class="numin" value="${O.from}"></label><label>تک <input type="date" id="oTo" class="numin" value="${O.to}"></label></div>` : ''}
+          <div class="pg-sel">
+            <label><span>شہر</span><select id="oCity"><option value="">سب شہر</option>${cities.map(c => `<option${O.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+            <label><span>صوبہ</span><select id="oProv"><option value="">سب صوبے</option>${PROVINCES.map(c => `<option${O.prov === c ? ' selected' : ''}${provs.includes(c) ? '' : ' class="dim"'}>${c}</option>`).join('')}</select></label>
+          </div>
+          <div class="pg-sum"><span>${esc(oldRange())}</span><b>${num(list.length)} پروگرام</b></div>
+          <div class="pr-btns old"><button class="btn" type="button" data-r="pdf" ${list.length ? '' : 'disabled'}>📄 PDF / پرنٹ</button><button class="btn ghost" type="button" data-r="wa" ${list.length ? '' : 'disabled'}>واٹس ایپ</button><button class="btn ghost" type="button" data-r="copy" ${list.length ? '' : 'disabled'}>کاپی</button></div>
+          ${list.length ? `<div class="pg-list">${list.map(rowHtml).join('')}</div>` : `<div class="empty pg-empty"><b>${all.length ? 'اس انتخاب میں کوئی پروگرام نہیں' : 'ابھی کوئی سابقہ پروگرام نہیں'}</b>جو پروگرام ہو جاتا ہے وہ خود یہاں محفوظ ہو جاتا ہے۔</div>`}
+        </div>
+      </section>`;
+    const v = H().view;
+    v.querySelector('.pg-filters').addEventListener('click', e => { const b = e.target.closest('[data-o]'); if (!b) return; O.k = b.dataset.o; saveO(); pageOld(); });
+    $('oFrom')?.addEventListener('change', e => { O.from = e.target.value || O.from; saveO(); pageOld(); });
+    $('oTo')?.addEventListener('change', e => { O.to = e.target.value || O.to; saveO(); pageOld(); });
+    $('oCity').addEventListener('change', e => { O.city = e.target.value; saveO(); pageOld(); });
+    $('oProv').addEventListener('change', e => { O.prov = e.target.value; saveO(); pageOld(); });
+    v.querySelector('.pr-btns').addEventListener('click', async e => {
+      const b = e.target.closest('[data-r]'); if (!b) return;
+      const k = window.MA_SHARE_UI?.kit;
+      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*سابقہ پروگرام*\n${oldRange()}\n\n` + list.map((p, i) => [
+        `${i % 2 ? '⚪' : '🟢'} ${i + 1}. *${longDate(p.date)}* (${dayName(p.date)})${p.timeNote ? '  ·  ' + p.timeNote : ''}`,
+        `      🕌 ${[p.place, p.city, p.province].filter(Boolean).join('، ')}`,
+        p.title ? `      📌 ${p.title}` : '',
+        p.inviter || p.phone ? `      👤 ${[p.inviter, p.phone].filter(Boolean).join('  ·  ')}` : ''
+      ].filter(Boolean).join('\n')).join('\n\n') + `\n\n━━━━━━━━━━━━\n*کل:* ${list.length} پروگرام`;
+      if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی، واٹس ایپ میں پیسٹ کریں'); } return; }
+      if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'فہرست کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
+      const old = b.textContent; b.disabled = true; b.textContent = 'بن رہی ہے…';
+      try { await k.deliver(await oldPdf(list), `sabiqa-programs-${iso(new Date())}.pdf`, 'سابقہ پروگرام'); }
+      catch (err) { console.warn(err); H().toast('PDF نہیں بن سکی، دوبارہ کوشش کریں'); }
+      finally { b.disabled = false; b.textContent = old; }
+    });
+  }
+  // A4، دو کالم، ہر پروگرام اپنے خانے میں
+  async function oldPdf(list) {
+    const k = window.MA_SHARE_UI.kit; await k.ready();
+    const { W, H: PH, M, TOP, BOT } = k.PAGE, FONT = k.FONT;
+    const C = { c1: '#14463a', c2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', fg: '#2b2620', muted: '#6d6455', t1: '#fbf8ef', line: '#e4d6b0' };
+    const N = 2, GAP = 22, CW = (W - 2 * M - GAP) / N, PAD = 16;
+    const meas = document.createElement('canvas').getContext('2d');
+    const LH = f => Math.round(f * 1.75);
+    const box = (p, i) => {
+      const tw = CW - 2 * PAD;
+      const lines = [];
+      const add = (label, val, fs, color) => { if (!val) return; meas.font = `${fs}px ${FONT}`; k.wrap(meas, label ? `${label}: ${val}` : val, tw).forEach(t => lines.push({ t, fs, color })); };
+      add('بمقام', [p.place, p.city, p.province].filter(Boolean).join('، '), 21, C.fg);
+      add('موضوع', p.title, 20, C.c1);
+      add('میزبان', p.inviter, 20, C.fg);
+      add('موبائل', p.phone ? `⁦${p.phone}⁩` : '', 19, C.muted);
+      add('', p.note, 18, C.muted);
+      const headH = 50, h = headH + 12 + lines.reduce((a, l) => a + LH(l.fs), 0) + 10;
+      return { h, draw(ctx, x, y) {
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+        ctx.fillStyle = i % 2 ? '#f6f1e2' : '#ffffff'; k.roundRect(ctx, x, y, CW, h - 10, 16); ctx.fill(); ctx.restore();
+        ctx.strokeStyle = C.line; ctx.lineWidth = 1.5; k.roundRect(ctx, x, y, CW, h - 10, 16); ctx.stroke();
+        const g = ctx.createLinearGradient(0, y, 0, y + headH); g.addColorStop(0, C.c2); g.addColorStop(1, C.c1);
+        ctx.fillStyle = g; ctx.save(); k.roundRect(ctx, x, y, CW, h - 10, 16); ctx.clip(); ctx.fillRect(x, y, CW, headH); ctx.restore();
+        ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.gold2; ctx.font = `23px ${FONT}`;
+        ctx.fillText(`${i + 1}.  ${dmy(p.date)}  ·  ${dayName(p.date)}`, x + CW - PAD, y + 34);
+        ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `18px ${FONT}`; ctx.fillText(k.fit(ctx, p.timeNote || timeTxt(p.time) || '', CW * .42), x + PAD, y + 33);
+        let ty = y + headH + 8; ctx.textAlign = 'right';
+        lines.forEach(l => { ty += LH(l.fs) * .78; ctx.font = `${l.fs}px ${FONT}`; ctx.fillStyle = l.color; ctx.fillText(l.t, x + CW - PAD, ty); ty += LH(l.fs) * .22; });
+      } };
+    };
+    const lh0 = k.letterH();
+    const pages = []; let page, col, y, y0;
+    const yMax = PH - BOT;
+    const newPage = first => {
+      page = []; pages.push(page); col = 0;
+      if (first) { page.push(ctx => { k.letterDraw(ctx, TOP); k.titleDraw(ctx, TOP + lh0, `سابقہ پروگرام — ${oldRange()}`, `تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); }); y0 = TOP + lh0 + 120; }
+      else { page.push(ctx => { ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.c1; ctx.font = `28px ${FONT}`; ctx.fillText('سابقہ پروگرام (جاری)', W - M, TOP + 36); ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, TOP + 56); ctx.lineTo(W - M, TOP + 56); ctx.stroke(); }); y0 = TOP + 72; }
+      y = y0;
+    };
+    newPage(true);
+    list.forEach((p, i) => {
+      const b = box(p, i);
+      if (y + b.h > yMax) { col++; if (col >= N) newPage(false); else y = y0; }
+      const x = W - M - col * (CW + GAP) - CW, yy = y;
+      page.push(ctx => b.draw(ctx, x, yy)); y += b.h;
+    });
+    const jpgs = pages.map((pg, i) => {
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = PH;
+      const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; k.framePage(ctx);
+      pg.forEach(d => { ctx.save(); d(ctx); ctx.restore(); });
+      k.footDraw(ctx, `سابقہ پروگرام — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'}`, i, pages.length);
+      return cv.toDataURL('image/jpeg', 0.9);
+    });
+    return k.makePdf(jpgs, W, PH);
+  }
+
   // ---------- راستے ----------
   function route(parts) {
     stopTick();
     if (parts[0] === 'add') openForm();
     else if (parts[0] === 'edit' && parts[1]) openForm(parts[1]);
     else if (parts[0] === 'p' && parts[1]) pageOne(parts[1]);
+    else if (parts[0] === 'old') pageOld();
     else pageList();
   }
   // اگلے 30 دن کے پروگرام (ہوم کی ٹائل پر گنتی)
   const soon = () => { const t = iso(new Date()), e = addDays(30); return progs().filter(p => !isPast(p) && p.date >= t && p.date <= e).length; };
   window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#/prog')) stopTick(); });
 
-  window.MA_PROG = { route, soon, _test: { reportPdf, filtered, leftTxt } };
+  window.MA_PROG = { route, soon, _test: { reportPdf, filtered, leftTxt, oldPdf, oldList } };
   // ایپ پہلے لوڈ ہو چکی ہو تو موجودہ صفحہ دوبارہ بنائیں
   if (window.MA_APP && (location.hash.startsWith('#/prog') || !location.hash || location.hash === '#/')) window.MA_APP.route();
 })();
