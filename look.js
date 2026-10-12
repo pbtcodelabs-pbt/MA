@@ -133,36 +133,32 @@
     document.getElementById('maLookBox')?.remove();
     const w = document.createElement('div'); w.id = 'maLookBox';
     w.innerHTML = `<style>
-      #maLookBox{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;direction:rtl;-webkit-text-stroke:0}
-      #maLookBox .lk{width:min(560px,100%);max-height:92svh;overflow:auto;background:linear-gradient(180deg,#fffaf0,#f4e9cf);border:1.5px solid #e8c467;border-radius:22px 22px 0 0;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 12px);color:#2b2620;font-family:"Digits","JNN",serif;box-shadow:0 -10px 30px rgba(0,0,0,.45)}
-      #maLookBox .lk-h{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:linear-gradient(180deg,#0f3a30,#1f6a54);color:#fff1c1;font-size:19px;z-index:1}
-      #maLookBox .lk-h button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(232,196,103,.5);background:rgba(255,255,255,.12);color:#fff1c1;font-size:16px;cursor:pointer}
-      #maLookBox .lk-s{padding:8px 14px 4px}
-      #maLookBox .lk-s > b{display:block;font-weight:400;font-size:15px;color:#7a5418;margin-bottom:4px}
-      #maLookBox .lk-th{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-      #maLookBox .lk-th button{display:grid;justify-items:center;gap:2px;border:1.5px solid #e3cf98;background:#fff;border-radius:14px;padding:6px 2px 2px;font:inherit;font-size:13px;cursor:pointer;color:#2b2620}
-      #maLookBox .lk-th button i{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.25)}
-      #maLookBox .lk-th button.on{border-color:#a8741f;box-shadow:0 0 0 3px rgba(232,196,103,.6)}
-      #maLookBox input[type=range]{width:100%;accent-color:#a8741f}
-      #maLookBox .lk-r{display:flex;align-items:center;gap:8px;font-size:13px;color:#6b6250}
-      #maLookBox .lk-r em{font:700 13px Arial,sans-serif;font-style:normal;color:#14463a;min-width:44px;text-align:center}
-      #maLookBox .lk-f{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-      #maLookBox .lk-f button{border:1.5px solid #e3cf98;background:#fff;border-radius:12px;padding:4px 8px;cursor:pointer;color:#2b2620;text-align:center;line-height:1.7}
-      #maLookBox .lk-f button span{display:block;font-size:19px}
-      #maLookBox .lk-f button small{display:block;font:11px Arial,sans-serif;color:#8a7d62}
-      #maLookBox .lk-f button.on{border-color:#a8741f;background:#fff8e3;box-shadow:0 0 0 3px rgba(232,196,103,.55)}
-      #maLookBox .lk-a{display:flex;gap:8px;padding:10px 14px 0}
-      #maLookBox .lk-a button{flex:1;min-height:42px;border-radius:99px;border:1px solid #a8741f;background:linear-gradient(180deg,#fff6d5,#f1d27a 45%,#c8962f);font:inherit;font-size:16px;color:#2b1d05;cursor:pointer}
-      #maLookBox .lk-a button.gh{background:#fff;border-color:#e3cf98;color:#14463a}
+      #maLookBox{position:fixed;left:0;right:0;bottom:0;z-index:9500;display:flex;justify-content:center;direction:rtl;-webkit-text-stroke:0;pointer-events:none}
+      #maLookBox .lk{pointer-events:auto;width:min(560px,100%);max-height:44svh;overflow:auto;background:rgba(255,250,240,.97);border:1.5px solid #e8c467;border-radius:20px 20px 0 0;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 8px);color:#2b2620;font-family:"Digits","JNN",serif;box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+      #maLookBox .lk-h{position:sticky;top:0;display:flex;align-items:center;gap:8px;padding:5px 10px;background:linear-gradient(180deg,#0f3a30,#1f6a54);color:#fff1c1;font-size:15px;z-index:1}
+      #maLookBox .lk-h span{flex:1}
+      #maLookBox .lk-h button{border-radius:99px;border:1px solid rgba(232,196,103,.6);background:rgba(255,255,255,.12);color:#fff1c1;font:inherit;font-size:13px;padding:0 12px;min-height:30px;cursor:pointer}
+      #maLookBox .lk-h button.ok{background:linear-gradient(180deg,#fff6d5,#f1d27a 45%,#c8962f);color:#2b1d05;border-color:#a8741f}
+      #maLookBox .lk-row{display:flex;align-items:center;gap:6px;padding:5px 10px 0;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+      #maLookBox .lk-row::-webkit-scrollbar{display:none}
+      #maLookBox .lk-row > b{flex:none;font-weight:400;font-size:12.5px;color:#7a5418;min-width:42px}
+      #maLookBox .lk-th button{flex:none;display:grid;justify-items:center;gap:0;border:0;background:none;padding:0 2px;font:inherit;font-size:11.5px;cursor:pointer;color:#2b2620;line-height:1.5}
+      #maLookBox .lk-th button i{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35),0 2px 3px rgba(0,0,0,.25);border:2px solid #fff}
+      #maLookBox .lk-th button.on i{border-color:#c8962f;box-shadow:0 0 0 3px rgba(232,196,103,.75),inset 0 -3px 6px rgba(0,0,0,.35)}
+      #maLookBox input[type=range]{flex:1;min-width:120px;accent-color:#a8741f;height:22px}
+      #maLookBox .lk-row small{flex:none;font-size:11.5px;color:#6b6250}
+      #maLookBox .lk-row em{flex:none;font:700 12px Arial,sans-serif;font-style:normal;color:#14463a;min-width:38px;text-align:center}
+      #maLookBox .lk-f button{flex:none;border:1.5px solid #e3cf98;background:#fff;border-radius:99px;padding:0 12px;min-height:34px;cursor:pointer;color:#2b2620;font-size:17px;line-height:1.6}
+      #maLookBox .lk-f button.on{border-color:#a8741f;background:#fff3cf;box-shadow:0 0 0 2px rgba(232,196,103,.7)}
+      #maLookBox .lk-f button.wait{opacity:.6}
     </style>
-    <div class="lk" role="dialog" aria-modal="true" aria-label="رنگ اور فونٹ">
-      <div class="lk-h"><span>🎨 ایپ کا رنگ اور فونٹ</span><button type="button" data-x aria-label="بند کریں">✕</button></div>
-      <div class="lk-s"><b>ایپ کا رنگ</b><div class="lk-th">${Object.entries(THEMES).map(([k, t]) => `<button type="button" data-th="${k}" class="${L.theme === k ? 'on' : ''}"><i style="background:linear-gradient(180deg,${t.sw},#000 140%)" data-ma-lk="1"></i>${t.n}</button>`).join('')}</div></div>
-      <div class="lk-s"><b>رنگ ہلکا یا گہرا</b><div class="lk-r"><span>گہرا</span><input type="range" min="-30" max="30" step="2" id="lkLight" value="${L.light}"><span>ہلکا</span><em id="lkLightV">${L.light > 0 ? '+' : ''}${L.light}</em></div></div>
-      <div class="lk-s"><b>لکھائی کا سائز</b><div class="lk-r"><span>چھوٹا</span><input type="range" min="85" max="125" step="5" id="lkSize" value="${L.size}"><span>بڑا</span><em id="lkSizeV">${L.size}%</em></div></div>
-      <div class="lk-s"><b>لکھائی موٹی یا باریک</b><div class="lk-r"><span>باریک</span><input type="range" min="0" max="3" step="1" id="lkBold" value="${L.bold}"><span>موٹی</span><em id="lkBoldV">${L.bold}</em></div></div>
-      <div class="lk-s"><b>فونٹ (پوری ایپ کی اردو لکھائی)</b><div class="lk-f">${Object.entries(FONTS).map(([k, f]) => `<button type="button" data-f="${k}" class="${L.font === k ? 'on' : ''}"><span style="font-family:${stack(k)}">${f.n}</span><small>${f.url ? 'پہلی بار ڈاؤن لوڈ ہوگا' : 'فون میں موجود'}</small></button>`).join('')}</div></div>
-      <div class="lk-a"><button type="button" data-ok>ٹھیک ہے</button><button type="button" class="gh" data-reset>پہلے جیسا</button></div>
+    <div class="lk" role="dialog" aria-label="رنگ اور فونٹ">
+      <div class="lk-h"><span>🎨 رنگ و فونٹ — پیچھے ایپ میں فوراً دیکھیں</span><button type="button" data-reset>پہلے جیسا</button><button type="button" class="ok" data-ok>✓ ٹھیک ہے</button></div>
+      <div class="lk-row lk-th"><b>رنگ</b>${Object.entries(THEMES).map(([k, t]) => `<button type="button" data-th="${k}" class="${L.theme === k ? 'on' : ''}"><i style="background:linear-gradient(180deg,${t.sw},#000 140%)" data-ma-lk="1"></i>${t.n}</button>`).join('')}</div>
+      <div class="lk-row"><b>روشنی</b><small>گہرا</small><input type="range" min="-30" max="30" step="2" id="lkLight" value="${L.light}"><small>ہلکا</small><em id="lkLightV">${L.light > 0 ? '+' : ''}${L.light}</em></div>
+      <div class="lk-row"><b>سائز</b><small>چھوٹا</small><input type="range" min="85" max="125" step="5" id="lkSize" value="${L.size}"><small>بڑا</small><em id="lkSizeV">${L.size}%</em></div>
+      <div class="lk-row"><b>موٹائی</b><small>باریک</small><input type="range" min="0" max="3" step="1" id="lkBold" value="${L.bold}"><small>موٹی</small><em id="lkBoldV">${L.bold}</em></div>
+      <div class="lk-row lk-f"><b>فونٹ</b>${Object.entries(FONTS).map(([k, f]) => `<button type="button" data-f="${k}" class="${L.font === k ? 'on' : ''}" style="font-family:${stack(k)}">${f.n}</button>`).join('')}</div>
     </div>`;
     document.body.appendChild(w);
     // فونٹ کے نمونے دکھانے کے لیے (ہلکے فونٹ فوراً)
@@ -170,10 +166,10 @@
     let tmr = null;
     const live = () => { clearTimeout(tmr); tmr = setTimeout(() => { save(); apply(); }, 120); };
     w.addEventListener('click', e => {
-      if (e.target === w || e.target.closest('[data-x]') || e.target.closest('[data-ok]')) { save(); w.remove(); return; }
+      if (e.target.closest('[data-x]') || e.target.closest('[data-ok]')) { save(); w.remove(); return; }
       if (e.target.closest('[data-reset]')) { L = Object.assign({}, DEF); save(); apply(); w.remove(); open(); return; }
       const th = e.target.closest('[data-th]'); if (th) { L.theme = th.dataset.th; w.querySelectorAll('[data-th]').forEach(b => b.classList.toggle('on', b === th)); live(); return; }
-      const f = e.target.closest('[data-f]'); if (f) { L.font = f.dataset.f; w.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', b === f)); if (f.dataset.f === 'kasheeda') f.querySelector('small').textContent = 'ڈاؤن لوڈ ہو رہا ہے…'; live(); return; }
+      const f = e.target.closest('[data-f]'); if (f) { L.font = f.dataset.f; w.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', b === f)); if (FONTS[f.dataset.f].url) { f.classList.add('wait'); loadFont(f.dataset.f).then(() => f.classList.remove('wait')); } live(); return; }
     });
     w.querySelector('#lkLight').addEventListener('input', e => { L.light = +e.target.value; w.querySelector('#lkLightV').textContent = (L.light > 0 ? '+' : '') + L.light; live(); });
     w.querySelector('#lkSize').addEventListener('input', e => { L.size = +e.target.value; w.querySelector('#lkSizeV').textContent = L.size + '%'; live(); });
