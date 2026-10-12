@@ -35,6 +35,28 @@
   const isPast = p => target(p).getTime() < Date.now() - (p.time ? 3 * 3600e3 : 0);
 
   // فہرست کی ایک لائن کا خلاصہ: «جامع مسجد نور، جھنڈا والا میں پروگرام بعد از نماز عشاء»
+  // ---------- لوکیشن (گوگل میپ) ----------
+  // میزبان کا بھیجا ہوا لنک یا «عرض، طول» — اس سے نقطہ نکالیں
+  function parseLoc(t) {
+    t = String(t || '').trim(); if (!t) return null;
+    const pats = [/@(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)/, /[?&](?:q|query|ll|destination|daddr)=(-?\d{1,2}\.\d+)(?:,|%2C)\s*(-?\d{1,3}\.\d+)/i, /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/, /^(-?\d{1,2}\.\d+)\s*[, ]\s*(-?\d{1,3}\.\d+)$/, /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/];
+    for (const r of pats) { const m = t.match(r); if (m) { const la = +m[1], lo = +m[2]; if (Math.abs(la) <= 90 && Math.abs(lo) <= 180) return { lat: la, lng: lo }; } }
+    return null;
+  }
+  const urlIn = t => (String(t || '').match(/https?:\/\/\S+/) || [''])[0];
+  const placeLabel = p => [p.place, p.city].filter(Boolean).join('، ') || 'پروگرام کی جگہ';
+  function mapsUrl(p) {
+    const label = placeLabel(p), pt = p.lat != null ? { lat: p.lat, lng: p.lng } : parseLoc(p.loc);
+    if (pt) {
+      // اینڈرائیڈ پر نقشہ نشان کے ساتھ جگہ کا نام بھی دکھاتا ہے
+      if (/Android/i.test(navigator.userAgent)) return `geo:${pt.lat},${pt.lng}?q=${pt.lat},${pt.lng}(${encodeURIComponent(label)})`;
+      return `https://www.google.com/maps/dir/?api=1&destination=${pt.lat},${pt.lng}`;
+    }
+    const u = urlIn(p.loc); if (u) return u;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([p.place, p.city, p.province].filter(Boolean).join(' '))}`;
+  }
+  const hasLoc = p => !!(p.loc || p.lat != null);
+
   const lineTxt = p => `${esc(p.place || 'پروگرام')}${p.city ? '، ' + esc(p.city) : ''} میں پروگرام${p.timeNote ? ' ' + esc(p.timeNote) : ''}`;
 
   function leftTxt(p) {
@@ -122,7 +144,7 @@
       <span class="pg-txt">
         ${p.title ? `<em>${esc(p.title)}</em>` : ''}
         <b>${lineTxt(p)}</b>
-        <small>${p.time ? esc(timeTxt(p.time)) + ' · ' : ''}${p.inviter ? 'میزبان: ' + esc(p.inviter) : ''}</small>
+        <small>${hasLoc(p) ? '📍 ' : ''}${p.time ? esc(timeTxt(p.time)) + ' · ' : ''}${p.inviter ? 'میزبان: ' + esc(p.inviter) : ''}</small>
       </span>
       <span class="pg-end">${p.poster ? `<img class="pg-thumb" src="${p.poster}" alt="">` : ''}<span class="pg-left ${L.c}">${L.t}</span></span>
     </a>`;
@@ -146,6 +168,10 @@
             ${whenTxt(p) ? `<div class="po-card"><span class="po-ico">🕒</span><span><small>وقت</small><b>${esc(whenTxt(p))}</b></span></div>` : ''}
             <div class="po-card"><span class="po-ico">🕌</span><span><small>بمقام</small><b>${esc(p.place || '—')}</b></span></div>
             ${p.city || p.province ? `<div class="po-card"><span class="po-ico">📍</span><span><small>شہر</small><b>${esc([p.city, p.province].filter(Boolean).join('، '))}</b></span></div>` : ''}
+          </div>
+          <div class="po-loc${hasLoc(p) ? '' : ' none'}">
+            <div class="pl-t"><span class="po-ico">📍</span><span><small>بمقام</small><b>${esc(placeLabel(p))}</b><em>${hasLoc(p) ? 'لوکیشن محفوظ ہے' : 'لوکیشن ابھی محفوظ نہیں — نام سے نقشے میں ڈھونڈیں گے'}</em></span></div>
+            <div class="pl-btns"><a class="pl-go" href="${esc(mapsUrl(p))}"${mapsUrl(p).startsWith('geo:') ? '' : ' target="_blank" rel="noopener"'}>🧭 راستہ دکھائیں</a>${hasLoc(p) ? `<button type="button" class="pl-sh" data-a="locshare">📤 لوکیشن بھیجیں</button>` : `<a class="pl-sh" href="#/prog/edit/${p.id}">➕ لوکیشن لگائیں</a>`}</div>
           </div>
           ${p.inviter || p.phone ? `<div class="po-inviter">
             <div class="pi-who"><span class="po-ico">${H().icons.I_USER}</span><span><small>میزبان</small><b>${esc(p.inviter || '—')}</b>${phone ? `<bdi dir="ltr">${phone}</bdi>` : ''}</span></div>
@@ -172,6 +198,7 @@
       if (a === 'del-no') pageOne(id);
       if (a === 'del-yes') { const d = H().db(); d.progs = progs().filter(x => x.id !== id); H().save(); H().toast('پروگرام حذف ہو گیا'); location.replace('#/prog'); }
       if (a === 'share') shareOne(p);
+      if (a === 'locshare') { const pt = p.lat != null ? { lat: p.lat, lng: p.lng } : parseLoc(p.loc); const link = pt ? `https://maps.google.com/?q=${pt.lat},${pt.lng}` : urlIn(p.loc); const tx = `📍 بمقام: ${placeLabel(p)}\n${link}`; if (navigator.share) navigator.share({ text: tx }).catch(() => {}); else location.href = 'https://wa.me/?text=' + encodeURIComponent(tx); }
     });
     const draw = () => {
       const el = $('poCount'); if (!el) return stopTick();
@@ -215,7 +242,8 @@
       `🕌 بمقام: ${p.place || '—'}`,
       p.city ? `📍 شہر: ${p.city}` : '',
       p.inviter || p.phone ? `👤 میزبان: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : '',
-      p.note ? `📝 ${p.note}` : ''
+      p.note ? `📝 ${p.note}` : '',
+      hasLoc(p) ? `🧭 لوکیشن: ${(() => { const pt = p.lat != null ? { lat: p.lat, lng: p.lng } : parseLoc(p.loc); return pt ? `https://maps.google.com/?q=${pt.lat},${pt.lng}` : urlIn(p.loc); })()}` : ''
     ].filter(Boolean).join('\n') + brandSign();
   }
   // مکتبے کی پہچان — پیغام کے آخر میں
@@ -262,6 +290,10 @@
           ${fld('p-phone', 'موبائل', `class="ltr" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`)}
           ${fld('p-title', 'عنوان', `value="${esc(p?.title || '')}" placeholder="اختیاری"`)}
           ${fld('p-note', 'نوٹ', `value="${esc(p?.note || '')}" placeholder="اختیاری"`)}
+          <div class="pf-f full loc-f"><span>📍 جلسے کی جگہ کی لوکیشن <em id="locSt"></em></span>
+            <input id="p-loc" dir="ltr" autocomplete="off" placeholder="میزبان کا بھیجا ہوا گوگل میپ لنک یہاں پیسٹ کریں" value="${esc(p?.loc || '')}">
+            <div class="loc-b"><button type="button" data-l="paste">📋 پیسٹ کریں</button><button type="button" data-l="ask">💬 میزبان سے مانگیں</button><button type="button" data-l="here">📡 میں یہیں ہوں</button><button type="button" data-l="test">🧭 جانچیں</button></div>
+          </div>
           <div class="pf-f full pp-row"><span>اشتہار</span><div class="pp-box" id="ppBox"></div><input type="file" id="p-img" accept="image/*" hidden></div>
         </div>
         <datalist id="dl-place">${uniq('place').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
@@ -277,6 +309,16 @@
         : `<button type="button" class="pp-pick" data-pp="pick">🖼️ + تصویر لگائیں</button>`;
     };
     drawPoster();
+    // لوکیشن کے بٹن
+    const locSt = () => { const v = $('p-loc').value.trim(), pt = parseLoc(v); $('locSt').textContent = !v ? '' : pt ? '✓ درست لوکیشن' : urlIn(v) ? '✓ لنک محفوظ ہوگا' : '⚠ یہ لنک یا نقطہ نہیں لگتا'; $('locSt').className = pt || urlIn(v) ? 'ok' : (v ? 'bad' : ''); };
+    $('p-loc').addEventListener('input', locSt); locSt();
+    wrap.querySelector('.loc-b').addEventListener('click', async e => {
+      const a = e.target.closest('[data-l]')?.dataset.l; if (!a) return;
+      if (a === 'paste') { try { const t = await navigator.clipboard.readText(); if (t) { $('p-loc').value = (urlIn(t) || t).trim(); locSt(); H().toast('لوکیشن لگ گئی'); } else H().toast('کاپی کیا ہوا کچھ نہیں ملا'); } catch (er) { H().toast('خانے میں دیر تک دبا کر «پیسٹ» کریں'); $('p-loc').focus(); } }
+      if (a === 'ask') { const ph = H().waNum($('p-phone').value); const msg = `السلام علیکم ورحمۃ اللہ وبرکاتہ\nبراہِ کرم جلسے کی جگہ${$('p-place').value.trim() ? ` (بمقام: ${$('p-place').value.trim()}${$('p-city').value.trim() ? '، ' + $('p-city').value.trim() : ''})` : ''} کی گوگل میپ لوکیشن بھیج دیں۔ جزاک اللہ خیراً`; window.open(`https://wa.me/${ph || ''}?text=${encodeURIComponent(msg)}`, '_blank'); }
+      if (a === 'here') { if (!navigator.geolocation) { H().toast('اس فون میں لوکیشن نہیں مل سکی'); return; } H().toast('لوکیشن لی جا رہی ہے…'); navigator.geolocation.getCurrentPosition(pos => { $('p-loc').value = `${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`; locSt(); H().toast('✓ یہاں کی لوکیشن لگ گئی'); }, () => H().toast('لوکیشن کی اجازت نہیں ملی'), { enableHighAccuracy: true, timeout: 15000 }); }
+      if (a === 'test') { const tmp = { place: $('p-place').value.trim(), city: $('p-city').value.trim(), loc: $('p-loc').value.trim() }; { const u = mapsUrl(tmp); if (u.startsWith('geo:')) location.href = u; else window.open(u, '_blank'); } }
+    });
     $('ppBox').addEventListener('click', e => {
       const a = e.target.closest('[data-pp]')?.dataset.pp;
       if (a === 'pick') $('p-img').click();
@@ -332,7 +374,7 @@
       const rec = {
         title: $('p-title').value.trim(), date: $('p-date').value, time: '', timeNote: $('p-tnote').value.trim(),
         place: $('p-place').value.trim(), city: $('p-city').value.trim(), province: $('p-prov').value, inviter: $('p-inv').value.trim(), phone: $('p-phone').value.trim(),
-        note: $('p-note').value.trim(), poster
+        note: $('p-note').value.trim(), poster, loc: $('p-loc').value.trim(), lat: (parseLoc($('p-loc').value) || {}).lat ?? null, lng: (parseLoc($('p-loc').value) || {}).lng ?? null
       };
       if (!rec.date) { err.textContent = 'پروگرام کی تاریخ چنیں'; return; }
       rec.day = dayName(rec.date);
