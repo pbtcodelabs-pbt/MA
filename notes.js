@@ -13,6 +13,12 @@
   const ltr = s => '⁦' + s + '⁩';
   const notes = () => { const d = H().db(); d.notes = d.notes || []; return d.notes; };
   const vols = b => Math.max(1, parseInt(b.parts, 10) || 1);
+  // فن کے مطابق اضافی کالم: تفسیر → سورہ، آیت؛ حدیث → رقم الحدیث
+  const SURAS = 'الفاتحہ،البقرہ،آل عمران،النساء،المائدہ،الانعام،الاعراف،الانفال،التوبہ،یونس،ہود،یوسف،الرعد،ابراہیم،الحجر،النحل،بنی اسرائیل،الکہف،مریم،طٰہٰ،الانبیاء،الحج،المؤمنون،النور،الفرقان،الشعراء،النمل،القصص،العنکبوت،الروم،لقمان،السجدہ،الاحزاب،سبا،فاطر،یٰس،الصافات،ص،الزمر،المؤمن،حٰم السجدہ،الشوریٰ،الزخرف،الدخان،الجاثیہ،الاحقاف،محمد،الفتح،الحجرات،ق،الذاریات،الطور،النجم،القمر،الرحمٰن،الواقعہ،الحدید،المجادلہ،الحشر،الممتحنہ،الصف،الجمعہ،المنافقون،التغابن،الطلاق،التحریم،الملک،القلم،الحاقہ،المعارج،نوح،الجن،المزمل،المدثر،القیامہ،الدہر،المرسلات،النبا،النازعات،عبس،التکویر،الانفطار،المطففین،الانشقاق،البروج،الطارق،الاعلیٰ،الغاشیہ،الفجر،البلد،الشمس،اللیل،الضحیٰ،الانشراح،التین،العلق،القدر،البینہ،الزلزال،العادیات،القارعہ،التکاثر،العصر،الہمزہ،الفیل،قریش،الماعون،الکوثر،الکافرون،النصر،اللہب،الاخلاص،الفلق،الناس'.split('،');
+  const isTafseer = b => b.cat === 'tafseer' || /^تفسیر/.test(((H().db().catNames || {})[b.cat]) || '');
+  const isHadith = b => b.cat === 'hadith';
+  const extraCols = b => isTafseer(b) ? [{ k: 'sura', t: 'سورہ', w: 58, pw: 170 }, { k: 'aya', t: 'آیت', w: 36, pw: 90 }] : isHadith(b) ? [{ k: 'hno', t: 'رقم الحدیث', w: 54, pw: 150 }] : [];
+  const suraTxt = v => { const t = String(v || '').trim(); const n = parseInt(t, 10); return n >= 1 && n <= 114 && /^\d+$/.test(t) ? `${SURAS[n - 1]} (${n})` : t; };
 
   // ---------- تصاویر: IndexedDB ----------
   const IDB = 'maktaba-aziz-img', ST = 'img';
@@ -91,6 +97,9 @@
   .nt-sheet{border:1.5px solid var(--gilt);border-radius:14px;overflow:hidden;background:#fffdf6}
   .nt-hd,.nt-row{display:grid;grid-template-columns:34px minmax(0,1fr) 54px 64px;align-items:stretch}
   .nt-sheet.mv .nt-hd,.nt-sheet.mv .nt-row{grid-template-columns:34px minmax(0,1fr) 40px 50px 58px}
+  .nt-sheet[style*="--ntc"] .nt-hd,.nt-sheet[style*="--ntc"] .nt-row{grid-template-columns:var(--ntc)}
+  .nt-hd .xh{font-size:12.5px;line-height:1.5;display:grid;place-items:center}
+  .nt-row .pg.x{font-size:13.5px;line-height:1.5}
   .nt-row .vl,.nt-row .pg{display:grid;place-items:center;text-align:center;font-size:17px;color:#14463a;font-variant-numeric:tabular-nums;cursor:pointer;border-inline-end:1px dashed #eadfc4;overflow-wrap:anywhere;line-height:1.3;padding:0 2px}
   .nt-flt{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 8px}
   .nt-flt label{display:flex;align-items:center;gap:6px;background:#e9f4ee;border:1.5px solid #1f6a54;border-radius:99px;padding:2px 4px 2px 10px}
@@ -196,7 +205,7 @@
   let cur = null;   // { cat, b }
   function page(cat, b) {
     cur = { cat, b };
-    const V = vols(b), f = fOf(b);
+    const V = vols(b), f = fOf(b), XC = extraCols(b);
     if (f.vol > V) f.vol = 0;
     const list = filtered(b, f), total = countOf(b.id);
     const view = H().view;
@@ -216,11 +225,12 @@
             <button class="btn ghost" type="button" data-a="blank">🖨️ خالی صفحہ</button>
           </div>
           ${(f.vol || f.when !== 'all') ? `<p class="nt-fnote">دکھائے جا رہے ہیں: ${num(list.length)} حوالے — ${esc(fDesc(b, f))}</p>` : ''}
-          <div class="nt-sheet${V > 1 ? ' mv' : ''}">
-            <div class="nt-hd"><span>نمبر</span><span>حوالہ / عبارت</span>${V > 1 ? '<span>جلد</span>' : ''}<span>صفحہ</span><span></span></div>
+          <div class="nt-sheet${V > 1 ? ' mv' : ''}"${XC.length ? ` style="--ntc:28px minmax(0,1fr) ${XC.map(c => c.w + 'px').join(' ')}${V > 1 ? ' 32px' : ''} 42px 36px"` : ''}>
+            <div class="nt-hd"><span>نمبر</span><span>حوالہ / عبارت</span>${XC.map(c => `<span class="xh">${c.t}</span>`).join('')}${V > 1 ? '<span>جلد</span>' : ''}<span>صفحہ</span><span></span></div>
             ${list.length ? list.map((n, i) => `<div class="nt-row" data-id="${n.id}">
               <span class="n">${num(i + 1)}</span>
               <span class="t" data-a="edit">${esc(n.text)}</span>
+              ${XC.map(c => `<span class="pg x" data-a="edit">${n[c.k] ? esc(c.k === 'sura' ? suraTxt(n[c.k]) : n[c.k]) : '—'}</span>`).join('')}
               ${V > 1 ? `<span class="vl" data-a="edit">${num(n.vol || 1)}</span>` : ''}
               <span class="pg" data-a="edit">${n.page ? esc(n.page) : '—'}</span>
               <span class="cl">${n.img ? `<img class="nt-th" data-a="view" data-img="${n.img}" alt="تصویر">` : ''}<button type="button" class="nt-sh" data-a="one" aria-label="بھیجیں">${I_SHARE}</button></span>
@@ -259,6 +269,8 @@
         <div class="nt-f2">
           ${V > 1 ? `<label>جلد نمبر <small>(1 سے ${num(V)})</small><input id="ntVol" inputmode="numeric" autocomplete="off" dir="ltr" value="${n ? (n.vol || 1) : (vol || 1)}"></label>` : ''}
           <label>صفحہ نمبر<input id="ntPage" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.page || '')}" placeholder="332"></label>
+          ${isTafseer(b) ? `<label>سورہ <small>(نام یا نمبر)</small><input id="ntSura" list="ntSuras" autocomplete="off" value="${esc(n?.sura || '')}" placeholder="البقرہ"></label><label>آیت نمبر<input id="ntAya" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.aya || '')}" placeholder="255"></label><datalist id="ntSuras">${SURAS.map((x, i) => `<option value="${x} (${i + 1})">`).join('')}</datalist>` : ''}
+          ${isHadith(b) ? `<label>رقم الحدیث <small>(حدیث نمبر)</small><input id="ntHno" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.hno || '')}" placeholder="1234"></label>` : ''}
         </div>
         <button type="button" class="nt-attgo" id="ntAttGo" ${n && n.img ? 'hidden' : ''}>📎 کتاب کے صفحے کی تصویر لگائیں <small>(اختیاری)</small></button>
         <div class="nt-att" id="ntAtt" ${n && n.img ? '' : 'hidden'}>
@@ -322,14 +334,15 @@
         try { await imgPut(imgId, fresh); } catch (x) { err.textContent = 'تصویر محفوظ نہیں ہو سکی — فون میں جگہ دیکھیں'; return; }
       }
       const old = n && n.img && n.img !== imgId ? n.img : '';
-      if (n) Object.assign(n, { text, page: pg, vol: v, img: imgId, upd: Date.now() });
-      else notes().push({ id: H().newId(), book: b.id, vol: v, text, page: pg, img: imgId, ts: Date.now() });
+      const xv = {}; [['sura', '#ntSura'], ['aya', '#ntAya'], ['hno', '#ntHno']].forEach(([kk, sel]) => { const el = $(wrap, sel); if (el) xv[kk] = String(el.value).trim(); });
+      if (n) Object.assign(n, { text, page: pg, vol: v, img: imgId, upd: Date.now() }, xv);
+      else notes().push(Object.assign({ id: H().newId(), book: b.id, vol: v, text, page: pg, img: imgId, ts: Date.now() }, xv));
       if (old) await imgDel(old);
       H().save(); saved = true;
       if (n) { close(); toast('تبدیلی محفوظ ہو گئی'); return; }
       volOf[b.id] = v; saveVol();
       toast(`حوالہ محفوظ — کل ${num(countOf(b.id))} — اگلا لکھیں`);
-      $(wrap, '#ntText').value = ''; $(wrap, '#ntPage').value = ''; fresh = null; img = ''; if (srcUrl) { URL.revokeObjectURL(srcUrl); srcUrl = ''; } err.textContent = '';
+      $(wrap, '#ntText').value = ''; $(wrap, '#ntPage').value = ''; ['#ntAya', '#ntHno'].forEach(sel => { const el = $(wrap, sel); if (el) el.value = ''; }); fresh = null; img = ''; if (srcUrl) { URL.revokeObjectURL(srcUrl); srcUrl = ''; } err.textContent = '';
       $(wrap, '#ntAtt').hidden = true; $(wrap, '#ntAttGo').hidden = false;
       drawPrev(); refresh(); $(wrap, '#ntText').focus();
     });
@@ -392,7 +405,7 @@
     const d = fDesc(b, o.f || { vol: 0, when: 'all' });
     return 'حوالہ جات / ضروری یادداشتیں' + (d && (o.f && (o.f.vol || o.f.when !== 'all')) ? ` — ${d}` : '');
   }
-  const refLine = (b, n) => [vols(b) > 1 ? `جلد ${n.vol || 1}` : '', n.page ? `صفحہ ${n.page}` : ''].filter(Boolean).join('، ');
+  const refLine = (b, n) => [n.sura ? `سورہ ${suraTxt(n.sura)}` : '', n.aya ? `آیت ${n.aya}` : '', n.hno ? `رقم الحدیث ${n.hno}` : '', vols(b) > 1 ? `جلد ${n.vol || 1}` : '', n.page ? `صفحہ ${n.page}` : ''].filter(Boolean).join('، ');
   function textOf(b, o) {
     const k = K(), L = scopeList(b, o);
     let t = (k && k.brandText ? k.brandText() + '\n' : '') + `*${scopeTitle(b, o)}*\n📖 ${bookLine(b)}\n\n`;
@@ -474,8 +487,10 @@
     const L = blankRows ? [] : scopeList(b, o);
     const meas = document.createElement('canvas').getContext('2d');
     const FS = 26, LH = 42;
-    const CN = 80, CV = V > 1 ? 110 : 0, CP = 130;
-    const tw = W - 2 * M - CN - CV - CP - 24;
+    const CN = 80, CV = V > 1 ? 110 : 0, CP = 130, XC = extraCols(b), CE = XC.reduce((a, c) => a + c.pw, 0);
+    const tw = W - 2 * M - CN - CV - CP - CE - 24;
+    // اضافی کالم: بائیں سے — صفحہ، جلد، پھر (آیت، سورہ)، پھر عبارت
+    let xe = M + CP + CV; const XP = XC.slice().reverse().map(c => { const o = { c, x0: xe, xc: xe + c.pw / 2 }; xe += c.pw; return o; });
     const xN = W - M - CN / 2, xT = W - M - CN - 12, xV = M + CP + CV / 2, xP = M + CP / 2;
     const blocks = [];
     blocks.push({ h: k.letterH(), draw: (ctx, y) => k.letterDraw(ctx, y) });
@@ -485,7 +500,8 @@
       ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 6, W - 2 * M, 46, 8); ctx.fill();
       ctx.fillStyle = C.gold2; ctx.font = `22px ${FONT}`; ctx.textAlign = 'center';
       ctx.fillText('نمبر', xN, y + 38); ctx.fillText('صفحہ', xP, y + 38); if (CV) ctx.fillText('جلد', xV, y + 38);
-      ctx.fillText('حوالہ / عبارت', M + CP + CV + tw / 2 + 12, y + 38);
+      XP.forEach(o => ctx.fillText(o.c.t, o.xc, y + 38));
+      ctx.fillText('حوالہ / عبارت', M + CP + CV + CE + tw / 2 + 12, y + 38);
     } };
     const row = (i, n, alt) => {
       meas.font = `${FS}px ${FONT}`;
@@ -498,6 +514,7 @@
         ctx.moveTo(W - M - CN, y); ctx.lineTo(W - M - CN, y + h);
         ctx.moveTo(M + CP, y); ctx.lineTo(M + CP, y + h);
         if (CV) { ctx.moveTo(M + CP + CV, y); ctx.lineTo(M + CP + CV, y + h); }
+        XP.forEach(o => { ctx.moveTo(o.x0 + o.c.pw, y); ctx.lineTo(o.x0 + o.c.pw, y + h); });
         ctx.stroke();
         ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(M, y + h); ctx.moveTo(W - M, y); ctx.lineTo(W - M, y + h); ctx.stroke();
         if (!n) return;
@@ -505,6 +522,8 @@
         ctx.textAlign = 'center'; ctx.fillStyle = C.muted; ctx.font = `22px ${FONT}`; ctx.fillText(String(i), xN, by);
         ctx.fillStyle = C.green; ctx.font = `${FS}px ${FONT}`; ctx.fillText(n.page ? String(n.page) : '—', xP, by);
         if (CV) ctx.fillText(String(n.vol || 1), xV, by);
+        XP.forEach(o => { const val = n[o.c.k] ? (o.c.k === 'sura' ? suraTxt(n[o.c.k]) : String(n[o.c.k])) : '—'; ctx.font = `${o.c.k === 'sura' ? 22 : FS}px ${FONT}`; ctx.fillText(k.fit(ctx, val, o.c.pw - 14), o.xc, by); });
+        ctx.font = `${FS}px ${FONT}`;
         ctx.textAlign = 'right'; ctx.fillStyle = C.fg; ctx.font = `${FS}px ${FONT}`;
         lines.forEach((l, jj) => ctx.fillText(l, xT, by + jj * LH));
       } };
@@ -578,7 +597,7 @@
   }
 
   // ---------- بیک اپ کے لیے ----------
-  const imgIds = () => [...new Set(notes().map(n => n.img).filter(Boolean))];
+  const imgIds = () => [...new Set(notes().map(n => n.img).concat((H().db().books || []).map(b => b.cover && b.cover.id)).filter(Boolean))];
   async function exportImgs() {
     const o = {};
     for (const id of imgIds()) { const b = await imgGet(id); if (b) o[id] = await blobToData(b); }
@@ -590,12 +609,13 @@
     return n;
   }
   async function removeBook(bookId) {
+    const bk = (H().db().books || []).find(x => x.id === bookId); if (bk && bk.cover && bk.cover.id) await imgDel(bk.cover.id);
     const L = notes(); const gone = L.filter(n => n.book === bookId);
     for (const n of gone) if (n.img) await imgDel(n.img);
     H().db().notes = L.filter(n => n.book !== bookId);
   }
 
-  window.MA_NOTES = { page, countOf, imgIds, imgGet, imgPut, imgHas, exportImgs, importImgs, removeBook, _test: { render, textOf } };
+  window.MA_NOTES = { page, countOf, imgIds, imgGet, imgPut, imgHas, imgDel, imgUrl, exportImgs, importImgs, removeBook, _test: { render, textOf } };
   // ایپ پہلے کھل چکی ہو تو صفحہ دوبارہ بنائیں (یادداشتوں کا صفحہ / گنتی)
   if (window.MA_APP && /\/b\//.test(location.hash)) window.MA_APP.route();
 })();

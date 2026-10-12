@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1210MO102) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1210MO103) */
 (() => {
   'use strict';
 
@@ -106,11 +106,11 @@
 
   // کھڑی موٹی کتاب: سامنے جِلد (نام کے ساتھ)، ایک طرف صفحات، دوسری طرف پشت
   // ترچھی کھڑی کتاب: سامنے گتا + دائیں طرف جِلد کی پشت (سنہری پٹیاں)، ورق بائیں طرف
-  const book3d = (label, color, extra = '', out = false) =>
-    `<span class="bkx${out ? ' out' : ''}" style="--c:${color}">` +
+  const book3d = (label, color, extra = '', out = false, cover = null) =>
+    `<span class="bkx${out ? ' out' : ''}${cover ? ' cv-' + cover.shape : ''}" style="--c:${color}">` +
     (out ? `<span class="bkx-rib">جاری</span>` : '') +
     `<span class="bkx-top"></span>` +
-    `<span class="bkx-cover">${extra}<span class="bkx-label">${label}</span></span>` +
+    `<span class="bkx-cover">${cover && cover.shape === 'full' ? `<img class="bkx-full" data-cv="${cover.id}" alt="">` : ''}${extra}<span class="bkx-label">${cover && cover.shape !== 'full' ? `<img class="bkx-cvimg" data-cv="${cover.id}" alt="">` : label}</span></span>` +
     `<span class="bkx-spine"></span></span>`;
 
   // ایک لائن میں کتنی کتابیں (1 سے 5) — ہوم اور فن کے صفحے کے لیے الگ الگ یاد رہتا ہے
@@ -208,7 +208,7 @@
           ${all.length ? `
             ${all.length > 6 ? `<input class="search" id="q" type="search" placeholder="نام، مصنف یا ناشر سے تلاش…" aria-label="تلاش" value="${esc(q)}">` : ''}
             <div class="shelf books">
-              ${list.map(b => `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], `<span class="bkx-no">${num(all.indexOf(b) + 1)}</span>`, !!b.loan)}${b.loan ? `<span class="cnt out-l">${esc(b.loan.name)}</span>` : ''}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
+              ${list.map(b => `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], `<span class="bkx-no">${num(all.indexOf(b) + 1)}</span>`, !!b.loan, b.cover)}${b.loan ? `<span class="cnt out-l">${esc(b.loan.name)}</span>` : `<span class="cnt vol-p" title="جلدیں"><b>${num(+b.parts || 1)}</b><small>${(+b.parts || 1) > 1 ? 'جلدیں' : 'جلد'}</small></span>`}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
             </div>` : `
             <div class="empty"><b>اس فن میں ابھی کوئی کتاب درج نہیں</b>اوپر «ایڈ کتب» دبا کر پہلی کتاب شامل کریں۔
               ${(db.cats || []).some(c => c.id === cat.id) ? `<p><button class="btn ghost small" type="button" data-act="delcat">یہ فن حذف کریں</button></p>` : ''}</div>`}
@@ -246,6 +246,7 @@
         </div>
         <div class="panel-b detail" id="detb">
           <a class="d-cat" href="#/c/${cat.id}"><span>فن</span><b>${esc(cat.name)}</b></a>
+          <div class="d-cover"><a href="#" data-cover-edit="${b.id}" class="d-cv-bk">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], '', false, b.cover)}</a><button type="button" class="btn ghost small" data-cover-edit="${b.id}">📷 ${b.cover ? 'ٹائٹل بدلیں' : 'کتاب کا ٹائٹل لگائیں'}</button></div>
           <h2 class="d-title">${esc(b.name)}</h2>
           <dl>
             ${row('کتاب کا نام', esc(b.name))}
@@ -835,7 +836,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1210MO102',
+    version: 'MA1210MO103',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
