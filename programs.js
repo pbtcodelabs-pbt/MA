@@ -9,7 +9,7 @@
 
   const MONTHS = ['جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون', 'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'];
   const DAYS = ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'];
-  const TIME_NOTES = ['بعد از نماز فجر', 'بعد از نماز ظہر', 'بعد از نماز جمعہ', 'بعد از نماز عصر', 'بعد از نماز مغرب', 'بعد از نماز عشاء'];
+  const TIME_NOTES = ['بعد از نماز فجر', 'بعد از نماز ظہر', 'بعد از نماز عصر', 'بعد از نماز مغرب', 'بعد از نماز عشاء'];
   const FILTERS = [['15', '15 دن'], ['30', '30 دن'], ['60', '60 دن'], ['90', '90 دن'], ['all', 'سب آنے والے'], ['past', 'گزشتہ'], ['custom', 'مرضی کی تاریخ']];
   const FKEY = 'maktaba-aziz-prog-filter';
 
@@ -250,18 +250,16 @@
     const { close, wrap } = H().openSheet(p ? 'پروگرام میں ترمیم' : 'نیا پروگرام', `
       <form class="sheet-b pf-form" id="pgForm" novalidate>
         <div class="pf-grid">
-          ${fld('p-title', 'عنوان (اختیاری)', `value="${esc(p?.title || '')}" placeholder="مثلاً سیرت کانفرنس"`, 'full')}
           ${fld('p-date', 'تاریخ', `type="date" class="ltr" value="${esc(p?.date || '')}"`)}
-          ${fld('p-time', 'وقت', `type="time" class="ltr" value="${esc(p?.time || '')}"`)}
-          ${fld('p-tnote', 'نماز', `list="dl-tnote" value="${esc(p ? (p.timeNote || '') : 'بعد از نماز عشاء')}" placeholder="بعد از نماز عشاء"`)}
-          ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="مثلاً کلور کوٹ"`)}
-          ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="مثلاً جامع مسجد نور"`, 'full')}
+          <label class="pf-f" for="p-tnote"><span>وقت</span><select id="p-tnote">${(() => { const cur = p ? (p.timeNote || '') : 'بعد از نماز عشاء'; const list = TIME_NOTES.includes(cur) || !cur ? TIME_NOTES : [cur, ...TIME_NOTES]; return list.map(v => `<option${v === cur ? ' selected' : ''}>${v}</option>`).join(''); })()}</select></label>
+          ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="جامع مسجد نور"`)}
+          ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="کلور کوٹ"`)}
           ${fld('p-inv', 'میزبان', `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
           ${fld('p-phone', 'موبائل', `class="ltr" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`)}
+          ${fld('p-title', 'عنوان', `value="${esc(p?.title || '')}" placeholder="اختیاری"`)}
+          ${fld('p-note', 'نوٹ', `value="${esc(p?.note || '')}" placeholder="اختیاری"`)}
           <div class="pf-f full pp-row"><span>اشتہار</span><div class="pp-box" id="ppBox"></div><input type="file" id="p-img" accept="image/*" hidden></div>
-          ${fld('p-note', 'نوٹ (اختیاری)', `value="${esc(p?.note || '')}"`, 'full')}
         </div>
-        <datalist id="dl-tnote">${TIME_NOTES.map(v => `<option value="${v}">`).join('')}</datalist>
         <datalist id="dl-place">${uniq('place').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
         <datalist id="dl-city">${uniq('city').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
         <datalist id="dl-inv">${uniq('inviter').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
@@ -296,7 +294,7 @@
       e.preventDefault();
       const err = $('p-err');
       const rec = {
-        title: $('p-title').value.trim(), date: $('p-date').value, time: $('p-time').value, timeNote: $('p-tnote').value.trim(),
+        title: $('p-title').value.trim(), date: $('p-date').value, time: '', timeNote: $('p-tnote').value.trim(),
         place: $('p-place').value.trim(), city: $('p-city').value.trim(), inviter: $('p-inv').value.trim(), phone: $('p-phone').value.trim(),
         note: $('p-note').value.trim(), poster
       };
