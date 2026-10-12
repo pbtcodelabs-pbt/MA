@@ -1,7 +1,7 @@
 /* میرا مکتبہ — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA1210MO098';
+const VERSION = 'MA1210MO099';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -18,6 +18,7 @@ const CORE = [
   `./style.css?v=${VERSION}`,
   `./app.js?v=${VERSION}`,
   `./share.js?v=${VERSION}`,
+  `./look.js?v=${VERSION}`,
   `./drive.js?v=${VERSION}`,
   `./programs.js?v=${VERSION}`,
   `./notes.js?v=${VERSION}`,
@@ -46,7 +47,7 @@ const FONTS = [
 ];
 
 // بڑے فونٹ جو صرف استعمال پر اترتے ہیں (پہلے سے نہیں)، مگر کیش میں رہیں
-const LAZY_FONTS = ['./fonts/jnn-kasheeda-full.woff2'];
+const LAZY_FONTS = ['./fonts/jnn-kasheeda-full.woff2', './fonts/extra/nafees-naskh.woff', './fonts/extra/alqalam-khawar.woff', './fonts/extra/akram-unicode.woff', './fonts/extra/sameer-almas.woff', './fonts/extra/alfars-aban.woff', './fonts/extra/gandhara-suls.woff'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

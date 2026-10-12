@@ -442,7 +442,12 @@
     purple: { n: 'جامنی', c1: '#2a1d4a', c2: '#5b3c80', t1: '#f8f5fc', t2: '#e9e0f5', ac: '#f3d382', out: '#d7cde9', ink: '#2a1d4a', dot: ['🟣', '⚪'], cat: '📓' },
     gold:   { n: 'سنہری', c1: '#5e400c', c2: '#a8741f', t1: '#fffcf3', t2: '#f7ebcf', ac: '#fff1c1', out: '#e2d2a9', ink: '#5a3d0a', dot: ['🔸', '🔹'], cat: '📙' }
   };
-  const FONTS_ = { noori: { n: 'نوری', f: FONT }, kasheeda: { n: 'کشیدہ', f: '"Digits","JNNK","JNN","Jameel Noori Nastaleeq",serif' }, plain: { n: 'سادہ', f: '"Digits","Noto Naskh Arabic","Segoe UI","Tahoma",sans-serif' } };
+  const FONTS_ = (() => {
+    const o = {}, LK = window.MA_LOOK;
+    if (LK) Object.entries(LK.fonts).forEach(([k, f]) => { o[k] = { n: f.n, f: LK.stack(k) }; });
+    else { o.noori = { n: 'نوری', f: FONT }; o.kasheeda = { n: 'کشیدہ', f: '"Digits","JNNK","JNN",serif' }; o.plain = { n: 'سادہ', f: '"Digits","Noto Naskh Arabic","Segoe UI",Tahoma,sans-serif' }; }
+    return o;
+  })();
   const TITLEF = '"JNNK","JNN Kasheeda","Jameel Noori Nastaleeq Kasheeda","JNN",serif';
   let kashP = null;   // مکمل کشیدہ فونٹ ایک بار لائیں (پھر فون میں محفوظ)
   function loadKash() {
@@ -688,7 +693,7 @@
     foot2(ctx, L.H, i, poster ? 1 : L.pages.length);
     return cv;
   }
-  async function prep() { await ready(); if (sty.font === 'kasheeda' || true) { await loadKash(); try { await document.fonts.load(`40px ${TITLEF}`, BN() + ' فہرست'); await document.fonts.load(`20px ${BF2()}`, 'کتاب 123'); } catch (e) {} } }
+  async function prep() { await ready(); if (window.MA_LOOK && sty.font !== 'kasheeda') { try { await window.MA_LOOK.loadFont(sty.font); } catch (e) {} } { await loadKash(); try { await document.fonts.load(`40px ${TITLEF}`, BN() + ' فہرست'); await document.fonts.load(`20px ${BF2()}`, 'کتاب 123'); } catch (e) {} } }
   async function pdf() {
     await prep(); const L = layout('pdf');
     const jpgs = L.pages.map((p, i) => paint(L, i, false).toDataURL('image/jpeg', 0.9));
@@ -722,8 +727,8 @@
       return `
         ${isWa ? '' : `<div class="pv-row"><span>کالم</span>${[1, 2, 3, 4].map(n => chip('cols', n, n, opts.cols === n)).join('')}</div>`}
         <div class="pv-row"><span>رنگ</span>${Object.entries(THEMES).map(([k, v]) => chip('theme', k, `<i style="background:${v.bw ? 'linear-gradient(135deg,#fff 50%,#111 50%)' : `linear-gradient(180deg,${v.c2},${v.c1})`}"></i>${v.n}`, sty.theme === k)).join('')}</div>
-        ${isWa ? '' : `<div class="pv-row"><span>فونٹ</span>${Object.entries(FONTS_).map(([k, v]) => chip('font', k, v.n, sty.font === k)).join('')}
-          <span class="pv-sep"></span>${chip('align', 'right', '⇥', sty.align === 'right', 'title="دائیں"')}${chip('align', 'center', '≡', sty.align === 'center', 'title="درمیان"')}${chip('align', 'left', '⇤', sty.align === 'left', 'title="بائیں"')}
+        ${isWa ? '' : `<div class="pv-row"><span>فونٹ</span>${Object.entries(FONTS_).map(([k, v]) => chip('font', k, `<span style="font-family:${v.f}">${v.n}</span>`, sty.font === k)).join('')}</div>
+          <div class="pv-row"><span>ترتیب</span>${chip('align', 'right', '⇥', sty.align === 'right', 'title="دائیں"')}${chip('align', 'center', '≡', sty.align === 'center', 'title="درمیان"')}${chip('align', 'left', '⇤', sty.align === 'left', 'title="بائیں"')}
           <span class="pv-sep"></span>${chip('size', '-1', 'A−', false)}<em>${Math.round((sty.scale || 1) * 100)}%</em>${chip('size', '1', 'A+', false)}</div>`}`;
     };
     const actHtml = () => cur === 'wa'
