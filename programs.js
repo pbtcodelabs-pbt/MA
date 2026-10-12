@@ -295,7 +295,7 @@
     });
     // تاریخ کے تین پہیے: دن، مہینہ، سال — گھما کر چنیں، ساتھ ہفتے کا دن
     (() => {
-      const IH = 36, now = new Date().getFullYear();
+      const IH = 30, now = new Date().getFullYear();
       const years = []; for (let y = now - 3; y <= now + 6; y++) years.push(y);
       let [Y, Mo, D] = ($('p-date').value || iso(new Date())).split('-').map(Number);
       if (!years.includes(Y)) years.push(Y), years.sort((a, b) => a - b);
@@ -310,7 +310,7 @@
         el.scrollTop = idx * IH;
         const its = [...el.querySelectorAll('.wd-i')];
         // پہیے کا احساس: بیچ والا بڑا اور صاف، اوپر نیچے والے چھوٹے، دھندلے اور جھکے ہوئے
-        const fx = () => { const st = el.scrollTop; its.forEach((x, i) => { const d = (i * IH - st) / IH, a = Math.min(2.2, Math.abs(d)); x.style.transform = `perspective(220px) rotateX(${(-d * 24).toFixed(1)}deg) scale(${(1 - a * .14).toFixed(3)})`; x.style.opacity = (1 - a * .38).toFixed(2); x.style.filter = a > .12 ? `blur(${(a * 1.3).toFixed(2)}px)` : 'none'; }); };
+        const fx = () => { const st = el.scrollTop; its.forEach((x, i) => { const d = (i * IH - st) / IH, a = Math.min(2.2, Math.abs(d)); x.style.transform = `perspective(200px) rotateX(${(-d * 22).toFixed(1)}deg) scale(${(1 - a * .12).toFixed(3)})`; x.style.opacity = (1 - a * .42).toFixed(2); }); };
         const mark = i => { its.forEach(x => x.classList.toggle('on', +x.dataset.i === i)); fx(); };
         el.addEventListener('scroll', () => requestAnimationFrame(fx), { passive: true });
         mark(idx);
