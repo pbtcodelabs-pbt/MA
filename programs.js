@@ -114,7 +114,7 @@
         <div class="panel-b">
           <div class="pg-filters" role="tablist">${FILTERS.map(([k, t]) => `<button type="button" class="pf${F.k === k ? ' on' : ''}" data-f="${k}">${t}</button>`).join('')}</div>
           <a class="pg-old-go" href="#/prog/old">📁 سابقہ پروگرام <b>${num(progs().filter(isPast).length)}</b><span>‹</span></a>
-          <div class="pg-tk"><span>مین صفحے کی چلتی پٹی:</span>${[[0, 'بند'], [1, 'آج'], [2, '2 دن'], [3, '3 دن']].map(([d, t]) => `<button type="button" class="pf${tkDays() === d ? ' on' : ''}" data-tk="${d}">${t}</button>`).join('')}</div>
+          <div class="pg-tk"><span>مین صفحے کی چلتی پٹی:</span>${[[0, 'بند'], [1, 'آج'], [2, '2 دن'], [3, '3 دن'], [7, '7 دن']].map(([d, t]) => `<button type="button" class="pf${tkDays() === d ? ' on' : ''}" data-tk="${d}">${t}</button>`).join('')}</div>
           ${F.k === 'custom' ? `<div class="pg-range"><label>سے <input type="date" id="pgFrom" class="numin" value="${F.from}"></label><label>تک <input type="date" id="pgTo" class="numin" value="${F.to}"></label></div>` : ''}
           <div class="pg-sum"><span>${esc(rangeTxt())}</span><b>${num(list.length)} پروگرام</b></div>
           ${list.length ? `<div class="pg-list">${list.map(rowHtml).join('')}</div>`
@@ -432,49 +432,142 @@
       const text = (k?.brandText ? k.brandText() + '\n' : '') + `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   میزبان: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی — واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'رپورٹ کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
-      const old = b.textContent; b.disabled = true; b.textContent = 'بن رہی ہے…';
-      try { await k.deliver(await reportPdf(list), `mere-programs-${iso(new Date())}.pdf`, 'شیڈیول'); }
-      catch (err) { console.warn(err); H().toast('PDF نہیں بن سکی، دوبارہ کوشش کریں'); }
-      finally { b.disabled = false; b.textContent = old; }
+      close(); openPdfPreview(list, { title: `شیڈیول — ${rangeTxt()}`, cont: 'شیڈیول (جاری)', foot: 'شیڈیول', file: 'mere-programs' });
     });
   }
 
-  async function reportPdf(list) {
-    const k = window.MA_SHARE_UI.kit;
-    await k.ready();
-    const { W, H: PH, M, TOP, BOT } = k.PAGE, ROW = 92;
-    const FONT = k.FONT, TFONT = k.TFONT;
-    const C = { green: '#14463a', green2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', line: '#e4d6b0', fg: '#2b2620', muted: '#7d7262', alt: '#f8f2e2' };
-    const cols = [{ k: 'n', w: 60, t: 'نمبر' }, { k: 'date', w: 200, t: 'تاریخ' }, { k: 'when', w: 200, t: 'وقت' }, { k: 'place', w: 0, t: 'بمقام / شہر' }, { k: 'inv', w: 300, t: 'میزبان' }];
-    cols[3].w = W - 2 * M - cols.reduce((s, c) => s + c.w, 0);
-    let x = W - M; cols.forEach(c => { c.r = x; x -= c.w; });
-    const blocks = [];
-    blocks.push({ h: k.letterH(), draw(ctx, y) { k.letterDraw(ctx, y, ['#2c1f4a', '#14463a']); } });
-    blocks.push({ h: 116, draw(ctx, y) { k.titleDraw(ctx, y, `شیڈیول — ${rangeTxt()}`, `رپورٹ کی تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); } });
-    blocks.push({ h: 56, keep: ROW, head: true, draw(ctx, y) {
-      ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 6, W - 2 * M, 48, 10); ctx.fill();
-      ctx.fillStyle = C.gold2; ctx.font = `24px ${FONT}`; ctx.textAlign = 'right';
-      cols.forEach(c => ctx.fillText(c.t, c.r - 12, y + 40));
-    } });
-    list.forEach((p, i) => blocks.push({ h: ROW, tbl: true, draw(ctx, y) {
-      if (i % 2) { ctx.fillStyle = C.alt; ctx.fillRect(M, y, W - 2 * M, ROW); }
-      ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M, y + ROW - .5); ctx.lineTo(W - M, y + ROW - .5); ctx.stroke();
-      ctx.textAlign = 'right';
-      const two = (c, a, b, big = 25) => {
-        ctx.font = `${big}px ${FONT}`; ctx.fillStyle = C.fg; ctx.fillText(k.fit(ctx, a, c.w - 20), c.r - 10, y + 40);
-        if (b) { ctx.font = `20px ${FONT}`; ctx.fillStyle = C.muted; ctx.fillText(k.fit(ctx, b, c.w - 20), c.r - 10, y + 74); }
-      };
-      ctx.font = `22px ${FONT}`; ctx.fillStyle = C.muted; ctx.fillText(String(i + 1), cols[0].r - 14, y + 52);
-      two(cols[1], dmy(p.date), dayName(p.date));
-      two(cols[2], timeTxt(p.time) || p.timeNote || '—', p.time ? p.timeNote : '', 22);
-      two(cols[3], [p.title, p.place].filter(Boolean).join(' — ') || '—', p.city);
-      two(cols[4], p.inviter || '—', p.phone, 23);
-    } }));
-    const pages = k.paginate(blocks);
-    const jpgs = k.renderPages(pages, `شیڈیول — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'}`);
-    return k.makePdf(jpgs, W, PH);
+  // A4 پر 1 سے 4 کالم، ہر پروگرام اپنے خانے میں — کوئی خانہ بیچ سے نہ کٹے، جگہ ختم ہو تو اگلا کالم/صفحہ؛ اشتہار شامل نہیں
+  async function progPdf(list, meta, N) {
+    const k = window.MA_SHARE_UI.kit; await k.ready();
+    const { W, H: PH, M, TOP, BOT } = k.PAGE, FONT = k.FONT;
+    const C = { c1: '#14463a', c2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', fg: '#2b2620', muted: '#6d6455', line: '#e4d6b0' };
+    const s = [1.12, 1, .86, .76][N - 1], SC = N > 2 ? 2 : 1.5;   // زیادہ کالموں میں باریک حروف کے لیے زیادہ صاف تصویر
+    const GAP = N > 2 ? 14 : 22, CW = (W - 2 * M - GAP * (N - 1)) / N, PAD = Math.round(16 * s);
+    const meas = document.createElement('canvas').getContext('2d');
+    const LH = f => Math.round(f * 1.75), F = n => Math.round(n * s);
+    const box = (p, i) => {
+      const tw = CW - 2 * PAD, lines = [];
+      const add = (label, val, fs, color) => { if (!val) return; meas.font = `${fs}px ${FONT}`; k.wrap(meas, label ? `${label}: ${val}` : val, tw).forEach(t => lines.push({ t, fs, color })); };
+      const when = p.timeNote || timeTxt(p.time) || '';
+      add('بمقام', [p.place, p.city, p.province].filter(Boolean).join('، '), F(21), C.fg);
+      add('موضوع', p.title, F(20), C.c1);
+      if (N === 1) add('میزبان', [p.inviter, p.phone ? `⁦${p.phone}⁩` : ''].filter(Boolean).join('  ·  '), F(20), C.fg);
+      else { add('میزبان', p.inviter, F(20), C.fg); add('موبائل', p.phone ? `⁦${p.phone}⁩` : '', F(19), C.muted); }
+      if (N > 2 && when) add('وقت', when, F(18), C.muted);   // تنگ کالم میں وقت سر کی پٹی کی بجائے نیچے
+      add('', p.note, F(18), C.muted);
+      const headH = Math.round(50 * s), h = headH + 12 + lines.reduce((a, l) => a + LH(l.fs), 0) + 10;
+      return { h, draw(ctx, x, y) {
+        const R = Math.round(16 * s);
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+        ctx.fillStyle = i % 2 ? '#f6f1e2' : '#ffffff'; k.roundRect(ctx, x, y, CW, h - 10, R); ctx.fill(); ctx.restore();
+        ctx.strokeStyle = C.line; ctx.lineWidth = 1.5; k.roundRect(ctx, x, y, CW, h - 10, R); ctx.stroke();
+        const g = ctx.createLinearGradient(0, y, 0, y + headH); g.addColorStop(0, C.c2); g.addColorStop(1, C.c1);
+        ctx.fillStyle = g; ctx.save(); k.roundRect(ctx, x, y, CW, h - 10, R); ctx.clip(); ctx.fillRect(x, y, CW, headH); ctx.restore();
+        ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.gold2; ctx.font = `${F(23)}px ${FONT}`;
+        const head = `${i + 1}.  ${dmy(p.date)}  ·  ${dayName(p.date)}`;
+        ctx.fillText(k.fit(ctx, head, N > 2 ? CW - 2 * PAD : CW * .56), x + CW - PAD, y + headH * .68);
+        if (N <= 2 && when) { ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `${F(18)}px ${FONT}`; ctx.fillText(k.fit(ctx, when, CW * .4), x + PAD, y + headH * .66); }
+        let ty = y + headH + 8; ctx.textAlign = 'right';
+        lines.forEach(l => { ty += LH(l.fs) * .78; ctx.font = `${l.fs}px ${FONT}`; ctx.fillStyle = l.color; ctx.fillText(l.t, x + CW - PAD, ty); ty += LH(l.fs) * .22; });
+      } };
+    };
+    const lh0 = k.letterH();
+    const pages = []; let page, col, y, y0;
+    const yMax = PH - BOT;
+    const newPage = first => {
+      page = []; pages.push(page); col = 0;
+      if (first) { page.push(ctx => { k.letterDraw(ctx, TOP, ['#2c1f4a', '#14463a']); k.titleDraw(ctx, TOP + lh0, meta.title, `تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); }); y0 = TOP + lh0 + 120; }
+      else { page.push(ctx => { ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.c1; ctx.font = `28px ${FONT}`; ctx.fillText(meta.cont, W - M, TOP + 36); ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, TOP + 56); ctx.lineTo(W - M, TOP + 56); ctx.stroke(); }); y0 = TOP + 72; }
+      y = y0;
+    };
+    newPage(true);
+    const boxes = list.map(box);
+    // سب ایک صفحے پر آ جائیں تو کالموں میں برابر بانٹیں (خالی کالم نہ رہیں)
+    let lim = yMax;
+    const total = boxes.reduce((a, b) => a + b.h, 0);
+    if (N > 1 && total <= N * (yMax - y0)) {
+      const fits = L => { let c = 0, yy = y0; for (const b of boxes) { if (yy + b.h > L && yy > y0) { c++; yy = y0; } yy += b.h; } return c < N; };
+      for (let L = y0 + Math.max(total / N, ...boxes.map(b => b.h)); L <= yMax; L += 10) if (fits(L)) { lim = L; break; }
+    }
+    list.forEach((p, i) => {
+      const b = boxes[i];
+      if (y + b.h > (pages.length === 1 ? lim : yMax) && y > y0) { col++; if (col >= N) newPage(false); else y = y0; }
+      const x = W - M - col * (CW + GAP) - CW, yy = y;
+      page.push(ctx => b.draw(ctx, x, yy)); y += b.h;
+    });
+    const foot = `${meta.foot} — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'}`;
+    const cw = Math.round(W * SC), ch = Math.round(PH * SC);
+    const jpgs = pages.map((pg, i) => {
+      const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+      const ctx = cv.getContext('2d'); ctx.scale(cw / W, ch / PH); ctx.direction = 'rtl'; k.framePage(ctx);
+      pg.forEach(d => { ctx.save(); d(ctx); ctx.restore(); });
+      k.footDraw(ctx, foot, i, pages.length);
+      return cv.toDataURL('image/jpeg', 0.88);
+    });
+    return { jpgs, w: cw, h: ch };
   }
 
+  // PDF سے پہلے پیش نظارہ: 1–4 کالم چنیں، دیکھیں، پھر محفوظ / پرنٹ / بھیجیں
+  const CKEY = 'maktaba-aziz-prog-cols';
+  function openPdfPreview(list, meta) {
+    const k = window.MA_SHARE_UI.kit;
+    let N = (() => { try { return Math.min(4, Math.max(1, Number(localStorage.getItem(CKEY)) || 2)); } catch (e) { return 2; } })();
+    document.getElementById('pvSheet')?.remove();
+    const wrap = document.createElement('div'); wrap.id = 'pvSheet'; wrap.className = 'pv-wrap';
+    wrap.innerHTML = `
+      <div class="pv" role="dialog" aria-modal="true" aria-label="PDF کا پیش نظارہ">
+        <div class="pv-h"><b>📄 PDF پیش نظارہ</b><button type="button" class="x" id="pvClose" aria-label="بند کریں">✕</button></div>
+        <div class="pv-ctl"><div class="pv-row pv-cols"><span>ایک صفحے پر</span>${[1, 2, 3, 4].map(n => `<button type="button" class="pv-c" data-n="${n}">${n} کالم</button>`).join('')}</div></div>
+        <div class="pv-body" id="pvBody"><p class="pv-wait">تیار ہو رہا ہے…</p></div>
+        <div class="pv-act">
+          <button type="button" class="btn pv-go" data-a="save">⬇️ محفوظ کریں</button>
+          <button type="button" class="btn ghost" data-a="print">🖨️ پرنٹ</button>
+          <button type="button" class="btn ghost" data-a="share">📤 بھیجیں</button>
+        </div>
+      </div>`;
+    document.body.appendChild(wrap);
+    const close = () => { wrap.remove(); window.removeEventListener('hashchange', close); };
+    $('pvClose').addEventListener('click', close);
+    window.addEventListener('hashchange', close);   // پیچھے جائیں تو پیش نظارہ بھی بند
+    let res = null, token = 0;
+    const draw = async () => {
+      const my = ++token; res = null;
+      wrap.querySelectorAll('[data-n]').forEach(b => b.classList.toggle('on', Number(b.dataset.n) === N));
+      const body = $('pvBody'); body.innerHTML = '<p class="pv-wait">تیار ہو رہا ہے…</p>';
+      try {
+        const r = await progPdf(list, meta, N); if (my !== token) return;
+        res = r;
+        body.innerHTML = `<p class="pv-info">${num(N)} کالم · ${num(r.jpgs.length)} صفحات · ${num(list.length)} پروگرام</p>` + r.jpgs.map((u, i) => `<img src="${u}" alt="صفحہ ${i + 1}" class="pv-page">`).join('');
+      } catch (e) { console.warn(e); if (my === token) body.innerHTML = '<p class="pv-wait">نہیں بن سکا، دوبارہ کوشش کریں</p>'; }
+    };
+    const file = () => `${meta.file}-${N}col-${iso(new Date())}.pdf`;
+    wrap.addEventListener('click', async e => {
+      const c = e.target.closest('[data-n]');
+      if (c) { N = Number(c.dataset.n); try { localStorage.setItem(CKEY, N); } catch (err) {} draw(); return; }
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (!res) { H().toast('پیش نظارہ تیار ہو رہا ہے، ذرا رکیں'); return; }
+      const blob = k.makePdf(res.jpgs, res.w, res.h);
+      if (a.dataset.a === 'save') {
+        const l = document.createElement('a'); l.href = URL.createObjectURL(blob); l.download = file();
+        document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(l.href), 4000);
+        H().toast('PDF فون میں محفوظ ہو گئی (Downloads)');
+      } else if (a.dataset.a === 'print') printPages(res.jpgs);
+      else await k.deliver(blob, file(), meta.foot);
+    });
+    draw();
+  }
+  // صفحات براہِ راست پرنٹ — ہر تصویر ایک A4 صفحہ
+  function printPages(jpgs) {
+    document.getElementById('pgPrint')?.remove();
+    const f = document.createElement('iframe'); f.id = 'pgPrint';
+    f.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0;pointer-events:none';
+    document.body.appendChild(f);
+    const d = f.contentDocument;
+    d.open(); d.write(`<!doctype html><html><head><meta charset="utf-8"><style>@page{size:A4;margin:0}html,body{margin:0;padding:0}img{display:block;width:210mm;height:297mm;object-fit:contain;page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${jpgs.map(u => `<img src="${u}">`).join('')}</body></html>`); d.close();
+    const go = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { H().toast('پرنٹ نہیں کھل سکا — PDF محفوظ کر کے پرنٹ کریں'); } };
+    const imgs = [...d.images]; let left = imgs.length;
+    if (!left) go(); else imgs.forEach(im => { if (im.complete) { if (!--left) go(); } else im.onload = im.onerror = () => { if (!--left) go(); }; });
+  }
 
   // ================= سابقہ پروگرام (ریکارڈ) =================
   const OKEY = 'maktaba-aziz-prog-old';
@@ -529,69 +622,9 @@
       ].filter(Boolean).join('\n')).join('\n\n') + `\n\n━━━━━━━━━━━━\n*کل:* ${list.length} پروگرام`;
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی، واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'فہرست کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
-      const old = b.textContent; b.disabled = true; b.textContent = 'بن رہی ہے…';
-      try { await k.deliver(await oldPdf(list), `sabiqa-programs-${iso(new Date())}.pdf`, 'سابقہ پروگرام'); }
-      catch (err) { console.warn(err); H().toast('PDF نہیں بن سکی، دوبارہ کوشش کریں'); }
-      finally { b.disabled = false; b.textContent = old; }
+      openPdfPreview(list, { title: `سابقہ پروگرام — ${oldRange()}`, cont: 'سابقہ پروگرام (جاری)', foot: 'سابقہ پروگرام', file: 'sabiqa-programs' });
     });
   }
-  // A4، دو کالم، ہر پروگرام اپنے خانے میں
-  async function oldPdf(list) {
-    const k = window.MA_SHARE_UI.kit; await k.ready();
-    const { W, H: PH, M, TOP, BOT } = k.PAGE, FONT = k.FONT;
-    const C = { c1: '#14463a', c2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', fg: '#2b2620', muted: '#6d6455', t1: '#fbf8ef', line: '#e4d6b0' };
-    const N = 2, GAP = 22, CW = (W - 2 * M - GAP) / N, PAD = 16;
-    const meas = document.createElement('canvas').getContext('2d');
-    const LH = f => Math.round(f * 1.75);
-    const box = (p, i) => {
-      const tw = CW - 2 * PAD;
-      const lines = [];
-      const add = (label, val, fs, color) => { if (!val) return; meas.font = `${fs}px ${FONT}`; k.wrap(meas, label ? `${label}: ${val}` : val, tw).forEach(t => lines.push({ t, fs, color })); };
-      add('بمقام', [p.place, p.city, p.province].filter(Boolean).join('، '), 21, C.fg);
-      add('موضوع', p.title, 20, C.c1);
-      add('میزبان', p.inviter, 20, C.fg);
-      add('موبائل', p.phone ? `⁦${p.phone}⁩` : '', 19, C.muted);
-      add('', p.note, 18, C.muted);
-      const headH = 50, h = headH + 12 + lines.reduce((a, l) => a + LH(l.fs), 0) + 10;
-      return { h, draw(ctx, x, y) {
-        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
-        ctx.fillStyle = i % 2 ? '#f6f1e2' : '#ffffff'; k.roundRect(ctx, x, y, CW, h - 10, 16); ctx.fill(); ctx.restore();
-        ctx.strokeStyle = C.line; ctx.lineWidth = 1.5; k.roundRect(ctx, x, y, CW, h - 10, 16); ctx.stroke();
-        const g = ctx.createLinearGradient(0, y, 0, y + headH); g.addColorStop(0, C.c2); g.addColorStop(1, C.c1);
-        ctx.fillStyle = g; ctx.save(); k.roundRect(ctx, x, y, CW, h - 10, 16); ctx.clip(); ctx.fillRect(x, y, CW, headH); ctx.restore();
-        ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.gold2; ctx.font = `23px ${FONT}`;
-        ctx.fillText(`${i + 1}.  ${dmy(p.date)}  ·  ${dayName(p.date)}`, x + CW - PAD, y + 34);
-        ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `18px ${FONT}`; ctx.fillText(k.fit(ctx, p.timeNote || timeTxt(p.time) || '', CW * .42), x + PAD, y + 33);
-        let ty = y + headH + 8; ctx.textAlign = 'right';
-        lines.forEach(l => { ty += LH(l.fs) * .78; ctx.font = `${l.fs}px ${FONT}`; ctx.fillStyle = l.color; ctx.fillText(l.t, x + CW - PAD, ty); ty += LH(l.fs) * .22; });
-      } };
-    };
-    const lh0 = k.letterH();
-    const pages = []; let page, col, y, y0;
-    const yMax = PH - BOT;
-    const newPage = first => {
-      page = []; pages.push(page); col = 0;
-      if (first) { page.push(ctx => { k.letterDraw(ctx, TOP); k.titleDraw(ctx, TOP + lh0, `سابقہ پروگرام — ${oldRange()}`, `تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); }); y0 = TOP + lh0 + 120; }
-      else { page.push(ctx => { ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.c1; ctx.font = `28px ${FONT}`; ctx.fillText('سابقہ پروگرام (جاری)', W - M, TOP + 36); ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, TOP + 56); ctx.lineTo(W - M, TOP + 56); ctx.stroke(); }); y0 = TOP + 72; }
-      y = y0;
-    };
-    newPage(true);
-    list.forEach((p, i) => {
-      const b = box(p, i);
-      if (y + b.h > yMax) { col++; if (col >= N) newPage(false); else y = y0; }
-      const x = W - M - col * (CW + GAP) - CW, yy = y;
-      page.push(ctx => b.draw(ctx, x, yy)); y += b.h;
-    });
-    const jpgs = pages.map((pg, i) => {
-      const cv = document.createElement('canvas'); cv.width = W; cv.height = PH;
-      const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; k.framePage(ctx);
-      pg.forEach(d => { ctx.save(); d(ctx); ctx.restore(); });
-      k.footDraw(ctx, `سابقہ پروگرام — ${window.MA_BRAND ? window.MA_BRAND.name() : 'میرا مکتبہ'}`, i, pages.length);
-      return cv.toDataURL('image/jpeg', 0.9);
-    });
-    return k.makePdf(jpgs, W, PH);
-  }
-
   // ---------- راستے ----------
   function route(parts) {
     stopTick();
@@ -605,7 +638,7 @@
   const soon = () => { const t = iso(new Date()), e = addDays(30); return progs().filter(p => !isPast(p) && p.date >= t && p.date <= e).length; };
   window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#/prog')) stopTick(); });
 
-  window.MA_PROG = { route, soon, _test: { reportPdf, filtered, leftTxt, oldPdf, oldList } };
+  window.MA_PROG = { route, soon, _test: { progPdf, openPdfPreview, filtered, leftTxt, oldList } };
   // ایپ پہلے لوڈ ہو چکی ہو تو موجودہ صفحہ دوبارہ بنائیں
   if (window.MA_APP && (location.hash.startsWith('#/prog') || !location.hash || location.hash === '#/')) window.MA_APP.route();
 })();
