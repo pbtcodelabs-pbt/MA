@@ -4,7 +4,7 @@
   const KEY = 'maktaba-aziz-brand';
   const DATA_KEY = 'maktaba-aziz-data-v1';
   const DEFAULT_LOGO = 'icons/khatam-logo.png';
-  const FIELDS = ['name', 'line1', 'line2', 'line3', 'address', 'phone', 'logo', 'round'];
+  const FIELDS = ['name', 'line1', 'line2', 'line3', 'address', 'phone', 'logo', 'round', 'photo'];   // photo: مہتمم/مدیر کی تصویر (مصروفیات اور PDF میں)
   // کشیدہ فونٹ میں صرف یہ حروف ہیں؛ باقی ناموں کے لیے سادہ نوری
   const KASHEEDA = new Set(Array.from('،ابتحخدرزضعفلمنوِپکگۃیے '));
 
@@ -220,7 +220,7 @@
       else if (act === 'pick') { if (!justDragged) file.click(); }
       else if (act === 'rm') { logo = ''; orig = ''; zw.hidden = true; showPrev(); ok.textContent = ''; }
       else if (act === 'save') {
-        const o = { logo, round: logo && logo !== 'default' ? round || '1' : '' };
+        const o = { logo, round: logo && logo !== 'default' ? round || '1' : '', photo: brand.photo };
         ['name', 'line1', 'line2', 'line3', 'address', 'phone'].forEach(k => { o[k] = ov.querySelector('#br-' + k).value; });
         if (api.set(o)) { ok.textContent = '✔ محفوظ ہو گیا'; setTimeout(close, 650); }
         else ok.textContent = 'محفوظ نہیں ہو سکا — لوگو کی تصویر چھوٹی کر کے دوبارہ کوشش کریں';
