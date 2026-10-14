@@ -122,7 +122,7 @@
     const z = Math.max(80, Math.min(130, L.size || 100)) / 100;
     const b = Math.max(0, Math.min(3, L.bold || 0));
     fEl.textContent =
-      (k !== 'noori' ? `:root{--f:${st};--f-body:${st}}body,button,input,select,textarea,.door .txt b,.door .txt small{font-family:${st}}\n` : '') +
+      (k !== 'noori' ? `:root{--f:${st};--f-body:${st};--f-prog:${st}}body,button,input,select,textarea,.door .txt b,.door .txt small{font-family:${st}}\n` : '') +
       (z !== 1 ? `body > .wrap,body > main{zoom:${z}}\n` : '') +
       (b ? `body > .wrap,body > main,.sheet,.pv{-webkit-text-stroke:${(b * .15).toFixed(2)}px currentColor}\n` : '');
   }
