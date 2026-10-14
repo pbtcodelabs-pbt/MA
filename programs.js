@@ -97,6 +97,51 @@
     return `اگلے ${F.k} دن (${dmy(t)} تا ${dmy(addDays(Number(F.k)))})`;
   }
 
+  // اوپر کا عنوان: ایک طرف مکتبے کا لوگو، دوسری طرف مہتمم/مدیر کی تصویر؛ بیچ میں نام، عہدہ اور مکتبہ — جو صارف نے «پہچان» میں محفوظ کیا
+  const BRD = () => { try { return JSON.parse(localStorage.getItem('maktaba-aziz-brand')) || {}; } catch (e) { return {}; } };
+  function brandHead(sub) {
+    const b = BRD(), B = window.MA_BRAND;
+    const name = (b.name || '').trim() || 'میرا مکتبہ', logo = b.logo === 'default' ? 'icons/khatam-logo.png' : (b.logo || '');
+    const who = (b.line1 || '').trim(), role = [b.line2, b.line3].map(x => (x || '').trim()).filter(Boolean).join(' · ');
+    const tf = B ? B.titleFont(name) : '"JNN","Jameel Noori Nastaleeq",serif';
+    return `<div class="pg-brand">
+      <span class="pgb-logo">${logo ? `<img src="${esc(logo)}" alt="لوگو">` : '<i>لوگو</i>'}</span>
+      <div class="pgb-t">
+        ${who ? `<b class="pgb-who">${esc(who)}</b>` : ''}
+        ${role ? `<span class="pgb-role">${esc(role)}</span>` : ''}
+        <span class="pgb-name" style="font-family:${tf}">${esc(name)}</span>
+        ${b.address ? `<span class="pgb-addr">📍 ${esc(b.address)}</span>` : ''}
+        <span class="pgb-sub">${sub}</span>
+        ${!b.name && !b.line1 ? '<button type="button" class="pgb-set" data-brand>✏️ اپنا نام اور مکتبہ لکھیں</button>' : ''}
+      </div>
+      <button type="button" class="pgb-logo pgb-photo" data-photo aria-label="تصویر لگائیں">${b.photo ? `<img src="${b.photo}" alt="تصویر">` : '<i>📷<br>تصویر</i>'}</button>
+      ${b.photo ? '<button type="button" class="pgb-rm" data-photo-rm aria-label="تصویر ہٹائیں">✕</button>' : ''}
+      <input type="file" accept="image/*" hidden data-photo-file>
+    </div>`;
+  }
+  // تصویر: بیچ سے مربع کاٹ کر چھوٹی کریں
+  function squarePic(file) {
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        const S = 420, m = Math.min(img.width, img.height), cv = document.createElement('canvas'); cv.width = cv.height = S;
+        const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, S, S);
+        ctx.drawImage(img, (img.width - m) / 2, Math.max(0, (img.height - m) / 3), m, m, 0, 0, S, S);
+        URL.revokeObjectURL(url); res(cv.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img')); };
+      img.src = url;
+    });
+  }
+  function brandWire(v, again) {
+    v.querySelector('[data-brand]')?.addEventListener('click', () => window.MA_BRAND.open());
+    const inp = v.querySelector('[data-photo-file]'); if (!inp) return;
+    const put = photo => { const B = window.MA_BRAND; if (!B) return; if (B.set(Object.assign(B.get(), { photo }))) { H().toast(photo ? 'تصویر محفوظ ہو گئی' : 'تصویر ہٹا دی'); again(); } else H().toast('تصویر محفوظ نہیں ہو سکی'); };
+    v.querySelector('[data-photo]').addEventListener('click', () => inp.click());
+    v.querySelector('[data-photo-rm]')?.addEventListener('click', () => { if (confirm('تصویر ہٹا دیں؟')) put(''); });
+    inp.addEventListener('change', async () => { const f = inp.files[0]; if (!f) return; try { put(await squarePic(f)); } catch (e) { H().toast('یہ تصویر نہیں کھل سکی'); } });
+  }
+
   // ---------- فہرست کا صفحہ ----------
   let tick = null;
   const stopTick = () => { clearInterval(tick); tick = null; };
@@ -112,6 +157,7 @@
           <span class="actions"><button class="btn ghost small" type="button" id="pgRep">📄 رپورٹ</button><a class="btn" href="#/prog/add">+ نیا پروگرام</a></span>
         </div>
         <div class="panel-b">
+          ${brandHead('آنے والے پروگراموں کا شیڈیول')}
           <div class="pg-filters" role="tablist">${FILTERS.map(([k, t]) => `<button type="button" class="pf${F.k === k ? ' on' : ''}" data-f="${k}">${t}</button>`).join('')}</div>
           <a class="pg-old-go" href="#/prog/old">📁 سابقہ پروگرام <b>${num(progs().filter(isPast).length)}</b><span>‹</span></a>
           <div class="pg-tk"><span>مین صفحے کی چلتی پٹی:</span>${[[0, 'بند'], [1, 'آج'], [2, '2 دن'], [3, '3 دن'], [7, '7 دن']].map(([d, t]) => `<button type="button" class="pf${tkDays() === d ? ' on' : ''}" data-tk="${d}">${t}</button>`).join('')}</div>
@@ -121,6 +167,7 @@
           : `<div class="empty pg-empty"><b>${progs().length ? 'اس مدت میں کوئی پروگرام نہیں' : 'ابھی کوئی پروگرام درج نہیں'}</b>${progs().length ? `کل آنے والے پروگرام: ${num(upcoming)} — اوپر سے مدت بدل کر دیکھیں۔` : '«+ نیا پروگرام» دبا کر پہلی دعوت درج کریں۔'}</div>`}
         </div>
       </section>`;
+    brandWire(H().view, pageList);
     H().view.querySelector('.pg-tk').addEventListener('click', e => {
       const b = e.target.closest('[data-tk]'); if (!b) return;
       try { localStorage.setItem('maktaba-aziz-ticker-days', b.dataset.tk); } catch (er) {}
@@ -472,11 +519,15 @@
       } };
     };
     const lh0 = k.letterH();
+    const photo = await new Promise(r => { const src = BRD().photo; if (!src) return r(null); const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; });
     const pages = []; let page, col, y, y0;
     const yMax = PH - BOT;
     const newPage = first => {
       page = []; pages.push(page); col = 0;
-      if (first) { page.push(ctx => { k.letterDraw(ctx, TOP, ['#2c1f4a', '#14463a']); k.titleDraw(ctx, TOP + lh0, meta.title, `تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); }); y0 = TOP + lh0 + 120; }
+      if (first) { page.push(ctx => { k.letterDraw(ctx, TOP, ['#2c1f4a', '#14463a']); if (photo) {
+          const bd = BRD(), D = 150, LH0 = lh0 - 20, band = (bd.address || bd.phone) ? 62 : 0, px = M + 40, py = TOP + 10 + (LH0 - band - D) / 2;
+          ctx.save(); ctx.beginPath(); ctx.arc(px + D / 2, py + D / 2, D / 2 + 6, 0, Math.PI * 2); ctx.fillStyle = C.gold2; ctx.fill();
+          ctx.beginPath(); ctx.arc(px + D / 2, py + D / 2, D / 2, 0, Math.PI * 2); ctx.clip(); ctx.drawImage(photo, px, py, D, D); ctx.restore(); } k.titleDraw(ctx, TOP + lh0, meta.title, `تاریخ: ${dmy(iso(new Date()))}`, `کل ${list.length} پروگرام`); }); y0 = TOP + lh0 + 120; }
       else { page.push(ctx => { ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = C.c1; ctx.font = `28px ${FONT}`; ctx.fillText(meta.cont, W - M, TOP + 36); ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, TOP + 56); ctx.lineTo(W - M, TOP + 56); ctx.stroke(); }); y0 = TOP + 72; }
       y = y0;
     };
@@ -594,6 +645,7 @@
       <section class="panel prog-panel pg-old">
         <div class="panel-h prog-h"><a class="back" href="#/prog">→ شیڈیول</a><h2 class="prog-title" style="font-size:26px !important">سابقہ پروگرام</h2></div>
         <div class="panel-b">
+          ${brandHead('سابقہ پروگرامات کا ریکارڈ')}
           <div class="pg-filters">${OPER.map(([k, t]) => `<button type="button" class="pf${O.k === k ? ' on' : ''}" data-o="${k}">${t}</button>`).join('')}</div>
           ${O.k === 'custom' ? `<div class="pg-range"><label>سے <input type="date" id="oFrom" class="numin" value="${O.from}"></label><label>تک <input type="date" id="oTo" class="numin" value="${O.to}"></label></div>` : ''}
           <div class="pg-sel">
@@ -605,7 +657,7 @@
           ${list.length ? `<div class="pg-list">${list.map(rowHtml).join('')}</div>` : `<div class="empty pg-empty"><b>${all.length ? 'اس انتخاب میں کوئی پروگرام نہیں' : 'ابھی کوئی سابقہ پروگرام نہیں'}</b>جو پروگرام ہو جاتا ہے وہ خود یہاں محفوظ ہو جاتا ہے۔</div>`}
         </div>
       </section>`;
-    const v = H().view;
+    const v = H().view; brandWire(v, pageOld);
     v.querySelector('.pg-filters').addEventListener('click', e => { const b = e.target.closest('[data-o]'); if (!b) return; O.k = b.dataset.o; saveO(); pageOld(); });
     $('oFrom')?.addEventListener('change', e => { O.from = e.target.value || O.from; saveO(); pageOld(); });
     $('oTo')?.addEventListener('change', e => { O.to = e.target.value || O.to; saveO(); pageOld(); });
