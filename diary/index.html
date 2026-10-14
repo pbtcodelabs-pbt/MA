@@ -2960,7 +2960,7 @@ async function doShare(type) {
   closeModal('shareOptionsModal');
 
   if (type === 'text') {
-    const text = `✍ ${e.title ? e.title + '\n' : ''}${e.date}\n\n${e.body}${e.ref ? '\n\n🔗 ' + e.ref : ''}`;
+    const text = `✍ ${e.title ? e.title + '\n' : ''}${e.date}\n\n${e.body}${e.ref ? '\n\n🔗 ' + e.ref : ''}` + '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: PBT CodeLabs — 0320-6793793_';
     _shareOrCopy(text);
 
   } else if (type === 'link') {
@@ -3207,7 +3207,7 @@ async function _shareAsPdf(e) {
   } catch (err) { console.error(err); showToast('⚠ PDF نہیں بن سکی'); }
 }
 // ہر صفحے/تصویر کے نیچے بنانے والے کا سنہری بیج
-const DIARY_CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے رابطہ کریں  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
+const DIARY_CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
 function diaryCredit(c, W, cy) {
   c.save(); c.direction = 'rtl'; c.font = `18px 'JNN', 'Jameel Noori Nastaleeq', serif`;
   const tw = c.measureText(DIARY_CREDIT).width + 44, bh = 34, x = (W - tw) / 2, y = cy - bh / 2;

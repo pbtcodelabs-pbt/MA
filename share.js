@@ -149,6 +149,7 @@
   const today = () => new Date().toLocaleDateString('en-GB');
 
   // ---------- واٹس ایپ / کاپی کا متن ----------
+  const CREDIT_TXT = '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: PBT CodeLabs — 0320-6793793_';
   function buildText() {
     const t = TH(), g = grouped(), all = g.flatMap(x => x.list);
     let o = `${brandText()}\n*${headLine()}*\n📅 تاریخ: ${today()}\n`;
@@ -171,7 +172,7 @@
     o += `\n━━━━━━━━━━━━\n`;
     if (mode === 'loans') o += `*کل:* ${fmt(all.length)} کتب پڑھنے کے لیے گئی ہوئی ہیں`;
     else { o += `*کل:* ${fmt(all.length)} کتب  ·  ${fmt(all.reduce((a, b) => a + (+b.parts || 0), 0))} اجزاء`; if (opts.price) o += `  ·  کل قیمت Rs ${fmt(all.reduce((a, b) => a + (+b.price || 0), 0))}`; }
-    return o;
+    return o + CREDIT_TXT;
   }
 
 
@@ -398,7 +399,7 @@
     ctx.restore();
   }
   // ہر صفحے کے نیچے فریم پر بنانے والے کا سنہری بیج
-  const CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے رابطہ کریں  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
+  const CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
   function creditDraw(ctx, w, h, bw) {
     ctx.save(); ctx.direction = 'rtl'; ctx.font = `18px ${FONT}`;
     const tw = ctx.measureText(CREDIT).width + 44, bh = 34, x = (w - tw) / 2, y = h - 34 - bh / 2;
@@ -880,5 +881,5 @@
   }
 
 
-  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN, headFontsHtml, headFontsWire, creditDraw }, _test: { buildText, poster, pdf, layout, openPreview, sty, select: ids => { ids.forEach(i => sel.add(i)); } } };
+  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN, headFontsHtml, headFontsWire, creditDraw, creditText: CREDIT_TXT }, _test: { buildText, poster, pdf, layout, openPreview, sty, select: ids => { ids.forEach(i => sel.add(i)); } } };
 })();
