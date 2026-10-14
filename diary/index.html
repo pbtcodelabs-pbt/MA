@@ -1488,7 +1488,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1410WE113</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1410WE114</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1766,7 +1766,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA1410WE113';
+const APP_VERSION = 'MA1410WE114';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -3022,7 +3022,7 @@ async function _shareAsImage(e, includeRef) {
     const bodyLines = wrapLines(mctx, e.body, W - PAD * 2);
     const textH = bodyLines.length * 62;
 
-    const headerH = 90, footerH = 58, titleH = e.title ? 54 : 0, refH = (includeRef && e.ref) ? 44 : 0;
+    const headerH = 90, footerH = 104, titleH = e.title ? 54 : 0, refH = (includeRef && e.ref) ? 44 : 0;
     canvas.height = headerH + titleH + PAD + textH + PAD + refH + footerH + 20;
 
     const ctx = canvas.getContext('2d');
@@ -3122,6 +3122,7 @@ async function _shareAsImage(e, includeRef) {
     ctx.textAlign = 'center';
     ctx.direction = 'rtl';
     ctx.fillText((localStorage.getItem('jsm_diary_owner_name') || '') + ' ' + (localStorage.getItem('jsm_diary_type') || 'ذاتی ڈائری'), W/2, ftY + 36);
+    diaryCredit(ctx, W, ftY + 74);
 
     // Convert to blob and share
     canvas.toBlob(async (blob) => {
@@ -3194,7 +3195,8 @@ async function _shareAsPdf(e) {
       let yy = pg.y0 + FS; pg.lines.forEach(l => { c.fillText(l, W - M, yy); yy += LH; });
       if (i === pages.length - 1 && e.ref) { c.fillStyle = '#1565c0'; c.font = `22px Arial`; c.textAlign = 'left'; c.direction = 'ltr'; c.fillText('🔗 ' + e.ref.slice(0, 90), M, Math.min(yy + 20, H - 120)); c.direction = 'rtl'; }
       c.textAlign = 'center'; c.fillStyle = '#888'; c.font = `20px 'JNN', serif`;
-      c.fillText(`${owner.trim()}${pages.length > 1 ? `  —  صفحہ ${i + 1} / ${pages.length}` : ''}`, W / 2, H - 70);
+      c.fillText(`${owner.trim()}${pages.length > 1 ? `  —  صفحہ ${i + 1} / ${pages.length}` : ''}`, W / 2, H - 76);
+      diaryCredit(c, W, H - 42);
       return cv.toDataURL('image/jpeg', 0.9);
     });
     const blob = diaryMakePdf(jpgs, W, H), name = 'diary-' + (e.title || e.id).replace(/[\\/:*?"<>|\s]+/g, '-').slice(0, 40) + '.pdf';
@@ -3203,6 +3205,15 @@ async function _shareAsPdf(e) {
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000); showToast('✅ PDF محفوظ ہو گئی (Downloads)');
   } catch (err) { console.error(err); showToast('⚠ PDF نہیں بن سکی'); }
+}
+// ہر صفحے/تصویر کے نیچے بنانے والے کا سنہری بیج
+const DIARY_CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے رابطہ کریں  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
+function diaryCredit(c, W, cy) {
+  c.save(); c.direction = 'rtl'; c.font = `18px 'JNN', 'Jameel Noori Nastaleeq', serif`;
+  const tw = c.measureText(DIARY_CREDIT).width + 44, bh = 34, x = (W - tw) / 2, y = cy - bh / 2;
+  const g = c.createLinearGradient(0, y, 0, y + bh); g.addColorStop(0, '#fff6d5'); g.addColorStop(.5, '#f1d27a'); g.addColorStop(1, '#c8962f');
+  c.fillStyle = g; c.beginPath(); c.roundRect(x, y, tw, bh, bh / 2); c.fill(); c.strokeStyle = '#9c7a1e'; c.lineWidth = 1.5; c.stroke();
+  c.fillStyle = '#2b1d05'; c.textAlign = 'center'; c.fillText(DIARY_CREDIT, W / 2, y + 23); c.restore();
 }
 // سادہ PDF: ہر صفحہ ایک JPEG تصویر
 function diaryMakePdf(jpgs, w, h) {
@@ -3646,6 +3657,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../guard.js?v=MA1410WE113"></script><script src="../update.js?v=MA1410WE113"></script>
+</script><script src="../guard.js?v=MA1410WE114"></script><script src="../update.js?v=MA1410WE114"></script>
 </body>
 </html>
