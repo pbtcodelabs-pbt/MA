@@ -1488,7 +1488,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1410WE114</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1410WE115</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1766,7 +1766,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA1410WE114';
+const APP_VERSION = 'MA1410WE115';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -2960,7 +2960,7 @@ async function doShare(type) {
   closeModal('shareOptionsModal');
 
   if (type === 'text') {
-    const text = `✍ ${e.title ? e.title + '\n' : ''}${e.date}\n\n${e.body}${e.ref ? '\n\n🔗 ' + e.ref : ''}` + '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: PBT CodeLabs — 0320-6793793_';
+    const text = `✍ ${e.title ? e.title + '\n' : ''}${e.date}\n\n${e.body}${e.ref ? '\n\n🔗 ' + e.ref : ''}` + '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: 0320-6793793 — PBT CodeLabs_';
     _shareOrCopy(text);
 
   } else if (type === 'link') {
@@ -3207,13 +3207,14 @@ async function _shareAsPdf(e) {
   } catch (err) { console.error(err); showToast('⚠ PDF نہیں بن سکی'); }
 }
 // ہر صفحے/تصویر کے نیچے بنانے والے کا سنہری بیج
-const DIARY_CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
+const DIARY_CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  \u20660320-6793793\u2069  ✦  \u2066PBT CodeLabs\u2069';
 function diaryCredit(c, W, cy) {
   c.save(); c.direction = 'rtl'; c.font = `18px 'JNN', 'Jameel Noori Nastaleeq', serif`;
   const tw = c.measureText(DIARY_CREDIT).width + 44, bh = 34, x = (W - tw) / 2, y = cy - bh / 2;
   const g = c.createLinearGradient(0, y, 0, y + bh); g.addColorStop(0, '#fff6d5'); g.addColorStop(.5, '#f1d27a'); g.addColorStop(1, '#c8962f');
   c.fillStyle = g; c.beginPath(); c.roundRect(x, y, tw, bh, bh / 2); c.fill(); c.strokeStyle = '#9c7a1e'; c.lineWidth = 1.5; c.stroke();
-  c.fillStyle = '#2b1d05'; c.textAlign = 'center'; c.fillText(DIARY_CREDIT, W / 2, y + 23); c.restore();
+  c.fillStyle = '#2b1d05'; c.textAlign = 'center'; const ty = y + 23; c.transform(1, 0, -0.22, 1, 0.22 * ty, 0);   // ترچھی عبارت
+  c.fillText(DIARY_CREDIT, W / 2, ty); c.restore();
 }
 // سادہ PDF: ہر صفحہ ایک JPEG تصویر
 function diaryMakePdf(jpgs, w, h) {
@@ -3657,6 +3658,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../guard.js?v=MA1410WE114"></script><script src="../update.js?v=MA1410WE114"></script>
+</script><script src="../guard.js?v=MA1410WE115"></script><script src="../update.js?v=MA1410WE115"></script>
 </body>
 </html>

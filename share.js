@@ -149,7 +149,7 @@
   const today = () => new Date().toLocaleDateString('en-GB');
 
   // ---------- واٹس ایپ / کاپی کا متن ----------
-  const CREDIT_TXT = '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: PBT CodeLabs — 0320-6793793_';
+  const CREDIT_TXT = '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: 0320-6793793 — PBT CodeLabs_';
   function buildText() {
     const t = TH(), g = grouped(), all = g.flatMap(x => x.list);
     let o = `${brandText()}\n*${headLine()}*\n📅 تاریخ: ${today()}\n`;
@@ -399,7 +399,8 @@
     ctx.restore();
   }
   // ہر صفحے کے نیچے فریم پر بنانے والے کا سنہری بیج
-  const CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
+  // ترتیب: دائیں عبارت، بیچ میں نمبر، بائیں PBT CodeLabs
+  const CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  \u20660320-6793793\u2069  ✦  \u2066PBT CodeLabs\u2069';
   function creditDraw(ctx, w, h, bw) {
     ctx.save(); ctx.direction = 'rtl'; ctx.font = `18px ${FONT}`;
     const tw = ctx.measureText(CREDIT).width + 44, bh = 34, x = (w - tw) / 2, y = h - 34 - bh / 2;
@@ -409,7 +410,8 @@
       ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2; ctx.fillStyle = g; roundRect(ctx, x, y, tw, bh, bh / 2); ctx.fill();
       ctx.shadowColor = 'transparent'; ctx.strokeStyle = '#9c7a1e'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#2b1d05';
     }
-    ctx.textAlign = 'center'; ctx.fillText(CREDIT, w / 2, y + 23); ctx.restore();
+    ctx.textAlign = 'center'; const ty = y + 23; ctx.transform(1, 0, -0.22, 1, 0.22 * ty, 0);   // عبارت دائیں طرف جھکی ہوئی (ترچھی)
+    ctx.fillText(CREDIT, w / 2, ty); ctx.restore();
   }
   function footDraw(ctx, text, i, n) {
     ctx.save();
