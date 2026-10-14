@@ -199,6 +199,24 @@
     const L = bLines();
     return [`*${BN()}*`, L.l1, L.l2, L.addr ? `📍 ${L.addr}` : '', L.phone ? `📞 ${L.phone}` : '', '━━━━━━━━━━━━'].filter(Boolean).join('\n');
   }
+  // سرنامے کی ہر سطر کا الگ فونٹ: مکتبے کا نام، پہچان ۱ (نام)، پہچان ۲ اور پتہ — ایپ کے سب فونٹ
+  const HKEY = 'maktaba-aziz-head-fonts';
+  let HF = Object.assign({ name: '', l1: '', l2: '' }, (() => { try { return JSON.parse(localStorage.getItem(HKEY)) || {}; } catch (e) { return {}; } })());
+  const LK = () => window.MA_LOOK;
+  const hfFam = (k, def) => (k && LK() && LK().fonts[k]) ? (k === 'plain' ? '"Digits","Segoe UI",Tahoma,sans-serif' : LK().stack(k)) : def;
+  const nameF = def => hfFam(HF.name, def || BF()), l1F = () => hfFam(HF.l1, FONT), l2F = () => hfFam(HF.l2, FONT);
+  async function headFontsReady() { if (!LK()) return; await Promise.all(Object.values(HF).filter(Boolean).map(k => LK().loadFont(k).catch(() => {}))); }
+  function headFontsHtml() {
+    const F = LK() ? LK().fonts : {};
+    const sel = (k, label) => `<label class="hf-l"><span>${label}</span><select data-hf="${k}"><option value="">اصل</option>${Object.entries(F).map(([v, f]) => `<option value="${v}"${HF[k] === v ? ' selected' : ''}>${f.n}</option>`).join('')}</select></label>`;
+    return `<div class="pv-row hf-row"><span>سرنامہ</span>${sel('name', 'مکتبہ')}${sel('l1', 'نام')}${sel('l2', 'نیچے')}</div>`;
+  }
+  function headFontsWire(root, onChange) {
+    root.querySelectorAll('[data-hf]').forEach(el => el.addEventListener('change', async () => {
+      HF[el.dataset.hf] = el.value; try { localStorage.setItem(HKEY, JSON.stringify(HF)); } catch (e) {}
+      await headFontsReady(); onChange();
+    }));
+  }
   let logoImg = null, logoFor = '';
   function loadLogo() {
     const src = BR() ? BR().logoSrc() : '';
@@ -249,15 +267,15 @@
     const tg = ctx.createLinearGradient(0, ty - 70, 0, ty + 10);
     tg.addColorStop(0, '#fff3c4'); tg.addColorStop(.5, '#e2b24e'); tg.addColorStop(1, '#a8741f');
     ctx.fillStyle = tg; let fs = BK() ? 80 : 64;
-    ctx.font = `${fs}px ${BF()}`;
-    while (fs > 40 && ctx.measureText(BN()).width > avail) { fs -= 4; ctx.font = `${fs}px ${BF()}`; }
+    ctx.font = `${fs}px ${nameF()}`;
+    while (fs > 40 && ctx.measureText(BN()).width > avail) { fs -= 4; ctx.font = `${fs}px ${nameF()}`; }
     ctx.fillText(BN(), cx, ty);
-    if (L.l1) { ty += 50; ctx.fillStyle = '#ffe08a'; ctx.font = `34px ${FONT}`; ctx.fillText(fit(ctx, L.l1, avail), cx, ty); }
-    if (L.l2) { ty += 42; ctx.fillStyle = '#f3e6c2'; ctx.font = `26px ${FONT}`; ctx.fillText(fit(ctx, L.l2, avail), cx, ty); }
+    if (L.l1) { ty += 50; ctx.fillStyle = '#ffe08a'; ctx.font = `34px ${l1F()}`; ctx.fillText(fit(ctx, L.l1, avail), cx, ty); }
+    if (L.l2) { ty += 42; ctx.fillStyle = '#f3e6c2'; ctx.font = `26px ${l2F()}`; ctx.fillText(fit(ctx, L.l2, avail), cx, ty); }
     if (band) {
       const by = top + H - band - 22;
       ctx.fillStyle = 'rgba(0,0,0,.28)'; roundRect(ctx, x0 + 24, by, w0 - 48, band, 14); ctx.fill();
-      ctx.font = `26px ${FONT}`; ctx.fillStyle = '#fff1c1';
+      ctx.font = `26px ${l2F()}`; ctx.fillStyle = '#fff1c1';
       const t = [L.addr ? `پتہ: ${L.addr}` : '', L.phone ? `موبائل: \u2066${L.phone}\u2069` : ''].filter(Boolean).join('     |     ');
       ctx.fillText(fit(ctx, t, w0 - 60), W / 2, by + 41);
     }
@@ -357,7 +375,7 @@
   }
   async function ready() {
     try {
-      await Promise.all([document.fonts.load(`30px ${FONT}`, 'کتاب 123'), document.fonts.load(`76px ${BF()}`, BN()), loadLogo()]);
+      await Promise.all([document.fonts.load(`30px ${FONT}`, 'کتاب 123'), document.fonts.load(`76px ${BF()}`, BN()), loadLogo(), headFontsReady()]);
       await document.fonts.ready;
     } catch (e) {}
   }
@@ -517,14 +535,14 @@
       ctx.beginPath(); ctx.arc(lx + D / 2, ly + D / 2, D / 2, 0, Math.PI * 2); ctx.stroke();
       avail = w0 - 2 * (D + 56);
     }
-    ctx.textAlign = 'center'; ctx.fillStyle = '#111'; let fs = 78; ctx.font = `${fs}px ${TITLEF}`;
-    while (fs > 40 && ctx.measureText(BN()).width > avail) { fs -= 4; ctx.font = `${fs}px ${TITLEF}`; }
+    ctx.textAlign = 'center'; ctx.fillStyle = '#111'; let fs = 78; ctx.font = `${fs}px ${nameF(TITLEF)}`;
+    while (fs > 40 && ctx.measureText(BN()).width > avail) { fs -= 4; ctx.font = `${fs}px ${nameF(TITLEF)}`; }
     let ty = top + 96; ctx.fillText(BN(), W / 2, ty);
-    if (L.l1) { ty += 50; ctx.font = `32px ${FONT}`; ctx.fillStyle = '#222'; ctx.fillText(fit(ctx, L.l1, avail), W / 2, ty); }
-    if (L.l2) { ty += 42; ctx.font = `25px ${FONT}`; ctx.fillStyle = '#333'; ctx.fillText(fit(ctx, L.l2, avail), W / 2, ty); }
+    if (L.l1) { ty += 50; ctx.font = `32px ${l1F()}`; ctx.fillStyle = '#222'; ctx.fillText(fit(ctx, L.l1, avail), W / 2, ty); }
+    if (L.l2) { ty += 42; ctx.font = `25px ${l2F()}`; ctx.fillStyle = '#333'; ctx.fillText(fit(ctx, L.l2, avail), W / 2, ty); }
     if (L.addr || L.phone) {
       const by = top + H - 62 - 18; ctx.strokeStyle = '#111'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0 + 30, by); ctx.lineTo(x0 + w0 - 30, by); ctx.stroke();
-      ctx.font = `25px ${FONT}`; ctx.fillStyle = '#222';
+      ctx.font = `25px ${l2F()}`; ctx.fillStyle = '#222';
       ctx.fillText(fit(ctx, [L.addr ? `پتہ: ${L.addr}` : '', L.phone ? `موبائل: ⁦${L.phone}⁩` : ''].filter(Boolean).join('     |     '), w0 - 60), W / 2, by + 44);
     }
     ctx.restore();
@@ -727,6 +745,7 @@
       return `
         ${isWa ? '' : `<div class="pv-row"><span>کالم</span>${[1, 2, 3, 4].map(n => chip('cols', n, n, opts.cols === n)).join('')}</div>`}
         <div class="pv-row"><span>رنگ</span>${Object.entries(THEMES).map(([k, v]) => chip('theme', k, `<i style="background:${v.bw ? 'linear-gradient(135deg,#fff 50%,#111 50%)' : `linear-gradient(180deg,${v.c2},${v.c1})`}"></i>${v.n}`, sty.theme === k)).join('')}</div>
+        ${isWa ? '' : headFontsHtml()}
         ${isWa ? '' : `<div class="pv-row"><span>فونٹ</span>${Object.entries(FONTS_).map(([k, v]) => chip('font', k, `<span style="font-family:${v.f}">${v.n}</span>`, sty.font === k)).join('')}</div>
           <div class="pv-row"><span>ترتیب</span>${chip('align', 'right', '⇥', sty.align === 'right', 'title="دائیں"')}${chip('align', 'center', '≡', sty.align === 'center', 'title="درمیان"')}${chip('align', 'left', '⇤', sty.align === 'left', 'title="بائیں"')}
           <span class="pv-sep"></span>${chip('size', '-1', 'A−', false)}<em>${Math.round((sty.scale || 1) * 100)}%</em>${chip('size', '1', 'A+', false)}</div>`}`;
@@ -735,7 +754,7 @@
       ? `<button type="button" class="btn pv-go wa" data-a="send">واٹس ایپ پر بھیجیں</button><button type="button" class="btn ghost" data-a="copy">کاپی</button>`
       : `<button type="button" class="btn pv-go" data-a="send">${cur === 'pdf' ? '📄 PDF بھیجیں / محفوظ کریں' : '🖼️ تصویر بھیجیں'}</button>`;
     const draw = async () => {
-      const my = ++token; $('pvCtl').innerHTML = ctlHtml(); $('pvAct').innerHTML = actHtml();
+      const my = ++token; $('pvCtl').innerHTML = ctlHtml(); $('pvAct').innerHTML = actHtml(); headFontsWire($('pvCtl'), redraw);
       wrap.querySelectorAll('.pv-tabs .pv-c').forEach(b => b.classList.toggle('on', b.dataset.v === cur));
       const body = $('pvBody');
       if (cur === 'wa') { body.innerHTML = `<div class="pv-wa"><div class="pv-bubble">${waHtml(buildText())}</div></div>`; return; }
@@ -848,5 +867,5 @@
   }
 
 
-  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN }, _test: { buildText, poster, pdf, layout, openPreview, sty, select: ids => { ids.forEach(i => sel.add(i)); } } };
+  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN, headFontsHtml, headFontsWire }, _test: { buildText, poster, pdf, layout, openPreview, sty, select: ids => { ids.forEach(i => sel.add(i)); } } };
 })();

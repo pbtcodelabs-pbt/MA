@@ -568,7 +568,7 @@
     wrap.innerHTML = `
       <div class="pv" role="dialog" aria-modal="true" aria-label="PDF کا پیش نظارہ">
         <div class="pv-h"><b>📄 PDF پیش نظارہ</b><button type="button" class="x" id="pvClose" aria-label="بند کریں">✕</button></div>
-        <div class="pv-ctl"><div class="pv-row pv-cols"><span>ایک صفحے پر</span>${[1, 2, 3, 4].map(n => `<button type="button" class="pv-c" data-n="${n}">${n} کالم</button>`).join('')}</div></div>
+        <div class="pv-ctl"><div class="pv-row pv-cols"><span>ایک صفحے پر</span>${[1, 2, 3, 4].map(n => `<button type="button" class="pv-c" data-n="${n}">${n} کالم</button>`).join('')}</div>${k.headFontsHtml ? k.headFontsHtml() : ''}</div>
         <div class="pv-body" id="pvBody"><p class="pv-wait">تیار ہو رہا ہے…</p></div>
         <div class="pv-act">
           <button type="button" class="btn pv-go" data-a="save">⬇️ محفوظ کریں</button>
@@ -580,6 +580,7 @@
     const close = () => { wrap.remove(); window.removeEventListener('hashchange', close); };
     $('pvClose').addEventListener('click', close);
     window.addEventListener('hashchange', close);   // پیچھے جائیں تو پیش نظارہ بھی بند
+    if (k.headFontsWire) k.headFontsWire(wrap, () => draw());
     let res = null, token = 0;
     const draw = async () => {
       const my = ++token; res = null;
