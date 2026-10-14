@@ -521,6 +521,8 @@
 
   // A4 پر 1 سے 4 کالم، ہر پروگرام اپنے خانے میں — کوئی خانہ بیچ سے نہ کٹے، جگہ ختم ہو تو اگلا کالم/صفحہ؛ اشتہار شامل نہیں
   async function progPdf(list, meta, N) {
+    // تاریخ کی ترتیب سے (پرانی پہلے)، مہینہ وار
+    list = [...list].sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
     const k = window.MA_SHARE_UI.kit; await k.ready();
     const { W, H: PH, M, TOP, BOT } = k.PAGE, FONT = k.FONT;
     const C = { c1: '#14463a', c2: '#1f6a54', gold: '#c8962f', gold2: '#e8c467', fg: '#2b2620', muted: '#6d6455', line: '#e4d6b0' };
@@ -568,17 +570,35 @@
       y = y0;
     };
     newPage(true);
-    const boxes = list.map(box);
+    // ہر مہینے سے پہلے اس کا عنوان — عنوان اکیلا کالم کے آخر میں نہ رہے، اپنے پہلے پروگرام کے ساتھ جائے
+    const MH = Math.round(58 * s), items = [];
+    const mKey = p => p.date.slice(0, 7);
+    const mCount = {}; list.forEach(p => { mCount[mKey(p)] = (mCount[mKey(p)] || 0) + 1; });
+    list.forEach((p, i) => {
+      if (!i || mKey(p) !== mKey(list[i - 1])) {
+        const [yy, mm] = p.date.split('-').map(Number), n = mCount[mKey(p)];
+        items.push({ h: MH, head: true, draw(ctx, x, y) {
+          const g = ctx.createLinearGradient(0, y, 0, y + MH - 12); g.addColorStop(0, '#fff3c4'); g.addColorStop(.55, '#e8c467'); g.addColorStop(1, '#c8962f');
+          ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.2)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2; ctx.fillStyle = g; k.roundRect(ctx, x, y, CW, MH - 12, Math.round(12 * s)); ctx.fill(); ctx.restore();
+          ctx.strokeStyle = '#a8741f'; ctx.lineWidth = 1.5; k.roundRect(ctx, x, y, CW, MH - 12, Math.round(12 * s)); ctx.stroke();
+          ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = '#3a2605'; ctx.font = `${F(25)}px ${FONT}`;
+          ctx.fillText(`${MONTHS[mm - 1]} ${yy}`, x + CW - PAD, y + (MH - 12) * .7);
+          ctx.textAlign = 'left'; ctx.fillStyle = '#5a3a00'; ctx.font = `${F(18)}px ${FONT}`;
+          ctx.fillText(`${n} پروگرام`, x + PAD, y + (MH - 12) * .68);
+        } });
+      }
+      items.push(box(p, i));
+    });
+    items.forEach((it, i) => { it.need = it.h + (it.head && items[i + 1] ? items[i + 1].h : 0); });
     // سب ایک صفحے پر آ جائیں تو کالموں میں برابر بانٹیں (خالی کالم نہ رہیں)
     let lim = yMax;
-    const total = boxes.reduce((a, b) => a + b.h, 0);
+    const total = items.reduce((a, b) => a + b.h, 0);
     if (N > 1 && total <= N * (yMax - y0)) {
-      const fits = L => { let c = 0, yy = y0; for (const b of boxes) { if (yy + b.h > L && yy > y0) { c++; yy = y0; } yy += b.h; } return c < N; };
-      for (let L = y0 + Math.max(total / N, ...boxes.map(b => b.h)); L <= yMax; L += 10) if (fits(L)) { lim = L; break; }
+      const fits = L => { let c = 0, yy = y0; for (const b of items) { if (yy + b.need > L && yy > y0) { c++; yy = y0; } yy += b.h; } return c < N; };
+      for (let L = y0 + Math.max(total / N, ...items.map(b => b.need)); L <= yMax; L += 10) if (fits(L)) { lim = L; break; }
     }
-    list.forEach((p, i) => {
-      const b = boxes[i];
-      if (y + b.h > (pages.length === 1 ? lim : yMax) && y > y0) { col++; if (col >= N) newPage(false); else y = y0; }
+    items.forEach(b => {
+      if (y + b.need > (pages.length === 1 ? lim : yMax) && y > y0) { col++; if (col >= N) newPage(false); else y = y0; }
       const x = W - M - col * (CW + GAP) - CW, yy = y;
       page.push(ctx => b.draw(ctx, x, yy)); y += b.h;
     });
@@ -703,7 +723,9 @@
     v.querySelector('.pr-btns').addEventListener('click', async e => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const k = window.MA_SHARE_UI?.kit;
-      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*سابقہ پروگرام*\n${oldRange()}\n\n` + list.map((p, i) => [
+      const asc = [...list].sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*سابقہ پروگرام*\n${oldRange()}\n\n` + asc.map((p, i) => [
+        !i || p.date.slice(0, 7) !== asc[i - 1].date.slice(0, 7) ? `${i ? '\n' : ''}📅 *${MONTHS[+p.date.slice(5, 7) - 1]} ${p.date.slice(0, 4)}*\n━━━━━━━━━━━━` : '',
         `${i % 2 ? '⚪' : '🟢'} ${i + 1}. *${longDate(p.date)}* (${dayName(p.date)})${p.timeNote ? '  ·  ' + p.timeNote : ''}`,
         `      🕌 ${[p.place, p.city, p.province].filter(Boolean).join('، ')}`,
         p.title ? `      📌 ${p.title}` : '',
