@@ -33,6 +33,22 @@
 <style>
 @font-face{font-family:'JNN';src:local('Jameel Noori Nastaleeq'),url('../fonts/jnn-regular.woff') format('woff');font-display:swap}
 @font-face{font-family:'JNNK';src:local('Jameel Noori Nastaleeq Kasheeda'),url('../fonts/jnn-kasheeda-full.woff2') format('woff2');font-display:swap}
+/* میرا مکتبہ کے باقی فونٹ — صرف چننے پر ڈاؤن لوڈ ہوتے ہیں */
+@font-face{font-family:'MAF Nafees';src:url('../fonts/extra/nafees-naskh.woff') format('woff');font-display:swap}
+@font-face{font-family:'MAF Khawar';src:url('../fonts/extra/alqalam-khawar.woff') format('woff');font-display:swap}
+@font-face{font-family:'MAF Akram';src:url('../fonts/extra/akram-unicode.woff') format('woff');font-display:swap}
+@font-face{font-family:'MAF Almas';src:url('../fonts/extra/sameer-almas.woff') format('woff');font-display:swap}
+@font-face{font-family:'MAF Alfars';src:url('../fonts/extra/alfars-aban.woff') format('woff');font-display:swap}
+@font-face{font-family:'MAF Gandhara';src:url('../fonts/extra/gandhara-suls.woff') format('woff');font-display:swap}
+.font-nafees{font-family:'MAF Nafees','JNN',serif}
+.font-khawar{font-family:'MAF Khawar','JNN',serif}
+.font-akram{font-family:'MAF Akram','JNN',serif}
+.font-almas{font-family:'MAF Almas','JNN',serif}
+.font-alfars{font-family:'MAF Alfars','JNN',serif}
+.font-gandhara{font-family:'MAF Gandhara','JNN',serif}
+.font-row-scroll{flex-wrap:nowrap !important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.font-row-scroll::-webkit-scrollbar{display:none}
+.font-row-scroll > button{flex:0 0 auto !important;min-width:64px !important;padding-left:10px !important;padding-right:10px !important}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Gulzar&family=Lateef:wght@400;700&family=Scheherazade+New:wght@400;700&family=Mirza&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -1472,7 +1488,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1410WE110</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1410WE111</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1636,6 +1652,7 @@
     <h3 style="text-align:center; color:#1a5c2a; margin-top:0;"><svg class="shr" viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-0.2em" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="currentColor"/><circle cx="6" cy="12" r="3.2" fill="currentColor"/><circle cx="18" cy="19" r="3.2" fill="currentColor"/></svg> کیا شیئر کرنا چاہتے ہیں؟</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
       <button onclick="doShare('all')" style="padding:15px; background:linear-gradient(135deg,#1a5c2a,#3a9148); border:none; border-radius:15px; cursor:pointer; font-weight:bold; color:white; font-size:1.1rem;">🌟 تصویر کے طور پر شیئر کریں</button>
+      <button onclick="doShare('pdf')" style="padding:12px; background:linear-gradient(135deg,#9c7a1e,#e8c97a); border:none; border-radius:12px; cursor:pointer; font-weight:bold; color:#1a1a1a; margin-top:10px;">📄 PDF (A4، پورا صفحہ)</button>
       <button onclick="doShare('text')" style="padding:12px; background:#f0f7ff; border:1px solid #bbdefb; border-radius:12px; cursor:pointer; font-weight:bold; color:#1565c0; margin-top:10px;">📝 صرف تحریر (کاپی)</button>
     </div>
     <button onclick="closeModal('shareOptionsModal')" style="width:100%; margin-top:20px; padding:10px; background:#eee; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">بند کریں</button>
@@ -1741,12 +1758,15 @@
 </div>
 
 <!-- ڈائری سے باہر نکل کر میرا مکتبہ (مین صفحہ) پر جانے کا بٹن -->
-<a id="exitDiaryBtn" href="../" title="ڈائری سے باہر — میرا مکتبہ" style="position:fixed;bottom:8px;left:8px;z-index:25000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:74px;height:48px;padding:2px 8px;background:linear-gradient(180deg,#f7d774,#d4a531);border:2px solid var(--green);border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.3);color:#123d1c;text-decoration:none;line-height:1.1;-webkit-tap-highlight-color:transparent;"><span style="font-size:1.05rem;line-height:1;">🚪</span><span style="font-size:0.78rem;font-weight:700;white-space:nowrap;">میرا مکتبہ</span></a>
+<div id="exitDiaryBox" style="position:fixed;bottom:8px;left:8px;z-index:25000;display:flex;flex-direction:column;gap:6px;">
+<a id="exitDiaryBtn" href="../maktaba.html#/" title="میرا مکتبہ" style="display:flex;align-items:center;gap:4px;min-width:84px;height:38px;padding:0 10px;background:linear-gradient(180deg,#f7d774,#d4a531);border:2px solid var(--green);border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);color:#123d1c;text-decoration:none;-webkit-tap-highlight-color:transparent;"><span style="font-size:1rem;line-height:1;">📚</span><span style="font-size:0.85rem;font-weight:700;white-space:nowrap;">مکتبہ</span></a>
+<a id="progDiaryBtn" href="../maktaba.html#/prog" title="میری مصروفیات" style="display:flex;align-items:center;gap:4px;min-width:84px;height:38px;padding:0 10px;background:linear-gradient(180deg,#f7d774,#d4a531);border:2px solid var(--green);border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);color:#123d1c;text-decoration:none;-webkit-tap-highlight-color:transparent;"><span style="font-size:1rem;line-height:1;">📅</span><span style="font-size:0.85rem;font-weight:700;white-space:nowrap;">مصروفیات</span></a>
+</div>
 
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA1410WE110';
+const APP_VERSION = 'MA1410WE111';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -1927,21 +1947,21 @@ function applyGlobalFontToEntireApp(fontClass) {
   // Apply to all entry elements
   const entries = document.querySelectorAll('.entry, .entry-body, .entry-title');
   entries.forEach(el => {
-    el.classList.remove('font-nastaliq', 'font-arial', 'font-naskh', 'font-kasheeda');
+    el.classList.remove(...ALL_FONT_CLASSES);
     el.classList.add(fontClass);
   });
   
   // Apply to compose textarea
   const textarea = document.getElementById('entryBody');
   if (textarea) {
-    textarea.classList.remove('font-nastaliq', 'font-arial', 'font-naskh', 'font-kasheeda');
+    textarea.classList.remove(...ALL_FONT_CLASSES);
     textarea.classList.add(fontClass);
   }
   
   // Apply to fullscreen reader
   const fsBody = document.getElementById('fsReaderBody');
   if (fsBody) {
-    fsBody.classList.remove('font-nastaliq', 'font-arial', 'font-naskh', 'font-kasheeda');
+    fsBody.classList.remove(...ALL_FONT_CLASSES);
     fsBody.classList.add(fontClass);
   }
   
@@ -1949,47 +1969,57 @@ function applyGlobalFontToEntireApp(fontClass) {
   updateFontButtonHighlights(fontClass);
 }
 
-const FONT_LABELS = { 'font-nastaliq': 'نوری نستعلیق', 'font-arial': 'اردو ایریل', 'font-naskh': 'نسخ', 'font-kasheeda': 'نوری نستعلیق کشیدہ' };
-function fontSuffix(cls) { return cls === 'font-nastaliq' ? 'nastaliq' : cls === 'font-arial' ? 'arial' : cls === 'font-kasheeda' ? 'kasheeda' : 'naskh'; }
+// ڈائری کے سب فونٹ — میرا مکتبہ والے سب فونٹ بھی
+const ALL_FONTS = [
+  ['nastaliq', 'نستعلیق', 'نوری نستعلیق', "'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif"],
+  ['kasheeda', 'کشیدہ', 'نوری نستعلیق کشیدہ', "'JNNK', 'JNN', 'Jameel Noori Nastaleeq', serif"],
+  ['nafees', 'نفیس نسخ', 'نفیس نسخ', "'MAF Nafees', 'JNN', serif"],
+  ['khawar', 'القلم خاور', 'القلم خاور', "'MAF Khawar', 'JNN', serif"],
+  ['akram', 'اکرم', 'اکرم یونیکوڈ', "'MAF Akram', 'JNN', serif"],
+  ['almas', 'الماس', 'سمیر الماس', "'MAF Almas', 'JNN', serif"],
+  ['alfars', 'الفارس', 'الفارس', "'MAF Alfars', 'JNN', serif"],
+  ['gandhara', 'ثلث', 'گندھارا ثلث', "'MAF Gandhara', 'JNN', serif"],
+  ['naskh', 'نسخ', 'نسخ', "'Noto Naskh Arabic', serif"],
+  ['arial', 'ایریل', 'اردو ایریل', "'Arial', 'Helvetica Neue', 'Noto Sans Arabic', sans-serif"]
+];
+const ALL_FONT_CLASSES = ALL_FONTS.map(f => 'font-' + f[0]).concat(['font-scheherazade','font-lateef','font-gulzar','font-mirza','font-aref','font-thuluth']);
+const FONT_LABELS = Object.fromEntries(ALL_FONTS.map(f => ['font-' + f[0], f[2]]));
+const FONT_CSS = Object.fromEntries(ALL_FONTS.map(f => ['font-' + f[0], f[3]]));
+function fontSuffix(cls) { return String(cls || 'font-nastaliq').replace(/^font-/, ''); }
+// فونٹ پہلے سے لوڈ کریں تاکہ تصویر/PDF میں درست فونٹ آئے
+function ensureFont(cls) { const f = FONT_CSS[cls]; if (!f || !document.fonts) return Promise.resolve(); return document.fonts.load('30px ' + f, 'اردو 123').catch(() => {}); }
 
 function updateFontButtonHighlights(fontClass) {
   const suf = fontSuffix(fontClass);
-  ['btn-nastaliq', 'btn-arial', 'btn-naskh', 'btn-kasheeda'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.style.background = '#f0f8f5';
-      btn.style.borderColor = '#1a5c2a';
-      btn.style.boxShadow = 'none';
-    }
+  const styles = {
+    btn: [b => { b.style.background = '#f0f8f5'; b.style.color = '#1a5c2a'; b.style.borderColor = '#1a5c2a'; b.style.boxShadow = 'none'; }, b => { b.style.background = 'linear-gradient(135deg, #1a5c2a, #3a9148)'; b.style.color = 'white'; b.style.borderColor = '#0d3d1a'; b.style.boxShadow = '0 4px 12px rgba(26, 92, 42, 0.3)'; }],
+    qf: [b => { b.style.background = '#f0f8f5'; b.style.color = 'var(--green)'; }, b => { b.style.background = 'var(--green)'; b.style.color = '#fff'; }],
+    ef: [b => { b.style.background = '#f0f8f5'; b.style.color = '#1a5c2a'; }, b => { b.style.background = '#1a5c2a'; b.style.color = '#fff'; }],
+    rf: [b => { b.style.background = 'rgba(255,255,255,0.2)'; b.style.color = 'white'; }, b => { b.style.background = '#f5d87a'; b.style.color = '#1a1a1a'; }]
+  };
+  Object.entries(styles).forEach(([pre, [off, on]]) => ALL_FONTS.forEach(f => {
+    const b = document.getElementById(pre + '-' + f[0]); if (!b) return;
+    (f[0] === suf ? on : off)(b);
+    if (f[0] === suf && b.scrollIntoView && b.parentElement && b.parentElement.scrollWidth > b.parentElement.clientWidth) { try { b.parentElement.scrollTo({ left: b.offsetLeft - b.parentElement.clientWidth / 2 + b.offsetWidth / 2, behavior: 'smooth' }); } catch (e) {} }
+  }));
+}
+// ہر فونٹ قطار میں باقی فونٹوں کے بٹن بھی بنائیں (پہلے صرف چار تھے)
+function buildFontButtons() {
+  ['btn', 'qf', 'ef', 'rf'].forEach(pre => {
+    const tpl = document.getElementById(pre + '-kasheeda'); if (!tpl) return;
+    const row = tpl.parentElement;
+    ALL_FONTS.forEach(f => {
+      let b = document.getElementById(pre + '-' + f[0]);
+      if (!b) {
+        b = tpl.cloneNode(true); b.id = pre + '-' + f[0];
+        b.setAttribute('onclick', tpl.getAttribute('onclick').replace('font-kasheeda', 'font-' + f[0]));
+        b.textContent = pre === 'btn' ? f[2] : f[1];
+      }
+      b.style.fontFamily = f[3];
+      row.appendChild(b);   // سب ایک ترتیب میں
+    });
+    if (pre !== 'btn') row.classList.add('font-row-scroll');
   });
-  const activeBtn = document.getElementById('btn-' + suf);
-  if (activeBtn) {
-    activeBtn.style.background = 'linear-gradient(135deg, #1a5c2a, #3a9148)';
-    activeBtn.style.color = 'white';
-    activeBtn.style.borderColor = '#0d3d1a';
-    activeBtn.style.boxShadow = '0 4px 12px rgba(26, 92, 42, 0.3)';
-  }
-  // Home page quick buttons
-  ['qf-nastaliq','qf-arial','qf-naskh','qf-kasheeda'].forEach(id => {
-    const b = document.getElementById(id);
-    if (b) { b.style.background = '#f0f8f5'; b.style.color = 'var(--green)'; }
-  });
-  const qActive = document.getElementById('qf-' + suf);
-  if (qActive) { qActive.style.background = 'var(--green)'; qActive.style.color = '#fff'; }
-  // Compose modal quick buttons
-  ['ef-nastaliq','ef-arial','ef-naskh','ef-kasheeda'].forEach(id => {
-    const b = document.getElementById(id);
-    if (b) { b.style.background = '#f0f8f5'; b.style.color = '#1a5c2a'; }
-  });
-  const eActive = document.getElementById('ef-' + suf);
-  if (eActive) { eActive.style.background = '#1a5c2a'; eActive.style.color = '#fff'; }
-  // Reader quick buttons
-  ['rf-nastaliq','rf-arial','rf-naskh','rf-kasheeda'].forEach(id => {
-    const b = document.getElementById(id);
-    if (b) { b.style.background = 'rgba(255,255,255,0.2)'; }
-  });
-  const rActive = document.getElementById('rf-' + suf);
-  if (rActive) { rActive.style.background = '#f5d87a'; rActive.style.color = '#1a1a1a'; }
 }
 
 function showFontSettings() {
@@ -2059,7 +2089,8 @@ let editingId = null;
 
 // ===== STORAGE =====
 function save() {
-  localStorage.setItem(DB_KEY, JSON.stringify(state));
+  try { localStorage.setItem(DB_KEY, JSON.stringify(state)); return true; }
+  catch (e) { console.warn(e); showToast('⚠ فون میں جگہ کم ہے — محفوظ نہیں ہو سکا۔ کچھ تصویریں ہٹا کر یا بیک اپ لے کر پرانی تصویریں حذف کریں'); return false; }
 }
 
 function load() {
@@ -2166,6 +2197,8 @@ function openCompose() {
 
 function showComposeUI() {
   clearCompose();
+  // پچھلی بار لکھا ہوا مگر محفوظ نہ کیا گیا متن واپس لائیں
+  try { const d = JSON.parse(localStorage.getItem('jsm_draft') || 'null'); if (d && (d.body || d.title)) { document.getElementById('entryTitle').value = d.title || ''; document.getElementById('entryBody').value = d.body || ''; showToast('📝 پچھلا نامکمل متن واپس آ گیا'); } } catch (e) {}
   var modal = document.getElementById('composeModal');
   modal.style.display = '';
   modal.classList.add('show');
@@ -2214,7 +2247,7 @@ function applyComposeFont(cls) {
   localStorage.setItem('jsm_global_font', cls);
   const ta = document.getElementById('entryBody');
   // Remove all font classes first
-  ta.classList.remove('font-nastaliq','font-arial','font-naskh','font-kasheeda','font-scheherazade','font-lateef','font-gulzar','font-mirza','font-aref','font-thuluth');
+  ta.classList.remove(...ALL_FONT_CLASSES);
   ta.classList.add(cls);
   ta.style.setProperty('font-size', composeFontScale + 'rem', 'important');
   document.getElementById('composeFontPct').textContent = Math.round(composeFontScale * 100) + '%';
@@ -2265,15 +2298,17 @@ function saveEntry() {
     images: pendingImages
   };
 
+  const before = state.entries.slice();
   if (editingId) {
     const idx = state.entries.findIndex(e => e.id === editingId);
-    if (idx > -1) state.entries[idx] = entry;
-    editingId = null;
+    if (idx > -1) state.entries[idx] = entry; else state.entries.unshift(entry);
   } else {
     state.entries.unshift(entry);
   }
 
-  save();
+  if (!save()) { state.entries = before; return; }   // محفوظ نہ ہو تو لکھا ہوا مٹنے نہ دیں
+  editingId = null;
+  try { localStorage.removeItem('jsm_draft'); } catch (e) {}
   renderEntries();
   updateCount();
   clearCompose(); goHome();
@@ -2637,15 +2672,24 @@ function handleFiles(evt) {
   showToast(`📎 ${pendingFiles.length} فائل(یں) منسلک`);
 }
 
+// تصویر چھوٹی کر کے رکھیں تاکہ فون کی جگہ بھرنے سے ڈائری محفوظ ہونا بند نہ ہو
+function shrinkImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const max = 1200, r = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas'); cv.width = Math.round(img.width * r); cv.height = Math.round(img.height * r);
+      const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, cv.width, cv.height); c.drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url); res(cv.toDataURL('image/jpeg', 0.75));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img')); };
+    img.src = url;
+  });
+}
 function handleImages(evt) {
   const files = Array.from(evt.target.files);
   files.forEach(f => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      pendingImages.push(ev.target.result);
-      renderPreview();
-    };
-    reader.readAsDataURL(f);
+    shrinkImage(f).then(src => { pendingImages.push(src); renderPreview(); }).catch(() => showToast('⚠ یہ تصویر نہیں کھل سکی'));
   });
   showToast(`🖼 ${files.length} تصویر(یں) شامل`); evt.target.value = "";
 }
@@ -2926,6 +2970,9 @@ async function doShare(type) {
   } else if (type === 'image') {
     await _shareAsImage(e);
 
+  } else if (type === 'pdf') {
+    await _shareAsPdf(e);
+
   } else if (type === 'all') {
     // Share image card (best format) with text fallback
     await _shareAsImage(e, true);
@@ -2961,7 +3008,8 @@ async function _shareAsImage(e, includeRef) {
       'font-aref': "'Aref Ruqaa', serif",
       'font-thuluth': "'Thuluth Bold', serif"
     };
-    const cssFont = fontMap[fontFamily] || "'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif";
+    const cssFont = FONT_CSS[fontFamily] || fontMap[fontFamily] || "'JNN', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif";
+    await ensureFont(fontFamily);
 
     // Build a styled div, render it to canvas via html2canvas-like approach
     // We'll use an offscreen div + canvas
@@ -2969,13 +3017,10 @@ async function _shareAsImage(e, includeRef) {
     const canvas = document.createElement('canvas');
     canvas.width = W;
 
-    // First pass: measure text height using a temp div
-    const tmpDiv = document.createElement('div');
-    tmpDiv.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${W - PAD*2}px;font-family:${cssFont};font-size:28px;line-height:2.2;direction:rtl;text-align:right;white-space:pre-wrap;word-break:break-word;padding:0;margin:0;`;
-    tmpDiv.textContent = e.body;
-    document.body.appendChild(tmpDiv);
-    const textH = tmpDiv.offsetHeight;
-    document.body.removeChild(tmpDiv);
+    // پہلے سطریں ناپیں — اسی سے تصویر کی اونچائی بنے تاکہ کچھ نہ کٹے
+    const mctx = document.createElement('canvas').getContext('2d'); mctx.font = `28px ${cssFont}`; mctx.direction = 'rtl';
+    const bodyLines = wrapLines(mctx, e.body, W - PAD * 2);
+    const textH = bodyLines.length * 62;
 
     const headerH = 90, footerH = 58, titleH = e.title ? 54 : 0, refH = (includeRef && e.ref) ? 44 : 0;
     canvas.height = headerH + titleH + PAD + textH + PAD + refH + footerH + 20;
@@ -3049,22 +3094,8 @@ async function _shareAsImage(e, includeRef) {
     ctx.textAlign = 'right';
     ctx.direction = 'rtl';
     const lineH = 62;
-    const maxW = W - PAD * 2;
-    const lines = e.body.split('\n');
-    for (const line of lines) {
-      // word-wrap each line
-      let words = line.split(' ');
-      let cur = '';
-      for (const w of words) {
-        const test = cur ? w + ' ' + cur : w;
-        if (ctx.measureText(test).width > maxW && cur) {
-          ctx.fillText(cur, W - PAD, y);
-          y += lineH;
-          cur = w;
-        } else { cur = test; }
-      }
-      if (cur) { ctx.fillText(cur, W - PAD, y); y += lineH; }
-    }
+    y += 34;
+    for (const ln of bodyLines) { ctx.fillText(ln, W - PAD, y); y += lineH; }
 
     // Reference
     if (includeRef && e.ref) {
@@ -3116,6 +3147,85 @@ async function _shareAsImage(e, includeRef) {
   }
 }
 
+
+// متن کو چوڑائی کے مطابق سطروں میں توڑیں (الفاظ کی ترتیب درست، بہت لمبا لفظ بھی ٹوٹ جائے)
+function wrapLines(ctx, text, maxW) {
+  const out = [];
+  String(text || '').split('\n').forEach(par => {
+    let cur = '';
+    par.split(/[ \t]+/).filter(Boolean).forEach(w => {
+      while (ctx.measureText(w).width > maxW && w.length > 1) { let n = w.length - 1; while (n > 1 && ctx.measureText(w.slice(0, n)).width > maxW) n--; if (cur) { out.push(cur); cur = ''; } out.push(w.slice(0, n)); w = w.slice(n); }
+      const t = cur ? cur + ' ' + w : w;
+      if (ctx.measureText(t).width > maxW && cur) { out.push(cur); cur = w; } else cur = t;
+    });
+    out.push(cur);
+  });
+  while (out.length && !out[out.length - 1]) out.pop();
+  return out;
+}
+// اندراج کی A4 PDF — منتخب فونٹ میں، جتنے صفحے بنیں، کوئی سطر نہ کٹے
+async function _shareAsPdf(e) {
+  showToast('⏳ PDF بن رہی ہے...');
+  try {
+    const cls = e.font || 'font-nastaliq', cssFont = FONT_CSS[cls] || FONT_CSS['font-nastaliq'];
+    await ensureFont(cls); await ensureFont('font-nastaliq');
+    const W = 1240, H = 1754, M = 90, FS = 32, LH = 72, owner = (localStorage.getItem('jsm_diary_owner_name') || '') + ' ' + (localStorage.getItem('jsm_diary_type') || 'ذاتی ڈائری');
+    const cat = state.categories.find(c => c.id === e.catId), green = '#1a5c2a', gold = '#c9a84c';
+    const mctx = document.createElement('canvas').getContext('2d'); mctx.font = `${FS}px ${cssFont}`; mctx.direction = 'rtl';
+    const lines = wrapLines(mctx, e.body, W - 2 * M);
+    const pages = []; let cur = [], y0 = 330, y = y0;
+    lines.forEach(l => { if (y + LH > H - 140) { pages.push({ lines: cur, y0 }); cur = []; y0 = 130; y = y0; } cur.push(l); y += LH; });
+    pages.push({ lines: cur, y0 });
+    const jpgs = pages.map((pg, i) => {
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d'); c.direction = 'rtl';
+      c.fillStyle = '#fffef8'; c.fillRect(0, 0, W, H);
+      c.strokeStyle = gold; c.lineWidth = 4; c.strokeRect(36, 36, W - 72, H - 72); c.lineWidth = 1.5; c.strokeRect(48, 48, W - 96, H - 96);
+      if (i === 0) {
+        const g = c.createLinearGradient(0, 60, 0, 220); g.addColorStop(0, '#0d3d1a'); g.addColorStop(1, green);
+        c.fillStyle = g; c.fillRect(60, 60, W - 120, 160); c.fillStyle = gold; c.fillRect(60, 216, W - 120, 4);
+        c.textAlign = 'center'; c.fillStyle = '#f5d87a'; c.font = `46px 'JNN', serif`; c.fillText('﷽', W / 2, 118);
+        c.font = `34px 'JNN', serif`; c.fillStyle = '#fff'; c.fillText(owner.trim(), W / 2, 186);
+        c.textAlign = 'right'; c.fillStyle = cat ? cat.color : green; c.font = `40px ${cssFont}`;
+        if (e.title) c.fillText(e.title, W - M, 280);
+        c.textAlign = 'left'; c.fillStyle = '#777'; c.font = `22px Arial`; c.direction = 'ltr'; c.fillText(e.date || '', M, 280); c.direction = 'rtl';
+        c.fillStyle = gold; c.fillRect(M, 298, W - 2 * M, 2);
+      }
+      c.textAlign = 'right'; c.fillStyle = '#1a1a1a'; c.font = `${FS}px ${cssFont}`;
+      let yy = pg.y0 + FS; pg.lines.forEach(l => { c.fillText(l, W - M, yy); yy += LH; });
+      if (i === pages.length - 1 && e.ref) { c.fillStyle = '#1565c0'; c.font = `22px Arial`; c.textAlign = 'left'; c.direction = 'ltr'; c.fillText('🔗 ' + e.ref.slice(0, 90), M, Math.min(yy + 20, H - 120)); c.direction = 'rtl'; }
+      c.textAlign = 'center'; c.fillStyle = '#888'; c.font = `20px 'JNN', serif`;
+      c.fillText(`${owner.trim()}${pages.length > 1 ? `  —  صفحہ ${i + 1} / ${pages.length}` : ''}`, W / 2, H - 70);
+      return cv.toDataURL('image/jpeg', 0.9);
+    });
+    const blob = diaryMakePdf(jpgs, W, H), name = 'diary-' + (e.title || e.id).replace(/[\\/:*?"<>|\s]+/g, '-').slice(0, 40) + '.pdf';
+    const file = new File([blob], name, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: e.title || 'ڈائری' }); return; } catch (err) { if (err.name === 'AbortError') return; } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000); showToast('✅ PDF محفوظ ہو گئی (Downloads)');
+  } catch (err) { console.error(err); showToast('⚠ PDF نہیں بن سکی'); }
+}
+// سادہ PDF: ہر صفحہ ایک JPEG تصویر
+function diaryMakePdf(jpgs, w, h) {
+  const enc = new TextEncoder(), chunks = [], offs = []; let len = 0;
+  const push = d => { const b = typeof d === 'string' ? enc.encode(d) : d; chunks.push(b); len += b.length; };
+  const obj = (n, body) => { offs[n] = len; push(`${n} 0 obj\n`); body(); push('\nendobj\n'); };
+  const PW = 595.28, PHt = (PW * h / w).toFixed(2), n = jpgs.length;
+  push('%PDF-1.4\n');
+  obj(1, () => push('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, () => push(`<< /Type /Pages /Count ${n} /Kids [${jpgs.map((_, i) => `${3 + i * 3} 0 R`).join(' ')}] >>`));
+  jpgs.forEach((d, i) => {
+    const p = 3 + i * 3, bin = atob(d.split(',')[1]), bytes = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    obj(p, () => push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PHt}] /Resources << /XObject << /Im${i} ${p + 2} 0 R >> >> /Contents ${p + 1} 0 R >>`));
+    const cs = `q ${PW} 0 0 ${PHt} 0 0 cm /Im${i} Do Q`;
+    obj(p + 1, () => { push(`<< /Length ${cs.length} >>\nstream\n`); push(cs); push('\nendstream'); });
+    obj(p + 2, () => { push(`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`); push(bytes); push('\nendstream'); });
+  });
+  const total = 3 + n * 3, xref = len;
+  let x = `xref\n0 ${total}\n0000000000 65535 f \n`; for (let i = 1; i < total; i++) x += String(offs[i]).padStart(10, '0') + ' 00000 n \n';
+  push(x); push(`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(chunks, { type: 'application/pdf' });
+}
 
 // ===== PDF DOWNLOAD =====
 function downloadAsPDF() {
@@ -3504,7 +3614,10 @@ function showToast(msg) {
 
 // ===== INIT ON LOAD =====
 window.onload = function() {
+  buildFontButtons();
   init();
+  // نیا اندراج لکھتے ہوئے ہر تبدیلی پر مسودہ محفوظ — ایپ بند ہو جائے تو بھی متن ضائع نہ ہو
+  ['entryTitle', 'entryBody'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', () => { if (editingId) return; try { localStorage.setItem('jsm_draft', JSON.stringify({ title: document.getElementById('entryTitle').value, body: document.getElementById('entryBody').value })); } catch (e) {} }); });
   loadCustomization();
   const globalFont = localStorage.getItem('jsm_global_font') || 'font-nastaliq';
   const savedFont = localStorage.getItem('jsm_pref_font') || globalFont;
@@ -3513,7 +3626,7 @@ window.onload = function() {
     updateFontButtonHighlights(globalFont);
     const ta = document.getElementById('entryBody');
     if (ta) {
-      ta.classList.remove('font-nastaliq','font-arial','font-naskh','font-kasheeda');
+      ta.classList.remove(...ALL_FONT_CLASSES);
       ta.classList.add(globalFont);
     }
   }
@@ -3533,6 +3646,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../guard.js?v=MA1410WE110"></script><script src="../update.js?v=MA1410WE110"></script>
+</script><script src="../guard.js?v=MA1410WE111"></script><script src="../update.js?v=MA1410WE111"></script>
 </body>
 </html>

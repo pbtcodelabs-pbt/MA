@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1410WE110) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1410WE111) */
 (() => {
   'use strict';
 
@@ -824,7 +824,15 @@
     else route();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
-  window.addEventListener('hashchange', () => setTimeout(updateDock, 0));
+  // مکتبہ ⇄ ڈائری ⇄ مصروفیات: جہاں ہوں، باقی دو کے بٹن
+  function updateSw() {
+    const el = $('swDock'); if (!el) return;
+    const prog = location.hash.startsWith('#/prog');
+    const B = { kutub: ['#/', '📚', 'مکتبہ'], diary: ['diary/', '📔', 'ڈائری'], prog: ['#/prog', '📅', 'مصروفیات'] };
+    el.innerHTML = (prog ? [B.kutub, B.diary] : [B.diary, B.prog]).map(([h, i, t]) => `<a class="sw-b" href="${h}"><i>${i}</i><span>${t}</span></a>`).join('');
+  }
+  updateSw();
+  window.addEventListener('hashchange', () => setTimeout(() => { updateDock(); updateSw(); }, 0));
   gq.addEventListener('input', updateDock);
 
   // ---------- بھیجنا (share.js) ----------
@@ -836,7 +844,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1410WE110',
+    version: 'MA1410WE111',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
