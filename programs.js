@@ -512,7 +512,7 @@
     document.querySelector('.pr-btns').addEventListener('click', async e => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const k = window.MA_SHARE_UI?.kit;
-      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   میزبان: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n');
+      const text = (k?.brandText ? k.brandText() + '\n' : '') + `*شیڈیول — ${rangeTxt()}*\n\n` + list.map((p, i) => `${i + 1}) ${longDate(p.date)} (${dayName(p.date)})${whenTxt(p) ? ' · ' + whenTxt(p) : ''}\n   ${p.place || ''}${p.city ? '، ' + p.city : ''}${p.inviter || p.phone ? `\n   میزبان: ${[p.inviter, p.phone].filter(Boolean).join(' — ')}` : ''}`).join('\n\n') + (k?.creditText || '');
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی — واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'رپورٹ کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
       close(); openPdfPreview(list, { title: `شیڈیول — ${rangeTxt()}`, cont: 'شیڈیول (جاری)', foot: 'شیڈیول', file: 'mere-programs' });
@@ -730,7 +730,7 @@
         `      🕌 ${[p.place, p.city, p.province].filter(Boolean).join('، ')}`,
         p.title ? `      📌 ${p.title}` : '',
         p.inviter || p.phone ? `      👤 ${[p.inviter, p.phone].filter(Boolean).join('  ·  ')}` : ''
-      ].filter(Boolean).join('\n')).join('\n\n') + `\n\n━━━━━━━━━━━━\n*کل:* ${list.length} پروگرام`;
+      ].filter(Boolean).join('\n')).join('\n\n') + `\n\n━━━━━━━━━━━━\n*کل:* ${list.length} پروگرام` + (k?.creditText || '');
       if (b.dataset.r === 'wa') { if (text.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(text); else if (navigator.share) navigator.share({ text }).catch(() => {}); else { await k.copyText(text); H().toast('کاپی ہو گئی، واٹس ایپ میں پیسٹ کریں'); } return; }
       if (b.dataset.r === 'copy') { H().toast(await k.copyText(text) ? 'فہرست کاپی ہو گئی' : 'کاپی نہیں ہو سکی'); return; }
       openPdfPreview(list, { title: `سابقہ پروگرام — ${oldRange()}`, cont: 'سابقہ پروگرام (جاری)', foot: 'سابقہ پروگرام', file: 'sabiqa-programs' });

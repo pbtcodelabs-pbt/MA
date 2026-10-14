@@ -149,6 +149,7 @@
   const today = () => new Date().toLocaleDateString('en-GB');
 
   // ---------- واٹس ایپ / کاپی کا متن ----------
+  const CREDIT_TXT = '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: PBT CodeLabs — 0320-6793793_';
   function buildText() {
     const t = TH(), g = grouped(), all = g.flatMap(x => x.list);
     let o = `${brandText()}\n*${headLine()}*\n📅 تاریخ: ${today()}\n`;
@@ -171,7 +172,7 @@
     o += `\n━━━━━━━━━━━━\n`;
     if (mode === 'loans') o += `*کل:* ${fmt(all.length)} کتب پڑھنے کے لیے گئی ہوئی ہیں`;
     else { o += `*کل:* ${fmt(all.length)} کتب  ·  ${fmt(all.reduce((a, b) => a + (+b.parts || 0), 0))} اجزاء`; if (opts.price) o += `  ·  کل قیمت Rs ${fmt(all.reduce((a, b) => a + (+b.price || 0), 0))}`; }
-    return o;
+    return o + CREDIT_TXT;
   }
 
 
@@ -397,12 +398,25 @@
     ctx.strokeStyle = 'rgba(200,150,47,.45)'; ctx.lineWidth = 1.5; roundRect(ctx, 46, 46, W - 92, PH - 92, 28); ctx.stroke();
     ctx.restore();
   }
+  // ہر صفحے کے نیچے فریم پر بنانے والے کا سنہری بیج
+  const CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  PBT CodeLabs  ✦  \u20660320-6793793\u2069';
+  function creditDraw(ctx, w, h, bw) {
+    ctx.save(); ctx.direction = 'rtl'; ctx.font = `18px ${FONT}`;
+    const tw = ctx.measureText(CREDIT).width + 44, bh = 34, x = (w - tw) / 2, y = h - 34 - bh / 2;
+    if (bw) { ctx.fillStyle = '#fff'; roundRect(ctx, x, y, tw, bh, bh / 2); ctx.fill(); ctx.strokeStyle = '#111'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#111'; }
+    else {
+      const g = ctx.createLinearGradient(0, y, 0, y + bh); g.addColorStop(0, '#fff6d5'); g.addColorStop(.5, '#f1d27a'); g.addColorStop(1, '#c8962f');
+      ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2; ctx.fillStyle = g; roundRect(ctx, x, y, tw, bh, bh / 2); ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.strokeStyle = '#9c7a1e'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#2b1d05';
+    }
+    ctx.textAlign = 'center'; ctx.fillText(CREDIT, w / 2, y + 23); ctx.restore();
+  }
   function footDraw(ctx, text, i, n) {
     ctx.save();
     ctx.strokeStyle = 'rgba(200,150,47,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(M, PH - BOT + 22); ctx.lineTo(W - M, PH - BOT + 22); ctx.stroke();
     ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.direction = 'rtl';
-    ctx.fillText(`${text}${n > 1 ? `  —  صفحہ ${i + 1} / ${n}` : ''}`, W / 2, PH - BOT + 62);
-    ctx.restore();
+    ctx.fillText(`${text}${n > 1 ? `  —  صفحہ ${i + 1} / ${n}` : ''}`, W / 2, PH - BOT + 58);
+    ctx.restore(); creditDraw(ctx, W, PH);
   }
   // بلاکس کو صفحوں میں بانٹیں: کوئی سطر بیچ سے نہ کٹے؛ جدول اگلے صفحے پر جائے تو سر دوبارہ
   function paginate(blocks, repeatHead) {
@@ -519,8 +533,8 @@
     const t = TH(); ctx.save(); ctx.direction = 'rtl';
     ctx.strokeStyle = t.bw ? '#999' : t.c2; ctx.globalAlpha = .5; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(M, H - 96); ctx.lineTo(W - M, H - 96); ctx.stroke(); ctx.globalAlpha = 1;
     ctx.fillStyle = t.bw ? '#444' : t.ink; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center';
-    ctx.fillText(`${BN()} — ${headLine()}${n > 1 ? `  ·  صفحہ ${i + 1} / ${n}` : ''}`, W / 2, H - 60);
-    ctx.restore();
+    ctx.fillText(`${BN()} — ${headLine()}${n > 1 ? `  ·  صفحہ ${i + 1} / ${n}` : ''}`, W / 2, H - 64);
+    ctx.restore(); creditDraw(ctx, W, H, t.bw);
   }
   // سیاہ سفید لیٹر ہیڈ
   function headBW(ctx, y) {
@@ -867,5 +881,5 @@
   }
 
 
-  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN, headFontsHtml, headFontsWire }, _test: { buildText, poster, pdf, layout, openPreview, sty, select: ids => { ids.forEach(i => sel.add(i)); } } };
+  window.MA_SHARE_UI = { open: openShare, kit: { makePdf, deliver, roundRect, ready, copyText, fit, FONT, TFONT, framePage, footDraw, paginate, renderPages, wrap, PAGE: { W, H: PH, M, TOP, BOT }, brandText, letterH, letterDraw, titleDraw, brandName: BN, headFontsHtml, headFontsWire, creditDraw, creditText: CREDIT_TXT }, _test: { buildText, poster, pdf, layout, openPreview, sty, select: ids => { ids.forEach(i => sel.add(i)); } } };
 })();

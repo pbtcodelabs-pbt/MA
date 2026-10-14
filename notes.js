@@ -555,12 +555,12 @@
         } });
       });
     }
-    const foot = (ctx, i, n, ph) => { if (ph === PH && k.footDraw) { k.footDraw(ctx, `${k.brandName()} — ${b.name} — حوالہ جات`, i, n); return; } ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(`${k.brandName()} — ${b.name} — حوالہ جات${n > 1 ? ` — صفحہ ${i + 1} / ${n}` : ''}`, W / 2, ph - 34); };
+    const foot = (ctx, i, n, ph) => { if (ph === PH && k.footDraw) { k.footDraw(ctx, `${k.brandName()} — ${b.name} — حوالہ جات`, i, n); return; } ctx.fillStyle = C.muted; ctx.font = `20px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText(`${k.brandName()} — ${b.name} — حوالہ جات${n > 1 ? ` — صفحہ ${i + 1} / ${n}` : ''}`, W / 2, ph - 92); if (k.creditDraw) k.creditDraw(ctx, W, ph); };
     const newCv = h => { const cv = document.createElement('canvas'); cv.width = W; cv.height = h; const ctx = cv.getContext('2d'); ctx.direction = 'rtl'; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, h); return [cv, ctx]; };
 
     if (mode === 'poster') {
       const bl = blocks.filter(x => !x.fill);
-      const Hh = bl.reduce((s, x) => s + x.h, 0) + 90;
+      const Hh = bl.reduce((s, x) => s + x.h, 0) + 130;
       if (Hh > 30000) throw new Error('long');
       const [cv, ctx] = newCv(Hh); let y = 14;
       bl.forEach(x => { x.draw(ctx, y); y += x.h; });
