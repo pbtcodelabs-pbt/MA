@@ -9,7 +9,7 @@
 
   const MONTHS = ['جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون', 'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'];
   const DAYS = ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'];
-  const TIME_NOTES = ['بعد از نماز فجر', 'بعد از نماز ظہر', 'بعد از نماز عصر', 'بعد از نماز مغرب', 'بعد از نماز عشاء'];
+  const TIME_NOTES = ['بعد از نماز فجر', 'بعد از نماز ظہر', 'خطبہ جمعہ', 'بعد از نماز عصر', 'بعد از نماز مغرب', 'بعد از نماز عشاء'];
   const FILTERS = [['15', '15 دن'], ['30', '30 دن'], ['60', '60 دن'], ['90', '90 دن'], ['all', 'سب آنے والے'], ['custom', 'مرضی کی تاریخ']];
   const PROVINCES = ['پنجاب', 'سندھ', 'خیبر پختونخوا', 'بلوچستان', 'اسلام آباد', 'گلگت بلتستان', 'آزاد کشمیر'];
   const FKEY = 'maktaba-aziz-prog-filter';
@@ -330,10 +330,10 @@
         <div class="pf-grid">
           <div class="pf-f full wd-wrap"><span>تاریخ</span><div class="wd-dayc"><b id="wdDay"></b></div><div class="wd"><div class="wd-col" id="wdD" aria-label="تاریخ"></div><div class="wd-col wide" id="wdM" aria-label="مہینہ"></div><div class="wd-col" id="wdY" aria-label="سال"></div></div><input type="hidden" id="p-date" value="${esc(p?.date || iso(new Date()))}"></div>
           <label class="pf-f" for="p-tnote"><span>وقت</span><select id="p-tnote">${(() => { const cur = p ? (p.timeNote || '') : 'بعد از نماز عشاء'; const list = TIME_NOTES.includes(cur) || !cur ? TIME_NOTES : [cur, ...TIME_NOTES]; return list.map(v => `<option${v === cur ? ' selected' : ''}>${v}</option>`).join(''); })()}</select></label>
-          ${fld('p-place', 'بمقام', `list="dl-place" value="${esc(p?.place || '')}" placeholder="جامع مسجد نور"`)}
-          ${fld('p-city', 'شہر', `list="dl-city" value="${esc(p?.city || '')}" placeholder="کلور کوٹ"`)}
+          ${fld('p-place', 'بمقام', `value="${esc(p?.place || '')}" placeholder="جامع مسجد نور"`)}
+          ${fld('p-city', 'شہر', `value="${esc(p?.city || '')}" placeholder="کلور کوٹ"`)}
           <label class="pf-f" for="p-prov"><span>صوبہ</span><select id="p-prov"><option value="">—</option>${PROVINCES.map(v => `<option${p && p.province === v ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
-          ${fld('p-inv', 'میزبان', `list="dl-inv" value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
+          ${fld('p-inv', 'میزبان', `value="${esc(p?.inviter || '')}" placeholder="مکمل نام"`)}
           ${fld('p-phone', 'موبائل', `class="ltr" inputmode="tel" value="${esc(p?.phone || '')}" placeholder="0300-1234567"`)}
           ${fld('p-title', 'عنوان', `value="${esc(p?.title || '')}" placeholder="اختیاری"`)}
           ${fld('p-note', 'نوٹ', `value="${esc(p?.note || '')}" placeholder="اختیاری"`)}
@@ -377,6 +377,42 @@
       try { poster = await shrink(f); } catch (err) { H().toast('یہ تصویر نہیں کھل سکی'); }
       drawPoster();
     });
+    // ہر خانے میں پہلے محفوظ کی ہوئی چیزوں کے مشورے — لفظ کہیں بھی ملے (مثلاً «والا» → «عارف والا»)، جو زیادہ بار لکھا گیا وہ اوپر
+    (() => {
+      const all = progs();
+      const freq = k => { const m = new Map(); all.forEach(x => { const v = (x[k] || '').trim(); if (v) m.set(v, (m.get(v) || 0) + 1); }); return [...m.entries()].sort((a, b) => b[1] - a[1]).map(e => e[0]); };
+      const last = (k, v) => [...all].reverse().find(x => (x[k] || '').trim() === v);
+      const fill = (id, v) => { const el = $(id); if (el && v && !el.value.trim()) el.value = v; };
+      const after = {
+        'p-place': v => { const x = last('place', v); if (x) { fill('p-city', x.city); if (x.province && !$('p-prov').value) $('p-prov').value = x.province; } },
+        'p-city': v => { const x = last('city', v); if (x && x.province) $('p-prov').value = x.province; },
+        'p-inv': v => { const x = last('inviter', v); if (x) fill('p-phone', x.phone); },
+        'p-phone': v => { const x = last('phone', v); if (x) fill('p-inv', x.inviter); }
+      };
+      [['p-place', 'place'], ['p-city', 'city'], ['p-inv', 'inviter'], ['p-phone', 'phone'], ['p-title', 'title'], ['p-note', 'note']].forEach(([id, k]) => {
+        const inp = $(id); if (!inp) return;
+        const vals = freq(k); if (!vals.length) return;
+        const box = document.createElement('div'); box.className = 'sg-box'; box.hidden = true;
+        inp.closest('.pf-f').appendChild(box);
+        const show = () => {
+          const q = inp.value.trim().toLowerCase();
+          const m = (q ? vals.filter(v => v.toLowerCase().includes(q) && v !== inp.value.trim()) : vals).slice(0, 6);
+          if (!m.length) { box.hidden = true; return; }
+          box.innerHTML = m.map(v => `<button type="button" class="sg-i" data-v="${esc(v)}">${esc(v)}</button>`).join('');
+          box.hidden = false;
+        };
+        inp.addEventListener('input', show); inp.addEventListener('focus', show);
+        inp.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 180));
+        box.addEventListener('pointerdown', e => e.preventDefault());   // کی بورڈ بند نہ ہو
+        box.addEventListener('click', e => {
+          const b = e.target.closest('.sg-i'); if (!b) return;
+          inp.value = b.dataset.v; box.hidden = true;
+          if (after[id]) after[id](b.dataset.v);
+          inp.dispatchEvent(new Event('change'));
+        });
+        inp.addEventListener('change', () => { if (after[id] && vals.includes(inp.value.trim())) after[id](inp.value.trim()); });
+      });
+    })();
     // پہلے والے میزبان کا نمبر خود بھر جائے
     $('p-inv').addEventListener('change', () => {
       const prev = [...progs()].reverse().find(x => x.inviter === $('p-inv').value.trim());
