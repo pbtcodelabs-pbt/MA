@@ -40,6 +40,19 @@
 @font-face{font-family:'MAF Almas';src:url('../fonts/extra/sameer-almas.woff') format('woff');font-display:swap}
 @font-face{font-family:'MAF Alfars';src:url('../fonts/extra/alfars-aban.woff') format('woff');font-display:swap}
 @font-face{font-family:'MAF Gandhara';src:url('../fonts/extra/gandhara-suls.woff') format('woff');font-display:swap}
+/* MA1610FR117: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
+@font-face{font-family:"Digits";src:local("Arial"),local("ArialMT"),url("../fonts/digits.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
+@font-face{font-family:"Digits";font-weight:700;src:local("Arial Bold"),local("Arial-BoldMT"),url("../fonts/digits-bold.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
+@font-face{font-family:"JNN";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"JNNK";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"JNN Kasheeda";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"JNNP";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"MAF Nafees";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"MAF Khawar";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"MAF Akram";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"MAF Almas";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"MAF Alfars";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
+@font-face{font-family:"MAF Gandhara";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
 .font-nafees{font-family:'MAF Nafees','JNN',serif}
 .font-khawar{font-family:'MAF Khawar','JNN',serif}
 .font-akram{font-family:'MAF Akram','JNN',serif}
@@ -1488,7 +1501,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1610FR116</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1610FR117</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1766,7 +1779,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA1610FR116';
+const APP_VERSION = 'MA1610FR117';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -2096,7 +2109,9 @@ function save() {
 function load() {
   const d = localStorage.getItem(DB_KEY);
   if (d) {
-    try { const p = JSON.parse(d); state.entries = p.entries || []; state.categories = p.categories || state.categories; }
+    try { const p = JSON.parse(d); state.entries = p.entries || []; state.categories = p.categories || state.categories;
+      // پرانی تاریخوں میں اردو/عربی ہندسے ہوں تو انگریزی ہندسوں میں
+      state.entries.forEach(e => { if (e && e.date) e.date = String(e.date).replace(/[۰-۹]/g, c => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g, c => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/\u200f|\u061c/g, ''); }); }
     catch(e) {}
   }
   // Load saved font size
@@ -2292,7 +2307,7 @@ function saveEntry() {
     body,
     catId,
     font: font || 'font-nastaliq',
-    date: existing ? existing.date : new Date().toLocaleDateString('ur-PK'),
+    date: existing ? existing.date : new Date().toLocaleDateString('en-GB'),
     ref,
     files: pendingFiles.map(f => ({ name: f.name, type: 'file' })),
     images: pendingImages
@@ -3658,6 +3673,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../guard.js?v=MA1610FR116"></script><script src="../update.js?v=MA1610FR116"></script>
+</script><script src="../guard.js?v=MA1610FR117"></script><script src="../update.js?v=MA1610FR117"></script>
 </body>
 </html>
