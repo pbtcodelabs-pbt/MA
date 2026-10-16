@@ -1,7 +1,7 @@
 /* میرا مکتبہ — Service Worker
    ہر نئے ورژن پر VERSION بدل دیں تاکہ پرانا کیش صاف ہو جائے۔
    فونٹس الگ مستقل کیش میں رہتے ہیں، ورژن بدلنے پر دوبارہ ڈاؤن لوڈ نہیں ہوتے۔ */
-const VERSION = 'MA1610FR116';
+const VERSION = 'MA1610FR117';
 const CACHE = `maktaba-aziz-${VERSION}`;
 const FONT_CACHE = 'maktaba-aziz-fonts-v1';
 
@@ -15,6 +15,8 @@ const CORE = [
   './diary/icon-512.png',
   './manifest.json',
   './privacy.html',
+  './fonts/digits.woff2',
+  './fonts/digits-bold.woff2',
   `./style.css?v=${VERSION}`,
   `./app.js?v=${VERSION}`,
   `./share.js?v=${VERSION}`,
