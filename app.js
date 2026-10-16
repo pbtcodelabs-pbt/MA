@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1610FR117) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1610FR118) */
 (() => {
   'use strict';
 
@@ -727,19 +727,24 @@
   });
 
   // ---------- بیک اپ ----------
+  // فائل کا نام: MERA MAKTABA + تاریخ مہینہ سال + دن + وقت (12 گھنٹے) + AM/PM — مثلاً MERA MAKTABA 161026FR0228PM.json
+  const fileName = () => {
+    const d = new Date(), p = n => String(n).padStart(2, '0'), h = d.getHours();
+    return `MERA MAKTABA ${p(d.getDate())}${p(d.getMonth() + 1)}${String(d.getFullYear()).slice(-2)}${['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][d.getDay()]}${p(h % 12 || 12)}${p(d.getMinutes())}${h < 12 ? 'AM' : 'PM'}.json`;
+  };
   $('btnExport').addEventListener('click', async () => {
     let imgs; try { imgs = window.MA_NOTES ? await window.MA_NOTES.exportImgs() : undefined; } catch (e) {}
     const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get(), imgs }), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `mera-maktaba-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = fileName();
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
   // بیک اپ فائل واٹس ایپ وغیرہ پر بھیجنا
   $('btnShareFile').addEventListener('click', async () => {
     const json = JSON.stringify(Object.assign({}, db, { brand: undefined, notes: undefined }), null, 1);
-    const fname = `maktaba-kutub-${new Date().toISOString().slice(0, 10)}.json`;
+    const fname = fileName();
     try {
       const file = new File([json], fname, { type: 'application/json' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: fname, text: `میرا مکتبہ — ${num(db.books.length)} کتابوں کی فائل۔\nاسے فون میں محفوظ کریں، پھر ایپ میں «بیک اپ» ← «فائل چنیں اور کتابیں شامل کریں» سے یہ فائل چنیں۔` }); return; }
@@ -853,7 +858,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1610FR117',
+    version: 'MA1610FR118',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
