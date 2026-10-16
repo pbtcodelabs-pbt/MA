@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1410WE115) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1610FR116) */
 (() => {
   'use strict';
 
@@ -326,9 +326,9 @@
             <div class="cp-list" id="cpList" role="listbox" hidden>${cats().map(c => `<button type="button" role="option" data-c="${c.id}" class="${c.id === cat.id ? 'on' : ''}">${esc(c.name)}</button>`).join('')}</div>
             <select id="f-cat" hidden>${cats().map(c => `<option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>
           </div>
-          <div class="cap" style="--i:1"><label class="cap-l" for="f-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>کتاب کا نام <b class="req">*</b></label><input id="f-name" autocomplete="off" value="${esc(b?.name)}" placeholder="مثلاً تفسیر ابن کثیر"></div>
-          <div class="cap" style="--i:2"><label class="cap-l" for="f-author"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>مصنف <b class="req">*</b></label><input id="f-author" autocomplete="off" value="${esc(b ? b.author : (last.author || ''))}" placeholder="لکھیں یا فہرست سے چنیں"></div>
-          <div class="cap" style="--i:3"><label class="cap-l" for="f-publisher"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l2-5h12l2 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg>ناشر <b class="req">*</b></label><input id="f-publisher" autocomplete="off" value="${esc(b ? b.publisher : (last.publisher || ''))}" placeholder="جہاں سے کتاب چھپی ہے"></div>
+          <div class="cap tall" style="--i:1"><label class="cap-l" for="f-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>کتاب کا نام <b class="req">*</b></label><textarea id="f-name" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="مثلاً تفسیر ابن کثیر">${esc(b?.name)}</textarea></div>
+          <div class="cap tall" style="--i:2"><label class="cap-l" for="f-author"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>مصنف <b class="req">*</b></label><textarea id="f-author" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="لکھیں یا فہرست سے چنیں">${esc(b ? b.author : (last.author || ''))}</textarea></div>
+          <div class="cap tall" style="--i:3"><label class="cap-l" for="f-publisher"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l2-5h12l2 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg>ناشر <b class="req">*</b></label><textarea id="f-publisher" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="جہاں سے کتاب چھپی ہے">${esc(b ? b.publisher : (last.publisher || ''))}</textarea></div>
           ${!b && last.publisher ? `<p class="hint" style="--i:3">ناشر (جہاں سے کتاب چھپی ہے) — پچھلے اندراج سے خود بھر جاتا ہے</p>` : ''}
           <div class="cap-row" style="--i:4">
             <div class="cap"><label class="cap-l" for="f-parts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>اجزاء <b class="req">*</b></label><input id="f-parts" class="numin" inputmode="numeric" autocomplete="off" value="${b ? (b.parts ?? '') : ''}" placeholder="4"></div>
@@ -372,6 +372,15 @@
       box.addEventListener('click', e => { const t = e.target.closest('button'); if (!t) return; inp.value = t.textContent; box.hidden = true; inp.dispatchEvent(new Event('change')); });
     }
     suggest('f-author', 'author'); suggest('f-publisher', 'publisher');
+    // لمبے عربی/اردو نام: خانہ نام کے ساتھ لمبا ہو، ایک ہی سطر کا متن (Enter سے اگلا خانہ)
+    wrap.querySelectorAll('.cap-ta').forEach(ta => {
+      const grow = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+      ta.addEventListener('input', () => { if (/\n/.test(ta.value)) ta.value = ta.value.replace(/\s*\n\s*/g, ' '); grow(); });
+      ta.addEventListener('change', grow);
+      ta.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const f = [...wrap.querySelectorAll('.cap-ta, .cap input')]; const n = f[f.indexOf(ta) + 1]; if (n) n.focus(); } });
+      requestAnimationFrame(grow);
+    });
+    wrap.querySelectorAll('[data-z]').forEach(btn => btn.addEventListener('click', () => requestAnimationFrame(() => wrap.querySelectorAll('.cap-ta').forEach(ta => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }))));
     // فن کا انتخاب: نئی کتاب پر فہرست خود کھلی، چننے کے بعد بند اور نام کے خانے پر
     const cpList = $('cpList');
     const cpOpen = on => { cpList.hidden = !on; $('catPick').classList.toggle('open', on); };
@@ -413,7 +422,7 @@
         err.textContent = ''; const ok = document.createElement('p'); ok.className = 'saved-ok'; ok.textContent = `✓ «${name}» محفوظ ہو گئی — اگلی کتاب لکھیں`; $('addForm').querySelector('.saved-ok')?.remove(); $('addForm').prepend(ok);
         refreshCounts(cat.id); pageCat(cat);
         // اگلی کتاب کے لیے خانے خالی، مکتبہ باقی
-        ['f-name', 'f-parts', 'f-price'].forEach(id => { $(id).value = ''; });   // مصنف اور ناشر اگلی کتاب کے لیے رہیں
+        ['f-name', 'f-parts', 'f-price'].forEach(id => { $(id).value = ''; }); $('f-name').style.height = '';   // مصنف اور ناشر اگلی کتاب کے لیے رہیں
         err.textContent = '';
         const opt = $('dl-pub');
         if (rec.publisher && ![...opt.options].some(o => o.value === rec.publisher)) opt.insertAdjacentHTML('beforeend', `<option value="${esc(rec.publisher)}">`);
@@ -844,7 +853,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1410WE115',
+    version: 'MA1610FR116',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
@@ -898,4 +907,20 @@
 
   route();
   updateDock();
+})();
+
+// خانے میں لکھائی پوری نظر آئے: جگہ کم ہو تو اسی خانے کا فونٹ تھوڑا چھوٹا ہو جائے (کچھ نہ کٹے)
+(function () {
+  const fit = el => {
+    if (el.style.fontSize) el.style.fontSize = '';
+    if (!el.value || el.scrollWidth <= el.clientWidth + 1) return;
+    let f = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > el.clientWidth + 1 && f > 11) { f -= 1; el.style.fontSize = f + 'px'; }
+  };
+  const all = () => document.querySelectorAll('.cap input').forEach(fit);
+  document.addEventListener('input', e => { if (e.target.matches && e.target.matches('.cap input')) fit(e.target); });
+  let t = 0; const later = () => { cancelAnimationFrame(t); t = requestAnimationFrame(all); };
+  new MutationObserver(later).observe(document.body, { childList: true, subtree: true });
+  document.addEventListener('click', () => setTimeout(later, 60));   // A+ / A− کے بعد
+  window.addEventListener('resize', all);
 })();
