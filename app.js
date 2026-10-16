@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1610FR118) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA1610FR119) */
 (() => {
   'use strict';
 
@@ -305,6 +305,7 @@
     if (b) pageBook(cat, b.id); else pageCat(cat);
     const back = b ? `#/c/${cat.id}/b/${b.id}` : `#/c/${cat.id}`;
     const last = (() => { try { return JSON.parse(lsGet(LAST_KEY, '{}')) || {}; } catch (e) { return {}; } })();
+    if (!('price' in last) && db.books.length) { const lb = db.books[db.books.length - 1]; last.price = lb.price || ''; if (!last.publisher) last.publisher = lb.publisher || ''; }
     let zoom = Number(lsGet(ZOOM_KEY, 100)) || 100;
 
     document.getElementById('sheet')?.remove();
@@ -327,12 +328,12 @@
             <select id="f-cat" hidden>${cats().map(c => `<option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>
           </div>
           <div class="cap tall" style="--i:1"><label class="cap-l" for="f-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>کتاب کا نام <b class="req">*</b></label><textarea id="f-name" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="مثلاً تفسیر ابن کثیر">${esc(b?.name)}</textarea></div>
-          <div class="cap tall" style="--i:2"><label class="cap-l" for="f-author"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>مصنف <b class="req">*</b></label><textarea id="f-author" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="لکھیں یا فہرست سے چنیں">${esc(b ? b.author : (last.author || ''))}</textarea></div>
+          <div class="cap tall" style="--i:2"><label class="cap-l" for="f-author"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>مصنف <b class="req">*</b></label><textarea id="f-author" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="لکھیں یا فہرست سے چنیں">${esc(b ? b.author : '')}</textarea></div>
           <div class="cap tall" style="--i:3"><label class="cap-l" for="f-publisher"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l2-5h12l2 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg>ناشر <b class="req">*</b></label><textarea id="f-publisher" class="cap-ta" rows="1" autocomplete="off" spellcheck="false" placeholder="جہاں سے کتاب چھپی ہے">${esc(b ? b.publisher : (last.publisher || ''))}</textarea></div>
-          ${!b && last.publisher ? `<p class="hint" style="--i:3">ناشر (جہاں سے کتاب چھپی ہے) — پچھلے اندراج سے خود بھر جاتا ہے</p>` : ''}
+          ${!b && (last.publisher || last.price) ? `<p class="hint" style="--i:3">ناشر اور قیمت پچھلی کتاب سے خود بھر جاتے ہیں — بدلنا ہو تو بدل دیں</p>` : ''}
           <div class="cap-row" style="--i:4">
             <div class="cap"><label class="cap-l" for="f-parts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>اجزاء <b class="req">*</b></label><input id="f-parts" class="numin" inputmode="numeric" autocomplete="off" value="${b ? (b.parts ?? '') : ''}" placeholder="4"></div>
-            <div class="cap"><label class="cap-l" for="f-price"><b class="rs" aria-hidden="true">Rs</b>قیمت</label><input id="f-price" class="numin" inputmode="decimal" autocomplete="off" value="${b && b.price ? b.price : ''}" placeholder="اختیاری"></div>
+            <div class="cap"><label class="cap-l" for="f-price"><b class="rs" aria-hidden="true">Rs</b>قیمت</label><input id="f-price" class="numin" inputmode="decimal" autocomplete="off" value="${b ? (b.price || '') : (last.price || '')}" placeholder="اختیاری"></div>
           </div>
           <datalist id="dl-author">${uniq('author').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
           <datalist id="dl-pub">${uniq('publisher').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
@@ -410,7 +411,7 @@
       const price = loose($('f-price').value);
       if (!parts) { err.textContent = 'اجزاء (جلدیں) کتنی ہیں؟ ہندسہ لکھیں'; $('f-parts').focus(); return; }
       const rec = { name, cat: newCat, author, publisher: $('f-publisher').value.trim(), parts: parts ?? 1, price: price ?? 0 };
-      lsSet(LAST_KEY, JSON.stringify({ publisher: rec.publisher, author: rec.author }));
+      lsSet(LAST_KEY, JSON.stringify({ publisher: rec.publisher, price: rec.price || '' }));   // نئی کتاب پر ناشر اور قیمت پچھلی کتاب والی
       if (b) {
         Object.assign(b, rec); save();
         wrap.remove(); document.body.classList.remove('noscroll'); document.removeEventListener('keydown', onKey);
@@ -422,7 +423,7 @@
         err.textContent = ''; const ok = document.createElement('p'); ok.className = 'saved-ok'; ok.textContent = `✓ «${name}» محفوظ ہو گئی — اگلی کتاب لکھیں`; $('addForm').querySelector('.saved-ok')?.remove(); $('addForm').prepend(ok);
         refreshCounts(cat.id); pageCat(cat);
         // اگلی کتاب کے لیے خانے خالی، مکتبہ باقی
-        ['f-name', 'f-parts', 'f-price'].forEach(id => { $(id).value = ''; }); $('f-name').style.height = '';   // مصنف اور ناشر اگلی کتاب کے لیے رہیں
+        ['f-name', 'f-author', 'f-parts'].forEach(id => { $(id).value = ''; $(id).style.height = ''; });   // ناشر اور قیمت اگلی کتاب کے لیے رہیں، باقی خالی
         err.textContent = '';
         const opt = $('dl-pub');
         if (rec.publisher && ![...opt.options].some(o => o.value === rec.publisher)) opt.insertAdjacentHTML('beforeend', `<option value="${esc(rec.publisher)}">`);
@@ -858,7 +859,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1610FR118',
+    version: 'MA1610FR119',
     toast,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
