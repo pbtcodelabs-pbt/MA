@@ -1489,14 +1489,14 @@ html,body{overflow-x:hidden;max-width:100%}
 /* MA910FR081: قیمت اختیاری — خالی خانے میں «اختیاری» ہلکا اردو میں */
 #f-price::placeholder{font-family:var(--f-body);font-size:.8em;opacity:.55;letter-spacing:0}
 
-/* MA1610FR118: «نیا فن» — اوپر کی پٹی میں صرف ➕ کا چھوٹا بٹن، نیچے ننھا سا نام */
+/* MA1610FR119: «نیا فن» — اوپر کی پٹی میں صرف ➕ کا چھوٹا بٹن، نیچے ننھا سا نام */
 .nc-pill{flex:none;display:grid;justify-items:center;gap:0;text-decoration:none;color:#f1d27a;font-size:10.5px;line-height:1.3;margin-inline-end:2px}
 .nc-pill i{font-style:normal;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 20px/1 Arial,sans-serif;
   background:radial-gradient(circle at 35% 30%,#3fae86,#1f6a54 55%,#0f3a30);box-shadow:0 0 0 2px #e8c467,0 3px 0 #0b2e26}
 .nc-pill:active i{transform:translateY(2px);box-shadow:0 0 0 2px #e8c467,0 1px 0 #0b2e26}
 .muted-x{color:var(--muted);font-size:15px}
 
-/* MA1610FR118: فن سب سے اوپر الگ کیپسول میں */
+/* MA1610FR119: فن سب سے اوپر الگ کیپسول میں */
 .d-cat{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;margin:0 0 6px;text-decoration:none;
   padding:2px 4px 2px 16px;border-radius:99px;background:linear-gradient(180deg,#2f8f6f,#14463a);color:#fff1c1;box-shadow:0 0 0 2px #e8c467,0 4px 10px rgba(0,0,0,.2)}
 .d-cat span{background:#e8c467;color:#0b2e26;border-radius:99px;padding:0 10px;font-size:14px;line-height:1.9}
@@ -1512,7 +1512,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .cp-list button{border:1.5px solid #1f6a54;background:#fff;color:#14463a;border-radius:99px;padding:0 14px;font:inherit;font-size:.95em;line-height:2.1;cursor:pointer}
 .cp-list button.on{background:#14463a;color:#fff1c1;border-color:#e8c467}
 
-/* MA1610FR118: مصنف / ناشر کی فہرست خانے کے نیچے */
+/* MA1610FR119: مصنف / ناشر کی فہرست خانے کے نیچے */
 .sg-list{margin:-4px 14px 4px;max-height:38vh;overflow:auto;background:#fff;border:1.5px solid #c8962f;border-radius:14px;box-shadow:0 8px 18px rgba(60,45,10,.22);display:grid}
 .sg-list button{border:0;border-bottom:1px solid #f0e6cc;background:none;text-align:start;padding:6px 14px;font:inherit;font-size:1em;line-height:1.9;color:#2b2620;cursor:pointer}
 .sg-list button:last-child{border-bottom:0}
@@ -1520,7 +1520,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .sg-list button:active{background:#f6ecd2}
 .sheet-b > .sg-list{animation:none}
 
-/* MA1610FR118: کی بورڈ کے اوپر خانے؛ نئے فن کی فہرست */
+/* MA1610FR119: کی بورڈ کے اوپر خانے؛ نئے فن کی فہرست */
 .sheet-wrap{bottom:var(--kb,0px)}
 .sheet{max-height:calc(100dvh - var(--kb,0px) - 24px)}
 .br-ov{bottom:var(--kb,0px)}
@@ -1533,7 +1533,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .cs-list.have span.hit{background:#fff3c4;border-color:#c8962f;color:#14463a}
 .cs-list.have span.dup{background:#b4574a;border-color:#8a2a20;color:#fff}
 
-/* MA1610FR118: سادہ بیک اپ خانہ + فون بک */
+/* MA1610FR119: سادہ بیک اپ خانہ + فون بک */
 .bx-card{background:#fff;border:2px solid #1f6a54;border-radius:16px;padding:10px 12px 12px;display:grid;gap:6px;box-shadow:0 3px 0 #cfe3d8}
 .bx-out{border-color:#c8962f;box-shadow:0 3px 0 #eadcb4}
 .bx-h{margin:0;font-weight:400;font-size:20px;line-height:1.9;color:#14463a;text-align:center}
@@ -1563,7 +1563,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .pf-f,.br-f{position:relative}
 .pf-f input[inputmode="tel"],.br-f input[inputmode="tel"]{padding-left:62px !important}
 
-/* MA1610FR118: فن کا نام دائرے میں پورا — لفظ نہ ٹوٹیں؛ PDF کالم کا انتخاب */
+/* MA1610FR119: فن کا نام دائرے میں پورا — لفظ نہ ٹوٹیں؛ PDF کالم کا انتخاب */
 .bkx-label{overflow-wrap:normal !important;word-break:keep-all;hyphens:none;overflow:hidden;line-height:1.35}
 .sh-cols{display:inline-flex;align-items:center;gap:3px;background:#fff;border:1px solid #e3cf98;border-radius:99px;padding:2px 4px 2px 8px}
 .sh-cols > span{font-size:13px;color:var(--muted);margin-inline-end:2px}
@@ -1585,7 +1585,7 @@ html,body{overflow-x:hidden;max-width:100%}
   .home-h .actions{gap:4px}
 }
 
-/* MA1610FR118: پروگرام فارم — گھڑی کا وقت ختم، صرف نماز؛ خانے چھوٹے */
+/* MA1610FR119: پروگرام فارم — گھڑی کا وقت ختم، صرف نماز؛ خانے چھوٹے */
 .pf-form{gap:6px}
 .pf-grid{gap:5px 6px}
 .pf-f{padding:0 9px 2px;border-radius:10px}
@@ -1599,7 +1599,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .pp-row .pp-acts .btn{min-height:28px;font-size:12.5px;padding:0 10px}
 .pf-form .btn.save{min-height:40px}
 
-/* MA1610FR118: بھیجنے سے پہلے پیش نظارہ — رنگ، فونٹ، ترتیب، سائز */
+/* MA1610FR119: بھیجنے سے پہلے پیش نظارہ — رنگ، فونٹ، ترتیب، سائز */
 .pv-wrap{position:fixed;inset:0;z-index:90;background:rgba(5,20,15,.72);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
 .pv{width:min(720px,100%);height:min(96svh,100%);display:flex;flex-direction:column;background:linear-gradient(180deg,#fffaf0,#f6ecd4);border:1.5px solid var(--gold-2);border-radius:22px 22px 0 0;overflow:hidden;box-shadow:0 -10px 30px rgba(0,0,0,.4)}
 .pv-h{flex:none;display:flex;align-items:center;gap:8px;padding:8px 10px;background:linear-gradient(180deg,#0f3a30,#1f6a54);color:var(--gold-1)}
@@ -1628,7 +1628,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .pv-go{flex:1;border-radius:99px}
 .pv-go.wa{background:linear-gradient(180deg,#2fd366,#139a43) !important;border-color:#0d7a33 !important;color:#fff !important}
 
-/* MA1610FR118: سابقہ پروگرام */
+/* MA1610FR119: سابقہ پروگرام */
 .pg-old-go{display:flex;align-items:center;gap:8px;margin:2px 0 6px;padding:6px 14px;border-radius:99px;text-decoration:none;color:#2b1d05;background:linear-gradient(180deg,#fff6d5,#f1d27a 45%,#c8962f);border:1px solid #a8741f;box-shadow:0 3px 0 #7a5418;font-size:15px}
 .pg-old-go b{font:700 13px Arial,sans-serif;background:#14463a;color:#fff1c1;border-radius:99px;padding:2px 8px}
 .pg-old-go span{margin-inline-start:auto;font-size:20px}
@@ -1642,7 +1642,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .pr-btns.old .btn{white-space:nowrap;padding:0 8px}
 .pg-old .pg-row.past{opacity:1;filter:none}
 
-/* MA1610FR118: تاریخ کے تین پہیے */
+/* MA1610FR119: تاریخ کے تین پہیے */
 .wd-wrap > span{display:flex;align-items:center;gap:8px}
 .wd-day{font-weight:400;font-size:13px;color:#fff1c1;background:linear-gradient(180deg,#2a7d63,#14463a);border-radius:99px;padding:0 10px;line-height:1.8}
 .wd{position:relative;display:grid;grid-template-columns:1fr 1.6fr 1.2fr;gap:6px;height:108px;margin:2px 0 4px}
@@ -1653,7 +1653,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .wd-i{height:36px;line-height:36px;text-align:center;scroll-snap-align:center;font:600 17px "Digits","JNN",serif;color:#8a7d62;cursor:pointer;transition:color .15s,transform .15s}
 .wd-i.on{color:#14463a;font-size:19px;transform:scale(1.06)}
 
-/* MA1610FR118: کتاب کا اصل ٹائٹل آئیکن پر؛ نیچے جلدوں کی گنتی */
+/* MA1610FR119: کتاب کا اصل ٹائٹل آئیکن پر؛ نیچے جلدوں کی گنتی */
 .bkx-cover{position:relative}
 .bkx.cv-full .bkx-full{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:block}
 .bkx.cv-full .bkx-label{display:none}
@@ -1691,7 +1691,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .cv-row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .cv-hint{font-size:12px;color:#8a7d62}
 
-/* MA1610FR118: ٹائٹل کتاب کا حصہ لگے — گول کونے، کنارہ، چمک اور جِلد کی نالی */
+/* MA1610FR119: ٹائٹل کتاب کا حصہ لگے — گول کونے، کنارہ، چمک اور جِلد کی نالی */
 .bkx.cv-full .bkx-cover{box-shadow:none;background:linear-gradient(to left,rgba(0,0,0,.30) 0,rgba(0,0,0,0) 9%),var(--c)}
 .bkx.cv-full .bkx-full{
   inset:calc(var(--cvm,3) * 1px * var(--bs,1));width:calc(100% - var(--cvm,3) * 2px * var(--bs,1));height:calc(100% - var(--cvm,3) * 2px * var(--bs,1));
@@ -1709,7 +1709,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .cv-fx[hidden]{display:none}
 .cv-mini .bkx{--w:calc(56px * var(--bs));--h:calc(80px * var(--bs))}
 
-/* MA1610FR118: تاریخ کے پہیے — اصل پہیے جیسا، اوپر بڑا دن */
+/* MA1610FR119: تاریخ کے پہیے — اصل پہیے جیسا، اوپر بڑا دن */
 .wd-dayc{display:flex;justify-content:center;margin:2px 0 6px}
 .wd-dayc b{min-width:150px;text-align:center;font-weight:700;font-family:var(--f-body);font-size:26px;line-height:1.6;padding:2px 26px;border-radius:99px;color:#2b1d05;
   background:linear-gradient(180deg,#fff6d5,#f1d27a 40%,#c8962f 75%,#e8c467);border:1.5px solid #a8741f;box-shadow:0 4px 0 #7a5418,0 8px 14px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.7);text-shadow:0 1px 0 rgba(255,255,255,.6)}
@@ -1723,7 +1723,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .wd-i{color:#e8c467;font-size:17px;border-bottom:1px dotted rgba(232,196,103,.28);transition:none;will-change:transform,opacity,filter}
 .wd-i.on{color:#fff6d5;font-size:21px;font-weight:700;text-shadow:0 0 8px rgba(232,196,103,.6)}
 
-/* MA1610FR118: پہیے چھوٹے، کالا چمکدار پس منظر، ریڈیم جیسے چمکتے ہندسے */
+/* MA1610FR119: پہیے چھوٹے، کالا چمکدار پس منظر، ریڈیم جیسے چمکتے ہندسے */
 .wd{height:90px;gap:6px;grid-template-columns:62px 104px 76px;justify-content:center;max-width:270px;margin:0 auto 4px}
 .wd::before{top:30px;height:30px;left:-4px;right:-4px;border-top:1.5px solid rgba(232,196,103,.95);border-bottom:1.5px solid rgba(232,196,103,.95)}
 .wd-col{height:90px;border-radius:12px;border:2px solid #c8962f;
@@ -1736,14 +1736,14 @@ html,body{overflow-x:hidden;max-width:100%}
 #wdM .wd-i.on{font-size:18px}
 .wd-dayc b{font-size:22px;padding:0 22px;min-width:130px;line-height:1.55}
 
-/* MA1610FR118: ہندسے صاف، بغیر چمک کے پھیلاؤ؛ پہیے اور پتلے */
+/* MA1610FR119: ہندسے صاف، بغیر چمک کے پھیلاؤ؛ پہیے اور پتلے */
 .wd{grid-template-columns:52px 88px 64px;max-width:228px;gap:5px}
 .wd-i{color:#1fbf63 !important;font-size:14px;text-shadow:none !important;border-bottom:1px dotted rgba(31,191,99,.25)}
 .wd-i.on{color:#3dff8a !important;font-size:19px;text-shadow:none !important;-webkit-text-stroke:0 !important}
 #wdM .wd-i{font-size:14px}
 #wdM .wd-i.on{font-size:17px}
 
-/* MA1610FR118: جلسے کی جگہ کی لوکیشن */
+/* MA1610FR119: جلسے کی جگہ کی لوکیشن */
 .loc-f input{direction:ltr;text-align:left;font:14px Arial,sans-serif !important}
 .loc-f > span em{font-style:normal;font-size:11.5px;margin-inline-start:6px}
 .loc-f > span em.ok{color:#1d7a43}.loc-f > span em.bad{color:#b4574a}
@@ -1762,7 +1762,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .pl-go{background:linear-gradient(180deg,#4285f4,#1a5fd0);color:#fff;border:1px solid #1449a8;box-shadow:0 3px 0 #0e3a86}
 .pl-sh{background:#fff;color:#14463a;border:1.5px solid #e3cf98}
 
-/* MA1610FR118: مصروفیات کے اوپر مکتبہ/مدرسہ اور مہتمم کا عنوان */
+/* MA1610FR119: مصروفیات کے اوپر مکتبہ/مدرسہ اور مہتمم کا عنوان */
 .pg-brand{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:14px 10px 12px;border-radius:20px;overflow:hidden;
   background:radial-gradient(120% 90% at 50% 0%,rgba(255,230,160,.18),transparent 60%),linear-gradient(135deg,#2c1f4a 0%,#14463a 55%,#0b2e26 100%);
   border:2px solid #c8962f;box-shadow:inset 0 0 0 4px rgba(11,46,38,.6),inset 0 0 0 5.5px rgba(232,196,103,.55),0 6px 16px rgba(0,0,0,.35)}
@@ -1790,7 +1790,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .sw-b i{font-style:normal;font-size:16px;line-height:1}
 .sw-b span{font-size:14px;line-height:1.6;white-space:nowrap}
 
-/* MA1610FR118: مصروفیات کے عنوان (شیڈیول، سابقہ پروگرام) — مختصر کشیدہ فونٹ میں «ش ڈ س ق ہ» نہیں، اس لیے پورا کشیدہ؛ ایپ کا فونٹ چنا ہو تو وہی */
+/* MA1610FR119: مصروفیات کے عنوان (شیڈیول، سابقہ پروگرام) — مختصر کشیدہ فونٹ میں «ش ڈ س ق ہ» نہیں، اس لیے پورا کشیدہ؛ ایپ کا فونٹ چنا ہو تو وہی */
 @font-face{font-family:"JNNK";src:local("Jameel Noori Nastaleeq Kasheeda"),url("fonts/jnn-kasheeda-full.woff2") format("woff2");font-display:swap}
 .prog-title{font-family:var(--f-prog,"Digits","JNNK","JNN","Noto Nastaliq Urdu",serif) !important}
 /* پروگرام کے خانوں کے مشورے */
@@ -1799,7 +1799,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .sg-i{font:inherit;font-size:16px;line-height:1.7;text-align:start;padding:5px 12px;border:0;border-bottom:1px solid #efe3c2;background:none;color:#14463a;cursor:pointer}
 .sg-i:last-child{border-bottom:0}
 .sg-i:active,.sg-i:hover{background:#f6ecd0}
-/* MA1610FR118: اجزاء اور قیمت — ہر ایک اپنی پوری قطار میں تاکہ ہندسے نہ کٹیں؛ کسی خانے کی لکھائی نہ کٹے */
+/* MA1610FR119: اجزاء اور قیمت — ہر ایک اپنی پوری قطار میں تاکہ ہندسے نہ کٹیں؛ کسی خانے کی لکھائی نہ کٹے */
 .cap-row{grid-template-columns:1fr !important;gap:10px !important}
 .cap-row .cap-l{min-width:0 !important;padding:0 .8em !important}
 .cap-l{flex:0 1 auto;max-width:55%}
@@ -1812,7 +1812,7 @@ html,body{overflow-x:hidden;max-width:100%}
   font:inherit;font-size:1.1em;line-height:1.9;min-height:2.3em;padding:.15em .8em;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;direction:rtl}
 .cap-ta::placeholder{color:#a99b7c}
 
-/* MA1610FR118: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
+/* MA1610FR119: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
 @font-face{font-family:"Digits";src:local("Arial"),local("ArialMT"),url("fonts/digits.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
 @font-face{font-family:"Digits";font-weight:700;src:local("Arial Bold"),local("Arial-BoldMT"),url("fonts/digits-bold.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
 @font-face{font-family:"JNN";src:url("fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}

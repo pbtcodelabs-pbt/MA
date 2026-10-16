@@ -40,7 +40,7 @@
 @font-face{font-family:'MAF Almas';src:url('../fonts/extra/sameer-almas.woff') format('woff');font-display:swap}
 @font-face{font-family:'MAF Alfars';src:url('../fonts/extra/alfars-aban.woff') format('woff');font-display:swap}
 @font-face{font-family:'MAF Gandhara';src:url('../fonts/extra/gandhara-suls.woff') format('woff');font-display:swap}
-/* MA1610FR118: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
+/* MA1610FR119: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
 @font-face{font-family:"Digits";src:local("Arial"),local("ArialMT"),url("../fonts/digits.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
 @font-face{font-family:"Digits";font-weight:700;src:local("Arial Bold"),local("Arial-BoldMT"),url("../fonts/digits-bold.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
 @font-face{font-family:"JNN";src:url("../fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
@@ -1501,7 +1501,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1610FR118</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA1610FR119</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1779,7 +1779,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA1610FR118';
+const APP_VERSION = 'MA1610FR119';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -3673,6 +3673,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../guard.js?v=MA1610FR118"></script><script src="../update.js?v=MA1610FR118"></script>
+</script><script src="../guard.js?v=MA1610FR119"></script><script src="../update.js?v=MA1610FR119"></script>
 </body>
 </html>
