@@ -10,6 +10,7 @@
 <meta property="og:description" content="ایپ انسٹال کریں، 3 دن فری استعمال کریں، اس کے بعد خریدنے کا فیصلہ کریں۔">
 <meta property="og:image" content="https://pbtcodelabs-pbt.github.io/MA/promo/mera-maktaba.jpg">
 <meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
@@ -33,7 +34,18 @@ body{font-family:"JNN","Noto Nastaliq Urdu",serif;color:#fff1c1;background:radia
 .msg b{font-weight:400;color:#f1d27a}
 .again{border:0;background:none;color:#f1d27a;text-decoration:underline;font:inherit;font-size:16px;cursor:pointer}
 [hidden]{display:none !important}
-/* MA1610FR119: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
+/* ایک ٹچ میں انسٹال (کروم سے سیدھی ایپ، فائل کی ضرورت نہیں) */
+.inst{background:linear-gradient(180deg,#3fe07a,#16a34a 55%,#0f7a36) !important;color:#fff !important;box-shadow:0 0 0 3px #d9ffe6,0 8px 0 #0b5e2a,0 16px 24px rgba(0,0,0,.45) !important;font-size:28px !important}
+.inst:active{box-shadow:0 0 0 3px #d9ffe6,0 2px 0 #0b5e2a !important}
+.inst svg{stroke:#fff}
+.or{font-size:15px;color:#e9dcb8;opacity:.85}
+.dl.alt{font-size:19px;padding:10px 12px;background:rgba(255,255,255,.12);color:#fff1c1;box-shadow:0 0 0 1.5px #e8c467}
+.dl.alt svg{width:26px;height:26px;stroke:#f1d27a}
+.steps{width:100%;text-align:right;background:rgba(0,0,0,.28);border:1.5px solid #e8c467;border-radius:18px;padding:10px 14px;font-size:18px;line-height:2.1}
+.steps b{font-weight:400;color:#f1d27a}
+.chrome{display:inline-block;margin-top:4px;padding:4px 16px;border-radius:99px;background:#f1d27a;color:#0b2e26;text-decoration:none}
+
+/* MA1710SA120: پوری ایپ میں ہندسے صرف انگریزی Arial — فون میں Arial نہ ہو تو ساتھ رکھا ہوا Arial جیسا فونٹ (Liberation Sans) */
 @font-face{font-family:"Digits";src:local("Arial"),local("ArialMT"),url("fonts/digits.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
 @font-face{font-family:"Digits";font-weight:700;src:local("Arial Bold"),local("Arial-BoldMT"),url("fonts/digits-bold.woff2") format("woff2");unicode-range:U+0021-007E;font-display:swap}
 @font-face{font-family:"JNN";src:url("fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
@@ -51,9 +63,16 @@ body{font-family:"JNN","Noto Nastaliq Urdu",serif;color:#fff1c1;background:radia
 <body>
 <main class="w">
   <img class="logo" src="icons/app-badge.png" alt="میرا مکتبہ" width="150">
-  <button type="button" class="dl" id="dl">
+  <button type="button" class="dl inst" id="inst">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>
+    <span>ایک ٹچ میں انسٹال کریں</span>
+  </button>
+  <p class="msg" id="imsg"></p>
+  <div class="steps" id="isteps" hidden></div>
+  <p class="or">— یا —</p>
+  <button type="button" class="dl alt" id="dl">
     <svg viewBox="0 0 24 24" fill="none" stroke="#0b2e26" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M6.5 10l5.5 5.5 5.5-5.5"/><path d="M4 20h16"/></svg>
-    <span>ایپ ڈاؤن لوڈ کریں</span>
+    <span>فائل (APK) ڈاؤن لوڈ کریں</span>
   </button>
   <div class="bar" id="bar" hidden><i id="fill"></i></div>
   <p class="pc" id="pc"></p>
@@ -91,6 +110,24 @@ body{font-family:"JNN","Noto Nastaliq Urdu",serif;color:#fff1c1;background:radia
     }
   });
   again.addEventListener('click', save);
+})();
+// ایک ٹچ انسٹال: کروم خود ایپ بنا کر ہوم اسکرین پر لگا دیتا ہے — نہ فائل، نہ Play Protect کی وارننگ
+(function () {
+  const btn = document.getElementById('inst'), im = document.getElementById('imsg'), st = document.getElementById('isteps');
+  let ev = null;
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ev = e; im.textContent = ''; });
+  window.addEventListener('appinstalled', () => { ev = null; st.hidden = true; im.innerHTML = '✅ ایپ انسٹال ہو گئی — فون کی ہوم اسکرین پر <b>«میرا مکتبہ»</b> دبا کر کھولیں'; });
+  const ua = navigator.userAgent, android = /Android/i.test(ua);
+  const inChrome = /Chrome\//.test(ua) && !/wv\)|; wv|FBAN|FBAV|Instagram|SamsungBrowser|EdgA|OPR|MiuiBrowser|UCBrowser/i.test(ua);
+  const chromeLink = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
+  if (window.matchMedia('(display-mode: standalone)').matches) im.innerHTML = '✅ ایپ پہلے سے انسٹال ہے';
+  btn.addEventListener('click', async () => {
+    if (ev) { ev.prompt(); const r = await ev.userChoice.catch(() => null); if (r && r.outcome === 'accepted') im.innerHTML = '⏳ انسٹال ہو رہی ہے… چند سیکنڈ میں ہوم اسکرین پر آ جائے گی'; ev = null; return; }
+    st.hidden = false;
+    if (android && !inChrome) st.innerHTML = 'یہ صفحہ <b>کروم</b> میں کھولیں، پھر یہی بٹن دوبارہ دبائیں:<br><a class="chrome" href="' + chromeLink + '">کروم میں کھولیں</a>';
+    else st.innerHTML = '1) اوپر کونے میں تین نقطے <svg width="14" height="22" viewBox="0 0 6 22" style="vertical-align:-5px" aria-hidden="true"><circle cx="3" cy="4" r="2.4" fill="#f1d27a"/><circle cx="3" cy="11" r="2.4" fill="#f1d27a"/><circle cx="3" cy="18" r="2.4" fill="#f1d27a"/></svg> دبائیں<br>2) <b>«ایپ انسٹال کریں»</b> یا <b>«ہوم اسکرین پر شامل کریں»</b> دبائیں<br>3) <b>«انسٹال»</b> دبائیں — بس';
+  });
 })();
 </script>
 </body>
