@@ -183,6 +183,7 @@
   .lic-small{margin:-4px 0 2px;font-size:14px;line-height:1.8;color:#e6d6aa;text-align:center}
   .lic-small b{font:700 14px ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;color:#fff1c1}
   .lic-link{border:0;background:none;color:#f4de96;text-decoration:underline;font:inherit;cursor:pointer;padding:0}
+  .lic-share{background:linear-gradient(180deg,#3fe07a,#16a34a 55%,#0f7a36) !important;color:#fff !important;border-color:#0b5e2a !important}
   .lic-rs{display:block;margin:6px auto 0;font-size:16px}
   .lic-rbox{background:rgba(0,0,0,.22);border:1px dashed rgba(233,201,122,.7);border-radius:14px;padding:8px 12px;display:grid;gap:6px}
   .lic-rbox p{margin:0;font-size:15px;line-height:1.85;color:#f3e6c2}
@@ -296,7 +297,10 @@
   // ----- گاہک کی اسکرین -----
   function waMsg(st, name) {
     const bn = (window.MA_BRAND && window.MA_BRAND.get().name) || '';
-    return `نام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nہمیں سبسکرپشن کوڈ چاہیے۔` + (st.mode === 'paid' ? `\nموجودہ سبسکرپشن ختم: ${dmyI(st.exp)}` : '');
+    const ask = st.mode === 'paid' ? `میری *میرا مکتبہ* کی سبسکرپشن ${dmyI(st.exp)} کو ختم ہو رہی ہے۔ برائے مہربانی مجھے ایک سال کی تجدید کا ایکٹیویشن کوڈ بھیج دیں۔`
+      : st.mode === 'expired' ? 'میری *میرا مکتبہ* کی سبسکرپشن ختم ہو گئی ہے۔ برائے مہربانی مجھے ایک سال کا نیا ایکٹیویشن کوڈ بھیج دیں۔'
+      : 'میں نے *میرا مکتبہ* ایپ انسٹال کی ہے۔ برائے مہربانی مجھے ایک سال کا ایکٹیویشن کوڈ بھیج دیں۔';
+    return `السلام علیکم!\n${ask}\n\nنام: ${name || ''}\n` + (bn ? `مکتبہ: ${bn}\n` : '') + `UID: ${st.uid}\nتاریخ: ${dmyI(today())}`;
   }
   // ڈائری سے آئے ہوں تو کھلنے کے بعد واپس ڈائری میں
   const goNext = () => { if (/[?&]next=diary\b/.test(location.search)) { location.replace('diary/'); return true; } return false; };
@@ -307,6 +311,7 @@
       <p class="lic-k" id="licTitle">${esc(bn)}</p>
       <button type="button" class="lic-b lic-trial" id="licTrial">🎁 ${num(CFG.TRIAL_DAYS)} دن کے لیے فری استعمال کریں</button>
       <button type="button" class="lic-link lic-rs" id="licHaveCode">سبسکرپشن کے لیے یہ بٹن دبائیں</button>
+      <button type="button" class="lic-b lic-share" data-appshare>📲 یہ ایپ دوسروں کو بھیجیں</button>
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
       </div></div>`, true);
     tapCounter($(ov, '#licTitle'), devAuth);
@@ -327,20 +332,21 @@
       <div class="${block ? 'lic-fade' : ''}" style="display:grid;gap:10px">
       <p class="lic-k" id="licTitle">${block ? 'سبسکرپشن درکار ہے' : 'سبسکرپشن'}</p>
       <p class="lic-p">${line}</p>
-      <p class="lic-step">۱) اپنا نام لکھ کر واٹس ایپ کریں</p>
+      <p class="lic-step">1) اپنا نام لکھ کر واٹس ایپ کریں</p>
       <input class="lic-in t" id="licName" placeholder="اپنا نام لکھیں (ضروری)" autocomplete="off" value="${esc(s.name || '')}">
       <a class="lic-b lic-big" id="licWa" target="_blank" rel="noopener" href="#">📲 واٹس ایپ پر کوڈ منگوائیں</a>
       <p class="lic-small">آپ کی UID: <b dir="ltr" id="licUid">${st.uid}</b> · <button type="button" class="lic-link" id="licCopyMsg">یا میسج کاپی کریں</button></p>
-      <p class="lic-step">۲) ملنے والا کوڈ یہاں ڈالیں</p>
+      <p class="lic-step">2) ملنے والا کوڈ یہاں ڈالیں</p>
       <input class="lic-in" id="licIn" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button type="button" class="lic-b lic-big g2" id="licGo">✅ فعال کریں</button>
       <button type="button" class="lic-link lic-rs" id="licRestore">🔄 پہلے سے سبسکرپشن تھی؟ یہاں سے بحال کریں</button>
       <div class="lic-rbox" id="licRbox" hidden>
-        <p><b>۱)</b> پہلے واٹس ایپ پر جو کوڈ ملا تھا، وہی اوپر والے خانے میں دوبارہ ڈال کر «فعال کریں» دبائیں۔ اسی فون پر وہی کوڈ دوبارہ چل جاتا ہے۔</p>
-        <p><b>۲)</b> پرانا کوڈ نہیں مل رہا؟ نیچے بٹن دبائیں، آپ کو پرانا کوڈ دوبارہ بھیج دیا جائے گا (نیا پیسہ نہیں لگے گا)۔</p>
+        <p><b>1)</b> پہلے واٹس ایپ پر جو کوڈ ملا تھا، وہی اوپر والے خانے میں دوبارہ ڈال کر «فعال کریں» دبائیں۔ اسی فون پر وہی کوڈ دوبارہ چل جاتا ہے۔</p>
+        <p><b>2)</b> پرانا کوڈ نہیں مل رہا؟ نیچے بٹن دبائیں، آپ کو پرانا کوڈ دوبارہ بھیج دیا جائے گا (نیا پیسہ نہیں لگے گا)۔</p>
         <a class="lic-b lic-big" id="licWaR" target="_blank" rel="noopener" href="#">📲 سبسکرپشن بحال کروائیں</a>
       </div>
       <div class="lic-m" id="licMsg"></div>
+      <button type="button" class="lic-b lic-share" data-appshare>📲 یہ ایپ دوسروں کو بھیجیں</button>
       ${block ? '' : '<button type="button" class="lic-b g" id="licClose">بند کریں</button>'}
       ${block ? '<button type="button" class="lic-b g lic-big" id="licExit">⏻ ایپ بند کریں</button>' : ''}
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
