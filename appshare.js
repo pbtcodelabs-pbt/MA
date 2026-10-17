@@ -9,6 +9,8 @@
 📲 نیچے والا لنک کھولیں اور سبز بٹن «ایک ٹچ میں انسٹال کریں» دبائیں:
 ${LINK}`;
   async function shareApp() {
+    // پوسٹر + پیغام ایک ساتھ؛ پوسٹر نہ جا سکے تو صرف پیغام
+    try { if (window.MA_PROMO && window.MA_PROMO.quickShare && await window.MA_PROMO.quickShare(MSG)) return; } catch (e) {}
     try { if (navigator.share) { await navigator.share({ title: 'میرا مکتبہ', text: MSG }); return; } }
     catch (e) { if (e && e.name === 'AbortError') return; }
     location.href = 'https://wa.me/?text=' + encodeURIComponent(MSG);
