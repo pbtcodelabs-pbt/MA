@@ -17,15 +17,15 @@
   };
   const DEF_MSG = `السلام علیکم!
 *میرا مکتبہ* — ڈیجیٹل لائبریری، ڈیجیٹل ڈائری اور مصروفیات، تینوں ایک ایپ میں۔
-علمائے کرام، طلبائے کرام اور کتاب سے محبت کرنے والوں کے لیے اپنی طرز کا پہلا بہترین موبائل سافٹ ویئر۔
+علمائے کرام، طلبائے کرام اور کتاب سے محبت کرنے والوں کے لیے۔
 
-🎁 ایپ انسٹال کریں، 3 دن فری استعمال کریں، اس کے بعد خریدنے کا فیصلہ کریں۔
-
-⬇️ ڈاؤن لوڈ کریں:
+🎁 3 دن فری استعمال کریں۔
+📲 نیچے والا لنک کھولیں اور سبز بٹن «ایک ٹچ میں انسٹال کریں» دبائیں:
 ${LINK}`;
 
-  let st = { design: 1, theme: 'green', bold: true, border: 'gold', price: true, msg: DEF_MSG };
+  let st = { design: 3, theme: 'green', bold: true, border: 'gold', price: true, msg: DEF_MSG };
   try { st = Object.assign(st, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  if (!st.msg || /ایپ انسٹال کریں، 3 دن فری استعمال کریں، اس کے بعد خریدنے کا فیصلہ کریں/.test(st.msg)) st.msg = DEF_MSG;   // پرانا عام پیغام نئے سے بدل دیں
   const saveSt = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
 
   // ---------- کینوس کے اوزار ----------
@@ -158,13 +158,42 @@ ${LINK}`;
     footer(c, T);
   }
 
+  // تیسرا ڈیزائن: ایپ کا آئیکن، تھری اِن وَن، اصل فائدے، ایک ٹچ انسٹال کی سبز پٹی
+  const USES = [['📚', 'پوری لائبریری ڈیجیٹل — فہرست PDF میں'], ['🗓️', 'تقاریر، پیغامات اور پروگرام تاریخ وار محفوظ'], ['📒', 'اپنی یادداشتیں اور علمی نوٹس محفوظ'], ['🖨️', 'ہر فہرست کا PDF، پرنٹ اور واٹس ایپ']];
+  function design3(c, T, logo) {
+    bg(c, T); frame(c, T);
+    txt(c, 'کتاب سے محبت رکھنے والوں اور علمائے کرام کے لیے', W / 2, 96, 36, T.tx, { max: W - 140 });
+    if (logo) { const lh = 250, lw = logo.width * lh / logo.height, lx = W / 2 - lw / 2, ly = 124;
+      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 28; c.shadowOffsetY = 14; c.drawImage(logo, lx, ly, lw, lh); c.restore(); }
+    title(c, T, 520, 130);
+    pill3d(c, W / 2 - 170, 548, 340, 64, [T.gold[0], T.gold[1], T.gold[2]], '#6e4a10');
+    txt(c, 'تھری اِن وَن ایپ', W / 2, 593, 36, '#0b2e26');
+    txt(c, 'ڈیجیٹل لائبریری · ڈیجیٹل ڈائری · میری مصروفیات', W / 2, 668, 34, T.gold[1], { max: W - 140 });
+    const rh = 74, gap = 14, y0 = 700, x = 90, w = W - 180;
+    USES.forEach(([e, t], i) => {
+      const y = y0 + i * (rh + gap);
+      card3d(c, x, y, w, rh, 37, T);
+      c.font = '44px sans-serif'; c.textAlign = 'center'; c.direction = 'ltr'; c.fillStyle = '#000'; c.fillText(e, x + w - 52, y + 52);
+      txt(c, t, x + w - 100, y + 50, 34, T.ct, { align: 'right', max: w - 130 });
+    });
+    // سبز پٹی: ایک ٹچ میں انسٹال
+    const gy = 1066, gh = 128, gx = 70, gw = W - 140;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 18; c.shadowOffsetY = 10; c.fillStyle = '#0b5e2a'; rr(c, gx, gy + 8, gw, gh, 30); c.fill(); c.restore();
+    c.fillStyle = lg(c, gy, gy + gh, ['#3fe07a', '#16a34a', '#0f7a36']); rr(c, gx, gy, gw, gh, 30); c.fill();
+    c.strokeStyle = '#d9ffe6'; c.lineWidth = 4; rr(c, gx + 2, gy + 2, gw - 4, gh - 4, 28); c.stroke();
+    txt(c, '📲 لنک کھولیں — ایک ٹچ میں انسٹال کریں', W / 2, gy + 56, 44, '#ffffff', { max: gw - 50 });
+    txt(c, '🎁 3 دن فری استعمال کریں، پھر فیصلہ کریں', W / 2, gy + 106, 34, '#eaffef', { max: gw - 50 });
+    footer(c, T);
+  }
+
   let logoImg = null;
   function loadLogo() { return new Promise(res => { if (logoImg) return res(logoImg); const i = new Image(); i.onload = () => { logoImg = i; res(i); }; i.onerror = () => res(null); i.src = 'icons/app-badge.png'; }); }
-  async function render(cv) {
+  async function render(cv, force) {
     try { await Promise.all([document.fonts.load(`40px ${F}`, 'کتاب'), document.fonts.load(`120px ${TF}`, 'میرا مکتبہ')]); } catch (e) {}
     const c = cv.getContext('2d'); c.clearRect(0, 0, W, H);
     const T = THEMES[st.theme] || THEMES.green;
-    if (st.design === 2) design2(c, T, await loadLogo()); else design1(c, T);
+    const d = force || st.design;
+    if (d === 3) design3(c, T, await loadLogo()); else if (d === 2) design2(c, T, await loadLogo()); else design1(c, T);
   }
 
   // ---------- تیاری کا صفحہ ----------
@@ -195,7 +224,7 @@ ${LINK}`;
     const ui = () => `<div class="pm-box">
       <div class="pm-h"><span>پوسٹر اور پیغام دیکھ لیں، پھر بھیجیں</span><button type="button" class="pm-x" data-a="x" aria-label="بند">✕</button></div>
       <canvas class="pm-cv" width="${W}" height="${H}"></canvas>
-      <div class="pm-row"><span>ڈیزائن:</span>${chips('design', [[1, 'پہلا'], [2, 'دوسرا']], st.design)}</div>
+      <div class="pm-row"><span>ڈیزائن:</span>${chips('design', [[3, 'نیا'], [1, 'پہلا'], [2, 'دوسرا']], st.design)}</div>
       <div class="pm-row"><span>رنگ:</span>${Object.entries(THEMES).map(([k, T]) => `<button type="button" class="pm-sw${st.theme === k ? ' on' : ''}" data-k="theme" data-v="${k}" title="${T.n}" style="background:linear-gradient(135deg,${T.bg[0]},${T.bg[2]})"></button>`).join('')}</div>
       <div class="pm-row"><span>لکھائی:</span>${chips('bold', [['false', 'باریک'], ['true', 'موٹی']], st.bold)}</div>
       <div class="pm-row"><span>بارڈر:</span>${chips('border', [['gold', 'سنہری'], ['thin', 'سادہ'], ['none', 'بغیر']], st.border)}</div>
@@ -236,5 +265,15 @@ ${LINK}`;
       }
     });
   }
-  window.MA_PROMO = { open, render, _st: st };
+  // سیدھا بھیجیں: نیا پوسٹر + پیغام (بغیر کھولے) — «یہ ایپ دوسروں کو بھیجیں» بٹن کے لیے
+  async function quickShare(text) {
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    await render(cv, 3);
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.9));
+    const file = new File([blob], 'mera-maktaba.jpg', { type: 'image/jpeg' });
+    try { if (navigator.canShare && navigator.canShare({ files: [file], text })) { await navigator.share({ files: [file], text }); return true; } }
+    catch (err) { if (err && err.name === 'AbortError') return true; }
+    return false;
+  }
+  window.MA_PROMO = { open, render, quickShare, _st: st };
 })();
