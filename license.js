@@ -324,7 +324,7 @@
     if (block && !full && st.mode === 'locked' && !st.trialUsed) return showTrialGate();
     let line;
     if (st.mode === 'paid') line = `سبسکرپشن فعال ہے — ${num(st.left)} دن باقی (${dmyI(st.exp)} تک)۔ ابھی تجدید کریں تو باقی دن ضائع نہیں ہوں گے، نئے دن ان کے اوپر جمع ہو جائیں گے۔`;
-    else if (st.mode === 'expired') line = 'آپ کا سبسکرپشن ختم ہو گیا ہے۔ تجدید کے لیے نیا کوڈ منگوائیں۔';
+    else if (st.mode === 'expired') line = 'آپ کی سبسکرپشن ختم ہو گئی ہے۔ تجدید کے لیے نیا کوڈ منگوائیں۔';
     else if (st.mode === 'trial') line = `فری ٹرائل کے ${num(st.left)} دن باقی ہیں۔ ابھی کوڈ لے لیں تو ٹرائل کے بعد بھی ایپ بغیر رکے چلتی رہے گی۔`;
     else if (st.trialUsed) line = `آپ کا ${num(CFG.TRIAL_DAYS)} دن کا فری ٹرائل ختم ہو گیا۔ آپ کا سارا ریکارڈ محفوظ ہے — سبسکرپشن کوڈ لگاتے ہی سب واپس مل جائے گا۔`;
     else line = 'ایپ چلانے کے لیے سبسکرپشن کوڈ حاصل کریں۔';
