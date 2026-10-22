@@ -644,7 +644,7 @@
     const left = st.left, months = Math.floor(left / 30), warn = left <= CFG.WARN_DAYS;
     c.className = 'lic-card' + (left <= 7 ? ' bad' : warn ? ' warn' : '');
     c.innerHTML = `<div class="ln">${st.iss ? `<span>شروع <b>${dmy(st.iss)}</b></span>` : ''}<span>ختم <b>${dmy(st.exp)}</b></span><span>باقی <b class="big">${num(left)} دن</b></span><button type="button" title="${warn ? 'ابھی تجدید کریں' : 'تجدید / سبسکرپشن'}">🔄 ${warn ? 'تجدید' : ''}</button></div>
-      ${warn ? `<div class="wn">سبسکرپشن ${num(left)} دن میں ختم ہو رہا ہے — ابھی تجدید کریں، باقی دن ضائع نہیں ہوں گے۔</div>` : ''}`;
+      ${warn ? `<div class="wn">آپ کی سبسکرپشن ${num(left)} دن میں ختم ہو رہی ہے — ابھی تجدید کریں، باقی دن ضائع نہیں ہوں گے۔</div>` : ''}`;
   }
 
   // ----- لاگ آؤٹ (سبسکرپشن برقرار رہتی ہے) اور ایپ بند -----
