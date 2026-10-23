@@ -1811,13 +1811,12 @@ updateNetStatus();
 // ===== REFRESH APP (نیا ورژن لوڈ کرنے کے لیے پرانا کیش صاف کر کے دوبارہ لوڈ) =====
 function refreshApp() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((regs) => {
-      regs.forEach((r) => r.unregister());
-    });
+    // 🛡️ صرف مکتبہ کا سروس ورکر — اسی ویب سائٹ کی دوسری ایپس کو نہ چھیڑیں
+    navigator.serviceWorker.getRegistration().then((r) => { if (r) r.unregister(); });
   }
   if ('caches' in window) {
     caches.keys().then((names) => {
-      names.forEach((n) => { if (n !== 'maktaba-aziz-fonts-v1') caches.delete(n); });
+      names.forEach((n) => { if (n.startsWith('maktaba-aziz-') && n !== 'maktaba-aziz-fonts-v1') caches.delete(n); });
     });
   }
   setTimeout(() => {
