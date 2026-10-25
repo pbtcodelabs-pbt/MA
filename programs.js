@@ -232,6 +232,7 @@
           ${confirmDel ? `<div class="confirm"><span>یہ پروگرام حذف کر دیں؟</span><span class="actions"><button class="btn danger small" data-a="del-yes" type="button">ہاں، حذف کریں</button><button class="btn ghost small" data-a="del-no" type="button">رہنے دیں</button></span></div>` : ''}
           <div class="actions po-acts">
             <a class="btn" href="#/prog/edit/${p.id}">ترمیم کریں</a>
+            <button class="btn po-pp" type="button" data-a="pposter">🖼️ پوسٹر بنائیں</button>
             <button class="btn ghost" type="button" data-a="share">بھیجیں</button>
             <button class="btn ghost" type="button" data-a="del">حذف کریں</button>
           </div>
@@ -245,6 +246,7 @@
       if (a === 'del-no') pageOne(id);
       if (a === 'del-yes') { const d = H().db(); d.progs = progs().filter(x => x.id !== id); H().save(); H().toast('پروگرام حذف ہو گیا'); location.replace('#/prog'); }
       if (a === 'share') shareOne(p);
+      if (a === 'pposter') { if (window.MA_PPOSTER) window.MA_PPOSTER.open(p, { textOf, toast: m => H().toast(m) }); }
       if (a === 'locshare') { const pt = p.lat != null ? { lat: p.lat, lng: p.lng } : parseLoc(p.loc); const link = pt ? `https://maps.google.com/?q=${pt.lat},${pt.lng}` : urlIn(p.loc); const tx = `📍 بمقام: ${placeLabel(p)}\n${link}`; if (navigator.share) navigator.share({ text: tx }).catch(() => {}); else location.href = 'https://wa.me/?text=' + encodeURIComponent(tx); }
     });
     const draw = () => {
