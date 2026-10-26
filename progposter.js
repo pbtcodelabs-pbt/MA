@@ -43,7 +43,7 @@
   const CAPS = { multi: 'رنگین', gold: 'سنہری', glass: 'شیشہ', white: 'سفید' };
   const MULTI = [['#17a9ab', '#0b6466'], ['#d6485d', '#8a1d2e'], ['#3fa344', '#1f5e23'], ['#3a6fcc', '#1c3c7c'], ['#e58a2c', '#9a530b'], ['#9553c4', '#56287a']];
   const FRAMES = { circle: 'گول', square: 'چورس', arch: 'محراب' };
-  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, bstyle: 'classic', bgi: 0, capi: 0 };
+  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, bstyle: 'classic', bgi: 0, capi: 0 };
   const SKEY = 'maktaba-aziz-pposter-style', KEY = 'maktaba-aziz-pposter-size';
   let ST = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; } })());
   const saveSt = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} };
@@ -55,6 +55,9 @@
   const fam = (k, def) => (k && LK() && LK().fonts[k]) ? (k === 'plain' ? '"Digits","Segoe UI",Tahoma,sans-serif' : LK().stack(k)) : def;
   const TF = () => fam(ST.tfont, '"Digits","JNNK","JNN",serif');
   const BF = () => fam(ST.bfont, '"Digits","JNN","Jameel Noori Nastaleeq",serif');
+  // ہر حصے کا اپنا فونٹ (خالی ہو تو عنوان کے لیے «سب عنوان»، باقی کے لیے «سب لکھائی» والا)
+  const PARTS = [['title', 'پروگرام کا عنوان'], ['name', 'نام (تصویر کے ساتھ)'], ['role', 'عہدہ'], ['cal', 'تاریخ'], ['clock', 'وقت'], ['mosque', 'بمقام'], ['pin', 'شہر'], ['user', 'میزبان'], ['phone', 'میزبان کا نمبر'], ['mak', 'مکتبہ / دارالعلوم']];
+  const PF = k => { const v = ST.pf && ST.pf[k]; return v ? fam(v, BF()) : (k === 'title' ? TF() : BF()); };
   const BRD = () => { try { return JSON.parse(localStorage.getItem('maktaba-aziz-brand')) || {}; } catch (e) { return {}; } };
   const dOf = s => new Date(String(s).slice(0, 10) + 'T00:00:00');
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -78,15 +81,15 @@
   }
   // عنوان: پہلے ایک ہی سطر میں (کچھ چھوٹا کر کے)، نہ سمائے تو دو سطریں
   function titleFit(c, s, max, size, one, min) {
-    const z = fitFont(c, s, max, size, TF(), one);
-    c.font = `${z}px ${TF()}`; if (c.measureText(s).width <= max) return { z, lines: [s] };
-    return wrap2(c, s, max, size, TF(), min);
+    const f = PF('title'), z = fitFont(c, s, max, size, f, one);
+    c.font = `${z}px ${f}`; if (c.measureText(s).width <= max) return { z, lines: [s] };
+    return wrap2(c, s, max, size, f, min);
   }
   function headText(c, s, x, y, z, f, align = 'center') {
     c.save(); c.font = `${z}px ${f}`; c.textAlign = align; c.direction = 'rtl';
     c.shadowColor = T().light ? 'rgba(0,0,0,.18)' : 'rgba(0,0,0,.55)'; c.shadowBlur = z * .12; c.shadowOffsetY = z * .05;
     c.fillStyle = grad(c, y - z * .8, y + z * .2, K().h);
-    if (ST.tw > 1 && f !== TF()) { c.strokeStyle = c.fillStyle; c.lineJoin = 'round'; c.lineWidth = z * (ST.tw === 3 ? .05 : .028); c.strokeText(s, x, y); }
+    if (ST.tw > 1 && f !== PF('title')) { c.strokeStyle = c.fillStyle; c.lineJoin = 'round'; c.lineWidth = z * (ST.tw === 3 ? .05 : .028); c.strokeText(s, x, y); }
     c.fillText(s, x, y); c.restore();
   }
   // موٹی لکھائی: نستعلیق کا «bold» نہیں ہوتا، اسی رنگ کی لکیر سے موٹی
@@ -232,8 +235,8 @@
     let [logo, photo, ad] = await Promise.all([loadImg(logoSrc), loadImg(b.photo || memPhoto || ''), ST.ad ? loadImg(p.poster || '') : null]);
     if (photo && ST.cutbg) { const k = (b.photo || memPhoto).length + ':' + (b.photo || memPhoto).slice(-40); photo = cutCache[k] || (cutCache[k] = cutBg(photo)); }
     try {
-      if (LK()) await Promise.all([LK().loadFont(ST.tfont), LK().loadFont(ST.bfont)].map(x => x && x.catch ? x.catch(() => {}) : x));
-      await Promise.all([document.fonts.load(`60px ${TF()}`, 'جلسہ سیرت النبی 123'), document.fonts.load(`40px ${BF()}`, 'میزبان 0300-1234567'), document.fonts.load(`40px ${NF}`, '0123')]);
+      if (LK()) await Promise.all([ST.tfont, ST.bfont, ...Object.values(ST.pf || {})].filter(Boolean).map(k => LK().loadFont(k)).map(x => x && x.catch ? x.catch(() => {}) : x));
+      await Promise.all([document.fonts.load(`60px ${TF()}`, 'جلسہ سیرت النبی 123'), document.fonts.load(`40px ${BF()}`, 'میزبان 0300-1234567'), ...PARTS.map(([k]) => document.fonts.load(`40px ${PF(k)}`, 'میزبان جلسہ 0300')), document.fonts.load(`40px ${NF}`, '0123')]);
     } catch (e) {}
     return { logo, photo, ad };
   }
@@ -293,15 +296,15 @@
   function nameBlock(c, I, cx, y, w, z, dry) {
     let yy = y;
     if (I.pname) {
-      const N = wrap2(c, I.pname, w, z, BF(), z * .5), lh = N.z * 1.22;
-      if (!dry) N.lines.forEach((ln, i) => headText(c, ln, cx, yy + N.z * .85 + i * lh, N.z, BF()));
+      const N = wrap2(c, I.pname, w, z, PF('name'), z * .5), lh = N.z * 1.22;
+      if (!dry) N.lines.forEach((ln, i) => headText(c, ln, cx, yy + N.z * .85 + i * lh, N.z, PF('name')));
       yy += N.z * .85 + (N.lines.length - 1) * lh + N.z * .42;
     }
     if (I.prole) {
-      const rz = fitFont(c, I.prole, w * .85, z * .46, BF()), rw = Math.min(w, c.measureText(I.prole).width + rz * 1.8), rh = rz * 1.75;
+      const rz = fitFont(c, I.prole, w * .85, z * .46, PF('role')), rw = Math.min(w, c.measureText(I.prole).width + rz * 1.8), rh = rz * 1.75;
       if (!dry) {
         c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = rh * .25; rr(c, cx - rw / 2, yy, rw, rh, rh / 2); c.fillStyle = grad(c, yy, yy + rh, B().c); c.fill(); c.restore();
-        bold(c, I.prole, cx, yy + rh / 2 + rz * .33, rz, T().light ? '#2a1a00' : T().bg[2], BF(), 'center');
+        bold(c, I.prole, cx, yy + rh / 2 + rz * .33, rz, T().light ? '#2a1a00' : T().bg[2], PF('role'), 'center');
       }
       yy += rh + z * .15;
     }
@@ -321,9 +324,9 @@
   // ہر سطر اپنے کیپسول میں: دائیں نشان کا گول ڈبہ، پھر «عنوان: معلومات» موٹی لکھائی میں
   function capsules(c, list, x, y, w, rh, cols) {
     cols = cols || 1;
-    const gap = w * .025, cw = (w - gap * (cols - 1)) / cols, ch = rh * .8, f = BF();
+    const gap = w * .025, cw = (w - gap * (cols - 1)) / cols, ch = rh * .8;
     list.forEach(([ic, lab, val], i) => {
-      const col = i % cols, row = Math.floor(i / cols), S = capStyle(i);
+      const f = PF(ic), col = i % cols, row = Math.floor(i / cols), S = capStyle(i);
       const cx0 = x + w - cw - col * (cw + gap), yy = y + row * rh + (rh - ch) / 2, r = ch / 2, z = ch * (cols > 1 ? .48 : .52);
       c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = ch * .28; c.shadowOffsetY = ch * .08;
       rr(c, cx0, yy, cw, ch, r); c.fillStyle = grad(c, yy, yy + ch, S.fill); c.fill(); c.restore();
@@ -349,7 +352,7 @@
   function bottomRow(c, I, A, x, y, w, h, preview, out) {
     const cy = y + h / 2; let right = x + w, left = x;
     if (A.logo) { const d = h * .9; roundLogo(c, A.logo, right - d / 2 - h * .03, cy, d); right -= d + h * .2; }
-    else if (I.maktaba) { const mz = fitFont(c, I.maktaba, w * .4, h * .3, BF()); headText(c, I.maktaba, right, cy + mz * .3, mz, BF(), 'right'); right -= c.measureText(I.maktaba).width + h * .2; }
+    else if (I.maktaba) { const mf = PF('mak'), mz = fitFont(c, I.maktaba, w * .4, h * .3, mf); headText(c, I.maktaba, right, cy + mz * .3, mz, mf, 'right'); right -= c.measureText(I.maktaba).width + h * .2; }
     if (A.ad) { const b = adThumb(c, A.ad, x + 6, y, h * .8, h); out.ad = b; left = b.x + b.w + h * .2; }
     else if (preview && ST.ad) {
       const aw = h * .74; out.ad = { x, y, w: aw, h };
@@ -379,14 +382,14 @@
     if (key === 'st') {   // اسٹیٹس: سب کچھ اوپر تلے، تصویر بڑی بیچ میں
       crescent(c, cx, y + m * .03, m * .032); y += m * .075;
       const Tt = titleFit(c, I.title || 'جلسہ', inner * .92, m * .15, m * .1, m * .07), lh = Tt.z * 1.15;
-      Tt.lines.forEach((ln, i) => headText(c, ln, cx, y + Tt.z * .8 + i * lh, Tt.z, TF()));
+      Tt.lines.forEach((ln, i) => headText(c, ln, cx, y + Tt.z * .8 + i * lh, Tt.z, PF('title')));
       y += Tt.z * .8 + (Tt.lines.length - 1) * lh + m * .07;
       if (showPh) { const d = m * .5; photoFrame(c, A, cx, y + d / 2, d, preview, out); y += d + m * .06; }
       y = nameBlock(c, I, cx, y, inner * .92, m * .085) + m * .01;
     } else {              // واٹس ایپ / انسٹاگرام: اوپر پورا عنوان؛ نیچے بائیں تصویر، دائیں بڑا نام اور عہدہ
       y += m * .02;
       const Tt = titleFit(c, I.title || 'جلسہ', inner * .95, m * (key === 'ig' ? .14 : .13), m * (key === 'ig' ? .09 : .085), m * .06), tlh = Tt.z * 1.1;
-      Tt.lines.forEach((ln, i) => headText(c, ln, cx, y + Tt.z * .8 + i * tlh, Tt.z, TF()));
+      Tt.lines.forEach((ln, i) => headText(c, ln, cx, y + Tt.z * .8 + i * tlh, Tt.z, PF('title')));
       y += Tt.z * .8 + (Tt.lines.length - 1) * tlh + Tt.z * .3;
       const hh = m * P.hero, d = showPh ? Math.min(hh, inner * .42) : 0, gap = showPh ? m * .04 : 0;
       const colW = inner - d - gap, colCx = W - pad - colW / 2, nz = m * (key === 'ig' ? .075 : .068);
@@ -413,8 +416,8 @@
       photoFrame(c, A, pcx, m * .08 + d / 2, d, preview, out);
       nameBlock(c, I, pcx, m * .08 + d + m * .05, lW * 1.05, m * .075);
     }
-    const title = I.title || 'جلسہ', tz = fitFont(c, title, colW * .92, m * .13, TF(), m * .06);
-    headText(c, title, colX + colW / 2, m * .19, tz, TF());
+    const title = I.title || 'جلسہ', tz = fitFont(c, title, colW * .92, m * .13, PF('title'), m * .06);
+    headText(c, title, colX + colW / 2, m * .19, tz, PF('title'));
     if (!showPh && (I.pname || I.prole)) top = nameBlock(c, I, colX + colW / 2, m * .22, colW * .9, m * .07) + m * .01;
     const bh = m * .16, creditY = H - m * .035, bY = creditY - m * .03 - bh, free = bY - m * .02 - top;
     const list = rowsOf(I), cols = list.length > 3 ? 2 : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * .13, free / nr);
@@ -453,6 +456,13 @@
   .ppo-r input{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 12px;min-height:32px;background:#fff;color:#16244d;width:min(230px,58vw);flex:none}
   .ppo-r input[type=range]{width:min(200px,45vw);min-height:28px;padding:0;border:0;background:none;accent-color:#c8962f}
   .ppo-r em{font-style:normal;font-size:12px;color:#7a5418;flex:none}
+  .ppo-fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:5px 10px;padding:6px 8px;border:1.5px dashed #c8962f;border-radius:14px;background:#fffaf0}
+  .ppo-fg[hidden]{display:none}
+  .ppo-fg label{display:flex;align-items:center;gap:6px;font-size:13px;color:#7a5418}
+  .ppo-fg label>*:first-child{min-width:88px;flex:none;font-weight:400}
+  .ppo-fg b{color:#16244d}
+  .ppo-fg select{flex:1;min-width:0;font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 8px;min-height:32px;background:#fff;color:#16244d}
+  .ppo-fg button{grid-column:1/-1;justify-self:center;border:1.5px solid #c8962f;border-radius:99px;padding:0 14px;min-height:32px;background:#fff;color:#16244d;font:inherit;font-size:14px;cursor:pointer}
   .ppo-r select{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 8px;min-height:32px;background:#fff;color:#16244d;max-width:150px}
   .ppo-v{flex:1;overflow:auto;padding:10px;display:grid;place-items:center;background:#e9e1cc;min-height:200px}
   .ppo-v img{max-width:100%;max-height:52svh;height:auto;cursor:pointer;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
@@ -490,7 +500,13 @@
         <div class="ppo-r"><span>بارڈر</span>${Object.entries(BORDERS).map(([k, b]) => chip('border', k, `<i style="background:linear-gradient(180deg,${b.c[0]},${b.c[2]})"></i>${b.n}`)).join('')}${Object.entries(WEIGHTS).map(([k, n]) => chip('bw', k, n)).join('')}${chip('round', '1', 'گول کونے')}</div>
         <div class="ppo-r"><span>بارڈر انداز</span>${Object.entries(BSTYLES).map(([k, n]) => chip('bstyle', k, n)).join('')}</div>
         <div class="ppo-r"><span>لکھائی</span>${Object.entries(INKS).map(([k, t]) => chip('ink', k, `<i style="background:linear-gradient(180deg,${t.h[0]},${t.h[2]})"></i>${t.n}`)).join('')}${Object.entries(TWEIGHTS).map(([k, n]) => chip('tw', k, n)).join('')}</div>
-        <div class="ppo-r"><span>فونٹ</span><select data-f="tfont" aria-label="عنوان کا فونٹ"><option value="">عنوان</option>${Object.entries(fonts).map(([k, f]) => `<option value="${k}">عنوان: ${f.n}</option>`).join('')}</select><select data-f="bfont" aria-label="باقی لکھائی کا فونٹ"><option value="">لکھائی</option>${Object.entries(fonts).map(([k, f]) => `<option value="${k}">لکھائی: ${f.n}</option>`).join('')}</select></div>
+        <div class="ppo-r"><span>فونٹ</span><button type="button" data-a="fonts">🔤 ہر لکھائی کا فونٹ الگ</button></div>
+        <div class="ppo-fg" id="ppoFg" hidden>
+          <label><b>سب عنوان</b><select data-f="tfont">${Object.entries(fonts).map(([k, f]) => `<option value="${k}">${f.n}</option>`).join('')}</select></label>
+          <label><b>سب لکھائی</b><select data-f="bfont">${Object.entries(fonts).map(([k, f]) => `<option value="${k}">${f.n}</option>`).join('')}</select></label>
+          ${PARTS.map(([k, n]) => `<label><span>${n}</span><select data-pf="${k}"><option value="">— اوپر والا —</option>${Object.entries(fonts).map(([k, f]) => `<option value="${k}">${f.n}</option>`).join('')}</select></label>`).join('')}
+          <button type="button" data-a="pfreset">↺ سب پہلے جیسا</button>
+        </div>
       </div>
       <div class="ppo-v" id="ppoV"><p>تیار ہو رہا ہے…</p></div>
       <div class="ppo-a"><button type="button" class="ppo-go" data-a="share">📤 بھیجیں</button><button type="button" class="ppo-sv" data-a="save">⬇️ محفوظ کریں</button></div>
@@ -506,6 +522,7 @@
         b.classList.toggle('on', g === 'size' ? v === key : g === 'photo' ? (v === 'cut' && !!ST.cutbg) : g === 'ad' || g === 'round' ? !!ST[g] : g === 'pz' || g === 'pm' || g === 'adpick' ? false : String(ST[g]) === v);
       });
       ov.querySelectorAll('[data-f]').forEach(s => { s.value = ST[s.dataset.f] || ''; });
+      ov.querySelectorAll('[data-pf]').forEach(s => { s.value = (ST.pf && ST.pf[s.dataset.pf]) || ''; });
       ov.querySelectorAll('[data-s]').forEach(s => { s.value = ST[s.dataset.s] || 0; });
       const I0 = info(p); ov.querySelectorAll('[data-t]').forEach(s => { if (document.activeElement !== s) s.value = I0[s.dataset.t] || ''; });
     };
@@ -531,6 +548,7 @@
     let tt = null;
     ov.addEventListener('input', e => { const r = e.target.closest('[data-s]'); if (!r) return; ST[r.dataset.s] = Number(r.value); saveSt(); clearTimeout(tt); tt = setTimeout(draw, 150); });
     ov.addEventListener('input', e => { const s = e.target.closest('[data-t]'); if (!s) return; ST[s.dataset.t] = s.value; saveSt(); clearTimeout(tt); tt = setTimeout(draw, 400); });
+    ov.addEventListener('change', e => { const s = e.target.closest('[data-pf]'); if (!s) return; ST.pf = Object.assign({}, ST.pf, { [s.dataset.pf]: s.value }); saveSt(); draw(); });
     ov.addEventListener('change', e => { const s = e.target.closest('[data-f]'); if (!s) return; ST[s.dataset.f] = s.value || DEF[s.dataset.f]; saveSt(); draw(); });
     ov.addEventListener('click', async e => {
       if (e.target.id === 'ppoImg' && cv) {
@@ -552,6 +570,8 @@
       }
       const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
       if (a === 'x') return close();
+      if (a === 'fonts') { const g = ov.querySelector('#ppoFg'); g.hidden = !g.hidden; e.target.closest('button').classList.toggle('on', !g.hidden); if (!g.hidden) g.scrollIntoView({ block: 'nearest' }); return; }
+      if (a === 'pfreset') { ST.pf = {}; ST.tfont = DEF.tfont; ST.bfont = DEF.bfont; saveSt(); draw(); return; }
       if (!cv) return;
       const b = await blob(), file = new File([b], fname(), { type: 'image/png' });
       if (a === 'share') {
