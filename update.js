@@ -92,10 +92,10 @@ window.APP_UPD_LANG = 'ur';
    نیا ورژن اترنا شروع ہو تو اوپر پٹی: «نئی اپڈیٹ آ رہی ہے…»
    اپڈیٹ مکمل ہو کر صفحہ تازہ ہو تو پیغام: پرانا ورژن → نیا ورژن */
 (function () {
-  const V = 'MA2210TH126';
+  const V = 'MA2610MO130';
   const KEY = 'maktaba-aziz-seen-version';
   /* MA1810SU123: سب ایپس والا یکساں انداز (AppUpd، اسی فائل کے اوپر) */
-  const UPDATE_NOTE = 'ہوم پیج: آپ کی سبسکرپشن … دن میں ختم ہو رہی ہے'; // ہر ورژن پر ایک چھوٹی لائن
+  const UPDATE_NOTE = 'جلسے کا نیا پوسٹر؛ ورژن ہر جگہ درست'; // ہر ورژن پر ایک چھوٹی لائن
   function showBar() { if (!document.body || AppUpd.isWaiting()) return; AppUpd.waiting(); }
   function showDone(oldV) { AppUpd.done(oldV, V, UPDATE_NOTE); }
   function checkSeen() {
