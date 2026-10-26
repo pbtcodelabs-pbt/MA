@@ -463,6 +463,7 @@
   .ppo-fg b{color:#16244d}
   .ppo-fg select{flex:1;min-width:0;font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 8px;min-height:32px;background:#fff;color:#16244d}
   .ppo-fg button{grid-column:1/-1;justify-self:center;border:1.5px solid #c8962f;border-radius:99px;padding:0 14px;min-height:32px;background:#fff;color:#16244d;font:inherit;font-size:14px;cursor:pointer}
+  .ppo-in input{flex:1;width:auto;min-width:0;min-height:36px;font-size:15px}
   .ppo-r select{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 8px;min-height:32px;background:#fff;color:#16244d;max-width:150px}
   .ppo-v{flex:1;overflow:auto;padding:10px;display:grid;place-items:center;background:#e9e1cc;min-height:200px}
   .ppo-v img{max-width:100%;max-height:52svh;height:auto;cursor:pointer;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
@@ -491,7 +492,8 @@
         <div class="ppo-r"><span>سائز</span>${Object.entries(SIZES).map(([k, s]) => chip('size', k, `${s.n}<small dir="ltr">${s.w}×${s.h}</small>`)).join('')}</div>
         <div class="ppo-r"><span>تصویر</span>${chip('photo', 'add', '📷 تصویر ایڈ کریں')}${chip('photo', 'cut', '✂️ پس منظر ہٹائیں')}${chip('photo', 'del', '🗑️ ہٹائیں')}</div>
         <div class="ppo-r"><span>فریم</span>${Object.entries(FRAMES).map(([k, n]) => chip('pframe', k, n)).join('')}${chip('pz', '+', '🔍 بڑی')}${chip('pz', '-', '🔍 چھوٹی')}${chip('pm', 'u', '⬆️ اوپر')}${chip('pm', 'd', '⬇️ نیچے')}</div>
-        <div class="ppo-r"><span>نام</span><input data-t="pname" placeholder="مثلاً مولانا مفتی محمد …" aria-label="تصویر کے ساتھ نام"><input data-t="prole" placeholder="عہدہ، مثلاً مہتمم" aria-label="عہدہ"></div>
+        <div class="ppo-r ppo-in"><span>نام</span><input data-t="pname" placeholder="مثلاً مولانا مفتی محمد رضوان عزیز" aria-label="تصویر کے ساتھ نام"></div>
+        <div class="ppo-r ppo-in"><span>عہدہ</span><input data-t="prole" placeholder="مثلاً مدیر دارالعلوم …" aria-label="عہدہ"></div>
         <div class="ppo-r"><span>اشتہار</span><span id="ppoAdR"></span></div>
         <div class="ppo-r"><span>کیپسول</span>${Object.entries(CAPS).map(([k, n]) => chip('cap', k, n)).join('')}</div>
         <div class="ppo-r"><span>کیپسول رنگ</span><em>مدھم</em><input type="range" min="-50" max="50" step="5" data-s="capi" aria-label="ہلکا یا گہرا"><em>گہرا</em></div>
