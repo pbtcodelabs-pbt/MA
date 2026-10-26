@@ -246,7 +246,7 @@
       if (a === 'del-no') pageOne(id);
       if (a === 'del-yes') { const d = H().db(); d.progs = progs().filter(x => x.id !== id); H().save(); H().toast('پروگرام حذف ہو گیا'); location.replace('#/prog'); }
       if (a === 'share') shareOne(p);
-      if (a === 'pposter') { if (window.MA_PPOSTER) window.MA_PPOSTER.open(p, { textOf, toast: m => H().toast(m) }); }
+      if (a === 'pposter') { if (window.MA_PPOSTER) window.MA_PPOSTER.open(p, { textOf, toast: m => H().toast(m), save: () => H().save() }); }
       if (a === 'locshare') { const pt = p.lat != null ? { lat: p.lat, lng: p.lng } : parseLoc(p.loc); const link = pt ? `https://maps.google.com/?q=${pt.lat},${pt.lng}` : urlIn(p.loc); const tx = `📍 بمقام: ${placeLabel(p)}\n${link}`; if (navigator.share) navigator.share({ text: tx }).catch(() => {}); else location.href = 'https://wa.me/?text=' + encodeURIComponent(tx); }
     });
     const draw = () => {
