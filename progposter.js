@@ -43,7 +43,7 @@
   const CAPS = { multi: 'رنگین', gold: 'سنہری', glass: 'شیشہ', white: 'سفید' };
   const MULTI = [['#17a9ab', '#0b6466'], ['#d6485d', '#8a1d2e'], ['#3fa344', '#1f5e23'], ['#3a6fcc', '#1c3c7c'], ['#e58a2c', '#9a530b'], ['#9553c4', '#56287a']];
   const FRAMES = { circle: 'گول', square: 'چورس', arch: 'محراب' };
-  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null };
+  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, bstyle: 'classic', bgi: 0, capi: 0 };
   const SKEY = 'maktaba-aziz-pposter-style', KEY = 'maktaba-aziz-pposter-size';
   let ST = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; } })());
   const saveSt = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} };
@@ -58,7 +58,7 @@
   const BRD = () => { try { return JSON.parse(localStorage.getItem('maktaba-aziz-brand')) || {}; } catch (e) { return {}; } };
   const dOf = s => new Date(String(s).slice(0, 10) + 'T00:00:00');
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  const T = () => THEMES[ST.theme] || THEMES.navy;
+  const T = () => { const t = THEMES[ST.theme] || THEMES.navy; return ST.bgi ? Object.assign({}, t, { bg: t.bg.map(x => shade(x, ST.bgi)) }) : t; };
   const B = () => BORDERS[ST.border] || BORDERS.gold;
   const K = () => { const k = INKS[ST.ink] || INKS.gold; return (T().light && ST.ink !== 'dark' && ST.ink !== 'gold') ? INKS.dark : (T().light && ST.ink === 'gold' ? Object.assign({}, k, { h: ['#c8962f', '#8a5f16', '#5a3c08'], t: '#2b2214', l: '#8a5f16' }) : k); };
 
@@ -120,14 +120,57 @@
     c.beginPath(); c.moveTo(s * .2, s * .2); c.lineTo(s * .42, s * .3); c.lineTo(s * .3, s * .42); c.closePath(); c.fill();
     c.restore();
   }
+  // بارڈر کے انداز
+  const BSTYLES = { classic: 'کونوں والا', double: 'دوہرا', pearl: 'موتی', arch: 'محرابی', ribbon: 'چوڑی پٹی', dash: 'نقطہ دار', none: 'بغیر بارڈر' };
+  // کنارے پر برابر فاصلے کے نقطے (سیدھی لکیریں؛ گول کونوں کی جگہ چھوڑ کر)
+  function edgePts(x, y, w, h, r, step) {
+    const pts = [], seg = (x0, y0, x1, y1, nx, ny) => { const L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round(L / step)); for (let i = 0; i <= n; i++) pts.push([x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, nx, ny]); };
+    seg(x + r, y, x + w - r, y, 0, 1); seg(x + r, y + h, x + w - r, y + h, 0, -1); seg(x, y + r, x, y + h - r, 1, 0); seg(x + w, y + r, x + w, y + h - r, -1, 0);
+    return pts;
+  }
   function frame(c, W, H, R) {
-    const m = Math.min(W, H), o = m * .025, s = m * .13, bc = B().c, w = ST.bw;
-    c.save(); c.lineJoin = 'round';
-    c.strokeStyle = grad(c, 0, H, bc); c.lineWidth = m * .005 * (w + .6); rr(c, o, o, W - 2 * o, H - 2 * o, R * .8); c.stroke();
-    if (w >= 2) { c.globalAlpha = .6; c.lineWidth = m * .0025 * w; rr(c, o * 1.7, o * 1.7, W - 3.4 * o, H - 3.4 * o, R * .65); c.stroke(); }
+    const m = Math.min(W, H), o = m * .025, s = m * .13, bc = B().c, w = ST.bw, st = ST.bstyle, col = bc[1];
+    if (st === 'none') return;
+    const corners = () => { corner(c, o * 2.1, o * 2.1, 1, 1, s, col); corner(c, W - o * 2.1, o * 2.1, -1, 1, s, col); corner(c, o * 2.1, H - o * 2.1, 1, -1, s, col); corner(c, W - o * 2.1, H - o * 2.1, -1, -1, s, col); };
+    c.save(); c.lineJoin = 'round'; c.strokeStyle = grad(c, 0, H, bc); c.fillStyle = grad(c, 0, H, bc);
+    const box = (k, lw, rad) => { c.lineWidth = lw; rr(c, o * k, o * k, W - 2 * k * o, H - 2 * k * o, rad); c.stroke(); };
+    if (st === 'double') {
+      box(1, m * .006 * (w + .6), R * .8); box(1.9, m * .006 * (w + .6), R * .62);
+      [[W / 2, o * 1.45], [W / 2, H - o * 1.45], [o * 1.45, H / 2], [W - o * 1.45, H / 2]].forEach(([x, y]) => { const q = m * .022; c.beginPath(); c.moveTo(x, y - q); c.lineTo(x + q, y); c.lineTo(x, y + q); c.lineTo(x - q, y); c.closePath(); c.fill(); });
+    } else if (st === 'pearl') {
+      box(1, m * .003 * (w + .6), R * .8);
+      const k = o * 1.7, r = Math.max(R * .6, m * .03), pr = m * .0034 * (w + 1.2);
+      edgePts(k, k, W - 2 * k, H - 2 * k, r, pr * 3.4).forEach(([x, y]) => { c.beginPath(); c.arc(x, y, pr, 0, 7); c.fill(); });
+      corners();
+    } else if (st === 'arch') {
+      box(1, m * .004 * (w + .6), R * .8);
+      const k = o * 1.6, r = Math.max(R * .6, m * .05), sz = m * .03 * (w * .25 + .75);
+      c.lineWidth = m * .003 * (w + .6);
+      edgePts(k, k, W - 2 * k, H - 2 * k, r, sz * 1.6).forEach(([x, y, nx, ny], i, a) => {
+        const nb = a[i + 1]; if (!nb || nb[2] !== nx || nb[3] !== ny) return;
+        const mx = (x + nb[0]) / 2, my = (y + nb[1]) / 2;
+        c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(mx + nx * sz * 1.2, my + ny * sz * 1.2, nb[0], nb[1]); c.stroke();
+        c.beginPath(); c.arc(mx + nx * sz * .35, my + ny * sz * .35, sz * .13, 0, 7); c.fill();
+      });
+      corners();
+    } else if (st === 'ribbon') {
+      const bw = m * .012 * (w + 1); box(1.6, bw, R * .7);
+      c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = Math.max(1.5, m * .002); rr(c, o * 1.6, o * 1.6, W - 3.2 * o, H - 3.2 * o, R * .7); c.setLineDash([m * .012, m * .01]); c.stroke(); c.setLineDash([]);
+    } else if (st === 'dash') {
+      c.setLineDash([m * .03, m * .014]); c.lineCap = 'round'; box(1.2, m * .006 * (w + .6), R * .8); c.setLineDash([m * .004, m * .016]); box(2, m * .006 * (w + .6), R * .6); c.setLineDash([]);
+    } else {
+      box(1, m * .005 * (w + .6), R * .8);
+      if (w >= 2) { c.globalAlpha = .6; box(1.7, m * .0025 * w, R * .65); c.globalAlpha = 1; }
+      c.restore(); corners(); return;
+    }
     c.restore();
-    const col = bc[1];
-    corner(c, o * 2.1, o * 2.1, 1, 1, s, col); corner(c, W - o * 2.1, o * 2.1, -1, 1, s, col); corner(c, o * 2.1, H - o * 2.1, 1, -1, s, col); corner(c, W - o * 2.1, H - o * 2.1, -1, -1, s, col);
+  }
+  // رنگ مدھم (سفید کی طرف) یا گہرا (کالے کی طرف): v = −50 … +50
+  function shade(h, v) {
+    if (!v || typeof h !== 'string' || h[0] !== '#' || h.length !== 7) return h;
+    const n = parseInt(h.slice(1), 16), t = v < 0 ? 255 : 0, a = Math.abs(v) / 100 * (v < 0 ? .9 : 1.2);
+    const f = x => Math.round(x + (t - x) * Math.min(.85, a)).toString(16).padStart(2, '0');
+    return '#' + f(n >> 16) + f((n >> 8) & 255) + f(n & 255);
   }
   function crescent(c, x, y, r) {
     c.save(); c.fillStyle = grad(c, y - r, y + r, B().c);
@@ -265,6 +308,9 @@
     return yy;
   }
   function capStyle(i) {
+    const S = capStyle0(i); if (ST.capi) S.fill = S.fill.map(x => shade(x, ST.capi)); return S;
+  }
+  function capStyle0(i) {
     const k = ST.cap;
     if (k === 'gold') return { fill: ['#fff3c9', '#e8c467', '#b88a2e'], tx: '#2a1a00', lab: '#6b3f00', icBg: T().light ? '#5a3c08' : T().bg[1], ic: '#f1d27a', edge: 'rgba(255,255,255,.6)' };
     if (k === 'glass') return { fill: ['rgba(255,255,255,.2)', 'rgba(255,255,255,.07)'], tx: K().t, lab: K().l, icBg: null, ic: T().bg[2], edge: B().c[1], glass: 1 };
@@ -405,6 +451,8 @@
   .ppo-r button i{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.25)}
   .ppo-r small{font:12px Arial,sans-serif;opacity:.75}
   .ppo-r input{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 12px;min-height:32px;background:#fff;color:#16244d;width:min(230px,58vw);flex:none}
+  .ppo-r input[type=range]{width:min(200px,45vw);min-height:28px;padding:0;border:0;background:none;accent-color:#c8962f}
+  .ppo-r em{font-style:normal;font-size:12px;color:#7a5418;flex:none}
   .ppo-r select{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 8px;min-height:32px;background:#fff;color:#16244d;max-width:150px}
   .ppo-v{flex:1;overflow:auto;padding:10px;display:grid;place-items:center;background:#e9e1cc;min-height:200px}
   .ppo-v img{max-width:100%;max-height:52svh;height:auto;cursor:pointer;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
@@ -436,8 +484,11 @@
         <div class="ppo-r"><span>نام</span><input data-t="pname" placeholder="مثلاً مولانا مفتی محمد …" aria-label="تصویر کے ساتھ نام"><input data-t="prole" placeholder="عہدہ، مثلاً مہتمم" aria-label="عہدہ"></div>
         <div class="ppo-r"><span>اشتہار</span><span id="ppoAdR"></span></div>
         <div class="ppo-r"><span>کیپسول</span>${Object.entries(CAPS).map(([k, n]) => chip('cap', k, n)).join('')}</div>
+        <div class="ppo-r"><span>کیپسول رنگ</span><em>مدھم</em><input type="range" min="-50" max="50" step="5" data-s="capi" aria-label="ہلکا یا گہرا"><em>گہرا</em></div>
         <div class="ppo-r"><span>پس منظر</span>${Object.entries(THEMES).map(([k, t]) => chip('theme', k, `<i style="background:linear-gradient(180deg,${t.bg[0]},${t.bg[2]})"></i>${t.n}`)).join('')}</div>
+        <div class="ppo-r"><span>پس منظر رنگ</span><em>مدھم</em><input type="range" min="-50" max="50" step="5" data-s="bgi" aria-label="ہلکا یا گہرا"><em>گہرا</em></div>
         <div class="ppo-r"><span>بارڈر</span>${Object.entries(BORDERS).map(([k, b]) => chip('border', k, `<i style="background:linear-gradient(180deg,${b.c[0]},${b.c[2]})"></i>${b.n}`)).join('')}${Object.entries(WEIGHTS).map(([k, n]) => chip('bw', k, n)).join('')}${chip('round', '1', 'گول کونے')}</div>
+        <div class="ppo-r"><span>بارڈر انداز</span>${Object.entries(BSTYLES).map(([k, n]) => chip('bstyle', k, n)).join('')}</div>
         <div class="ppo-r"><span>لکھائی</span>${Object.entries(INKS).map(([k, t]) => chip('ink', k, `<i style="background:linear-gradient(180deg,${t.h[0]},${t.h[2]})"></i>${t.n}`)).join('')}${Object.entries(TWEIGHTS).map(([k, n]) => chip('tw', k, n)).join('')}</div>
         <div class="ppo-r"><span>فونٹ</span><select data-f="tfont" aria-label="عنوان کا فونٹ"><option value="">عنوان</option>${Object.entries(fonts).map(([k, f]) => `<option value="${k}">عنوان: ${f.n}</option>`).join('')}</select><select data-f="bfont" aria-label="باقی لکھائی کا فونٹ"><option value="">لکھائی</option>${Object.entries(fonts).map(([k, f]) => `<option value="${k}">لکھائی: ${f.n}</option>`).join('')}</select></div>
       </div>
@@ -455,6 +506,7 @@
         b.classList.toggle('on', g === 'size' ? v === key : g === 'photo' ? (v === 'cut' && !!ST.cutbg) : g === 'ad' || g === 'round' ? !!ST[g] : g === 'pz' || g === 'pm' || g === 'adpick' ? false : String(ST[g]) === v);
       });
       ov.querySelectorAll('[data-f]').forEach(s => { s.value = ST[s.dataset.f] || ''; });
+      ov.querySelectorAll('[data-s]').forEach(s => { s.value = ST[s.dataset.s] || 0; });
       const I0 = info(p); ov.querySelectorAll('[data-t]').forEach(s => { if (document.activeElement !== s) s.value = I0[s.dataset.t] || ''; });
     };
     const draw = async () => {
@@ -477,6 +529,7 @@
       return ok;
     };
     let tt = null;
+    ov.addEventListener('input', e => { const r = e.target.closest('[data-s]'); if (!r) return; ST[r.dataset.s] = Number(r.value); saveSt(); clearTimeout(tt); tt = setTimeout(draw, 150); });
     ov.addEventListener('input', e => { const s = e.target.closest('[data-t]'); if (!s) return; ST[s.dataset.t] = s.value; saveSt(); clearTimeout(tt); tt = setTimeout(draw, 400); });
     ov.addEventListener('change', e => { const s = e.target.closest('[data-f]'); if (!s) return; ST[s.dataset.f] = s.value || DEF[s.dataset.f]; saveSt(); draw(); });
     ov.addEventListener('click', async e => {
