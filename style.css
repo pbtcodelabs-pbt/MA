@@ -1828,3 +1828,25 @@ html,body{overflow-x:hidden;max-width:100%}
 @font-face{font-family:"MAF Gandhara";src:url("fonts/digits.woff2") format("woff2");unicode-range:U+0030-0039;font-display:swap}
 /* پروگرام کا پوسٹر بنانے کا بٹن */
 .po-pp{background:linear-gradient(180deg,#24366e,#0c1634) !important;color:#f1d27a !important;border-color:#0c1634 !important}
+
+/* فن بدلنا (MA2710TU139): کتاب کے صفحے پر اور کئی کتابیں ایک ساتھ */
+.d-catrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+.d-catrow .d-cat{margin:0}
+.mv-list{display:flex;flex-wrap:wrap;gap:6px;padding:8px;margin:0 0 10px;border:1.5px dashed #c8962f;border-radius:16px;background:#fffaf0}
+.mv-list[hidden]{display:none}
+.mv-list p{width:100%;margin:0 0 2px;font-size:.92em;color:#7a5418}
+.mv-list button{border:1.5px solid #1f6a54;background:#fff;color:#14463a;border-radius:99px;padding:0 14px;font:inherit;font-size:.95em;line-height:2.1;cursor:pointer}
+.mv-list button:hover:not(:disabled){background:#14463a;color:#fff1c1}
+.mv-list button:disabled{opacity:.45;cursor:default}
+.sel-go{margin:4px 0 8px;text-align:center}
+.sel-bar{background:#fffdf6;border:2px solid #1f6a54;border-radius:18px;padding:8px 10px;margin:0 0 10px;box-shadow:0 4px 14px rgba(20,70,58,.18)}
+.sel-bar>b{font-weight:400;font-size:1.05em;color:#14463a}
+.sel-bar .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.sel-bar p{margin:6px 0 2px;font-size:.9em;color:#5d4a1c}
+.sel-bar .mv-list{margin:4px 0 0;border-style:solid}
+button.bk.sel-bk{border:0;background:none;padding:0;font:inherit;cursor:pointer;position:relative;color:inherit}
+.sel-bk .sel-ck{position:absolute;top:4px;inset-inline-start:4px;width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;background:rgba(0,0,0,.35);color:#fff;font:700 18px/25px Arial,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.sel-bk.on .sel-ck{background:#16a34a}
+.sel-bk.on .bkx{outline:3px solid #16a34a;outline-offset:2px;border-radius:6px}
+.sel-bk .sel-nm{font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-ok.other{background:#fff4d6;border-color:#d8a632;color:#6b4a00}
