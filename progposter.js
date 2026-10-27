@@ -43,7 +43,7 @@
   const CAPS = { multi: 'رنگین', gold: 'سنہری', glass: 'شیشہ', white: 'سفید' };
   const MULTI = [['#17a9ab', '#0b6466'], ['#d6485d', '#8a1d2e'], ['#3fa344', '#1f5e23'], ['#3a6fcc', '#1c3c7c'], ['#e58a2c', '#9a530b'], ['#9553c4', '#56287a']];
   const FRAMES = { circle: 'گول', square: 'چورس', arch: 'محراب' };
-  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, bstyle: 'classic', bgi: 0, capi: 0 };
+  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, tsz: 85, nsz: 100, csz: 100, bstyle: 'classic', bgi: 0, capi: 0 };
   const SKEY = 'maktaba-aziz-pposter-style', KEY = 'maktaba-aziz-pposter-size';
   let ST = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; } })());
   const saveSt = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} };
@@ -81,6 +81,7 @@
   }
   // عنوان: پہلے ایک ہی سطر میں (کچھ چھوٹا کر کے)، نہ سمائے تو دو سطریں
   function titleFit(c, s, max, size, one, min) {
+    const q = (ST.tsz || 100) / 100; size *= q; one *= q; min *= Math.min(1, q);
     const f = PF('title'), z = fitFont(c, s, max, size, f, one);
     c.font = `${z}px ${f}`; if (c.measureText(s).width <= max) return { z, lines: [s] };
     return wrap2(c, s, max, size, f, min);
@@ -294,6 +295,7 @@
   }
   // بڑا نام (سنہری) + عہدہ سنہری پٹی میں؛ dry = صرف ناپیں
   function nameBlock(c, I, cx, y, w, z, dry) {
+    z *= (ST.nsz || 100) / 100;
     let yy = y;
     if (I.pname) {
       const N = wrap2(c, I.pname, w, z, PF('name'), z * .5), lh = N.z * 1.22;
@@ -327,7 +329,7 @@
     const gap = w * .025, cw = (w - gap * (cols - 1)) / cols, ch = rh * .8;
     list.forEach(([ic, lab, val], i) => {
       const f = PF(ic), col = i % cols, row = Math.floor(i / cols), S = capStyle(i);
-      const cx0 = x + w - cw - col * (cw + gap), yy = y + row * rh + (rh - ch) / 2, r = ch / 2, z = ch * (cols > 1 ? .48 : .52);
+      const cx0 = x + w - cw - col * (cw + gap), yy = y + row * rh + (rh - ch) / 2, r = ch / 2, z = Math.min(ch * .75, ch * (cols > 1 ? .48 : .52) * (ST.csz || 100) / 100);
       c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = ch * .28; c.shadowOffsetY = ch * .08;
       rr(c, cx0, yy, cw, ch, r); c.fillStyle = grad(c, yy, yy + ch, S.fill); c.fill(); c.restore();
       c.save(); rr(c, cx0, yy, cw, ch, r); c.clip(); c.fillStyle = 'rgba(255,255,255,.16)'; rr(c, cx0 + r * .6, yy + ch * .07, cw - r * 1.2, ch * .38, ch * .19); c.fill(); c.restore();
@@ -416,7 +418,7 @@
       photoFrame(c, A, pcx, m * .08 + d / 2, d, preview, out);
       nameBlock(c, I, pcx, m * .08 + d + m * .05, lW * 1.05, m * .075);
     }
-    const title = I.title || 'جلسہ', tz = fitFont(c, title, colW * .92, m * .13, PF('title'), m * .06);
+    const title = I.title || 'جلسہ', tz = fitFont(c, title, colW * .92, m * .13 * (ST.tsz || 100) / 100, PF('title'), m * .04);
     headText(c, title, colX + colW / 2, m * .19, tz, PF('title'));
     if (!showPh && (I.pname || I.prole)) top = nameBlock(c, I, colX + colW / 2, m * .22, colW * .9, m * .07) + m * .01;
     const bh = m * .16, creditY = H - m * .035, bY = creditY - m * .03 - bh, free = bY - m * .02 - top;
@@ -455,6 +457,7 @@
   .ppo-r small{font:12px Arial,sans-serif;opacity:.75}
   .ppo-r input{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 12px;min-height:32px;background:#fff;color:#16244d;width:min(230px,58vw);flex:none}
   .ppo-r input[type=range]{width:min(200px,45vw);min-height:28px;padding:0;border:0;background:none;accent-color:#c8962f}
+  .ppo-sz b{font:700 12px Arial,sans-serif;color:#16244d;min-width:34px;flex:none}
   .ppo-r em{font-style:normal;font-size:12px;color:#7a5418;flex:none}
   .ppo-fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:5px 10px;padding:6px 8px;border:1.5px dashed #c8962f;border-radius:14px;background:#fffaf0}
   .ppo-fg[hidden]{display:none}
@@ -490,6 +493,7 @@
       <div class="ppo-h"><b>🖼️ جلسے کا پوسٹر</b><button type="button" class="x" data-a="x" aria-label="بند">✕</button></div>
       <div class="ppo-c">
         <div class="ppo-r"><span>سائز</span>${Object.entries(SIZES).map(([k, s]) => chip('size', k, `${s.n}<small dir="ltr">${s.w}×${s.h}</small>`)).join('')}</div>
+        ${[['tsz', 'عنوان کا سائز'], ['nsz', 'نام کا سائز'], ['csz', 'کیپسول لکھائی']].map(([k, n]) => `<div class="ppo-r ppo-sz"><span>${n}</span><em>چھوٹا</em><input type="range" min="50" max="140" step="5" data-s="${k}" aria-label="${n}"><em>بڑا</em><b data-sv="${k}"></b></div>`).join('')}
         <div class="ppo-r"><span>تصویر</span>${chip('photo', 'add', '📷 تصویر ایڈ کریں')}${chip('photo', 'cut', '✂️ پس منظر ہٹائیں')}${chip('photo', 'del', '🗑️ ہٹائیں')}</div>
         <div class="ppo-r"><span>فریم</span>${Object.entries(FRAMES).map(([k, n]) => chip('pframe', k, n)).join('')}${chip('pz', '+', '🔍 بڑی')}${chip('pz', '-', '🔍 چھوٹی')}${chip('pm', 'u', '⬆️ اوپر')}${chip('pm', 'd', '⬇️ نیچے')}</div>
         <div class="ppo-r ppo-in"><span>نام</span><input data-t="pname" placeholder="مثلاً مولانا مفتی محمد رضوان عزیز" aria-label="تصویر کے ساتھ نام"></div>
@@ -525,7 +529,8 @@
       });
       ov.querySelectorAll('[data-f]').forEach(s => { s.value = ST[s.dataset.f] || ''; });
       ov.querySelectorAll('[data-pf]').forEach(s => { s.value = (ST.pf && ST.pf[s.dataset.pf]) || ''; });
-      ov.querySelectorAll('[data-s]').forEach(s => { s.value = ST[s.dataset.s] || 0; });
+      ov.querySelectorAll('[data-s]').forEach(s => { s.value = ST[s.dataset.s] != null ? ST[s.dataset.s] : 0; });
+      ov.querySelectorAll('[data-sv]').forEach(b => { b.textContent = (ST[b.dataset.sv] || 100) + '٪'; });
       const I0 = info(p); ov.querySelectorAll('[data-t]').forEach(s => { if (document.activeElement !== s) s.value = I0[s.dataset.t] || ''; });
     };
     const draw = async () => {
@@ -548,7 +553,7 @@
       return ok;
     };
     let tt = null;
-    ov.addEventListener('input', e => { const r = e.target.closest('[data-s]'); if (!r) return; ST[r.dataset.s] = Number(r.value); saveSt(); clearTimeout(tt); tt = setTimeout(draw, 150); });
+    ov.addEventListener('input', e => { const r = e.target.closest('[data-s]'); if (!r) return; ST[r.dataset.s] = Number(r.value); saveSt(); const sv = ov.querySelector(`[data-sv="${r.dataset.s}"]`); if (sv) sv.textContent = r.value + '٪'; clearTimeout(tt); tt = setTimeout(draw, 150); });
     ov.addEventListener('input', e => { const s = e.target.closest('[data-t]'); if (!s) return; ST[s.dataset.t] = s.value; saveSt(); clearTimeout(tt); tt = setTimeout(draw, 400); });
     ov.addEventListener('change', e => { const s = e.target.closest('[data-pf]'); if (!s) return; ST.pf = Object.assign({}, ST.pf, { [s.dataset.pf]: s.value }); saveSt(); draw(); });
     ov.addEventListener('change', e => { const s = e.target.closest('[data-f]'); if (!s) return; ST[s.dataset.f] = s.value || DEF[s.dataset.f]; saveSt(); draw(); });
