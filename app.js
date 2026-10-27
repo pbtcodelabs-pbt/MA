@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU135) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU136) */
 (() => {
   'use strict';
 
@@ -57,6 +57,17 @@
   const posterReady = (async () => {
     try {
       await pStore();
+      // ختم ہو چکے پروگرام (تاریخ کو 3 دن گزر گئے) کا اشتہار خود ہٹائیں — پروگرام کا ریکارڈ رہتا ہے، صرف تصویر جاتی ہے
+      const old = new Date(); old.setDate(old.getDate() - 3);
+      const cut = `${old.getFullYear()}-${String(old.getMonth() + 1).padStart(2, '0')}-${String(old.getDate()).padStart(2, '0')}`;
+      const gone = (db.progs || []).filter(p => p.poster && String(p.date).slice(0, 10) < cut);
+      gone.forEach(p => { p.poster = ''; });
+      // جن تصویروں کا کوئی پروگرام نہیں رہا (ہٹائی گئی، پروگرام حذف) وہ بھی مٹائیں
+      const keep = new Set((db.progs || []).filter(p => p.poster).map(p => 'pp_' + p.id));
+      const keys = await pTx('readonly', st => st.getAllKeys()).catch(() => []);
+      const drop = (keys || []).filter(k => typeof k === 'string' && k.startsWith('pp_') && !keep.has(k));
+      if (drop.length) await pTx('readwrite', st => { drop.forEach(k => st.delete(k)); }).catch(() => {});
+      if (gone.length) { save(); try { toast(`ختم ہو چکے ${gone.length} پروگراموں کے اشتہار ہٹا دیے — جگہ خالی ہو گئی`); } catch (e) {} }
       const refs = (db.progs || []).filter(p => typeof p.poster === 'string' && p.poster.startsWith(PIMG));
       for (const p of refs) { const k = p.poster.slice(PIMG.length), v = await pTx('readonly', st => st.get(k)); if (typeof v === 'string') { p.poster = v; pSaved[k] = v.length + v.slice(-24); } }
       if ((db.progs || []).some(p => typeof p.poster === 'string' && p.poster.startsWith('data:'))) save();   // پرانا ڈیٹا: تصویریں باہر نکال کر جگہ خالی
@@ -887,7 +898,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA2710TU135',
+    version: 'MA2710TU136',
     toast,
     ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),

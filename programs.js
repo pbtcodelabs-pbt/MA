@@ -356,6 +356,7 @@
       $('ppBox').innerHTML = poster
         ? `<img src="${poster}" alt=""><span class="pp-acts"><button type="button" class="btn small" data-pp="pick">بدلیں</button><button type="button" class="btn ghost small" data-pp="rm">ہٹائیں</button></span>`
         : `<button type="button" class="pp-pick" data-pp="pick">🖼️ + تصویر لگائیں</button>`;
+      $('ppBox').insertAdjacentHTML('beforeend', '<small class="pp-note" style="display:block;width:100%;font-size:12px;opacity:.75;margin-top:4px">پروگرام کے 3 دن بعد اشتہار خود ہٹ جاتا ہے، تاکہ فون کی جگہ نہ بھرے</small>');
     };
     drawPoster();
     // لوکیشن کے بٹن
