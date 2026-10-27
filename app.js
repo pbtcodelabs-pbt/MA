@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU144) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU145) */
 (() => {
   'use strict';
 
@@ -458,7 +458,7 @@
       cpList.querySelectorAll('[data-c]').forEach(x => x.classList.toggle('on', x === t));
       cpOpen(false); $('f-name').focus();
     });
-    // فن اسی صفحے سے پہلے سے چنا ہوا — فہرست خود نہیں کھلتی (غلطی سے انگلی لگ کر فن بدل جاتا تھا، MA2710TU144)
+    // فن اسی صفحے سے پہلے سے چنا ہوا — فہرست خود نہیں کھلتی (غلطی سے انگلی لگ کر فن بدل جاتا تھا، MA2710TU145)
     setTimeout(() => $('f-name').focus(), 50);
 
     $('addForm').addEventListener('submit', e => {
@@ -927,7 +927,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA2710TU144',
+    version: 'MA2710TU145',
     toast,
     ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
