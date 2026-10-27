@@ -57,6 +57,13 @@
   };
   const PFC_C = () => (PFC[ST.pfc] && PFC[ST.pfc].c) || B().c;
   const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, tsz: 85, nsz: 100, rsz: 100, csz: 100, bstyle: 'classic', pfc: 'auto', pfw: 2, bgi: 0, capi: 0 };
+  // سوشل میڈیا کے بٹن: ہر ایپ کے اپنے سائز میں پوسٹر بنا کر فون کی «بھیجیں» فہرست؛ وہ نہ ہو تو تصویر محفوظ + ایپ کی ویب سائٹ
+  const SOCIAL = {
+    wa: { n: 'واٹس ایپ', i: '💬', size: 'wa', c: ['#3fe07a', '#128c4a'], web: tx => 'https://wa.me/?text=' + encodeURIComponent(tx) },
+    st: { n: 'اسٹیٹس', i: '⭕', size: 'st', c: ['#34d399', '#0f766e'], noText: 1 },
+    fb: { n: 'فیس بک', i: '👍', size: 'fb', c: ['#4c8dff', '#1d4fb8'], web: () => 'https://www.facebook.com/' },
+    ig: { n: 'انسٹاگرام', i: '📸', size: 'ig', c: ['#f77737', '#c13584'], noText: 1, web: () => 'https://www.instagram.com/' }
+  };
   const SKEY = 'maktaba-aziz-pposter-style', KEY = 'maktaba-aziz-pposter-size';
   let ST = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; } })());
   const saveSt = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} };
@@ -517,8 +524,13 @@
     .ppo-c{grid-column:2;grid-row:3;min-height:0}
     .ppo-a{grid-column:2;grid-row:4}
   }
-  .ppo-a{display:flex;gap:8px;padding:8px 12px calc(env(safe-area-inset-bottom,0px) + 10px);background:#fffdf6;border-top:1px solid #e3cf98}
-  .ppo-a button{flex:1;min-height:46px;border-radius:99px;font:inherit;font-size:17px;cursor:pointer}
+  .ppo-a{display:grid;gap:6px;padding:6px 10px calc(env(safe-area-inset-bottom,0px) + 8px);background:#fffdf6;border-top:1px solid #e3cf98}
+  .ppo-ab{display:flex;gap:8px}
+  .ppo-ab button{flex:1;min-height:44px;border-radius:99px;font:inherit;font-size:16px;cursor:pointer}
+  .ppo-so{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .ppo-so button{min-height:40px;border:0;border-radius:14px;padding:2px 4px;font:inherit;font-size:13px;line-height:1.4;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;background:linear-gradient(180deg,var(--c1),var(--c2));box-shadow:0 3px 0 rgba(0,0,0,.25)}
+  .ppo-so button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+  .ppo-so i{font-style:normal;font-size:16px}
   .ppo-go{border:0;background:linear-gradient(180deg,#3fe07a,#16a34a 55%,#0f7a36);color:#fff;box-shadow:0 4px 0 #0b5e2a}
   .ppo-sv{border:1.5px solid #c8962f;background:#fff;color:#16244d}
   .ppo-ch{position:absolute;inset:0;z-index:2;background:rgba(5,10,30,.55);display:flex;align-items:center;justify-content:center}
@@ -565,7 +577,8 @@
       </div>
       <div class="ppo-szb"><b>📏 سائز</b>${[['tsz', 'عنوان'], ['nsz', 'نام'], ['rsz', 'عہدہ / ادارہ'], ['csz', 'کیپسول']].map(([k, n]) => `<label class="ppo-sz"><span>${n}</span><button type="button" data-z="${k}" data-d="-1" aria-label="${n} چھوٹا">−</button><input type="range" min="50" max="150" step="5" data-s="${k}" aria-label="${n}"><button type="button" data-z="${k}" data-d="1" aria-label="${n} بڑا">+</button><b data-sv="${k}"></b></label>`).join('')}<button type="button" class="rs" data-a="szreset">↺</button></div>
       <div class="ppo-v" id="ppoV"><p>تیار ہو رہا ہے…</p></div>
-      <div class="ppo-a"><button type="button" class="ppo-go" data-a="share">📤 بھیجیں</button><button type="button" class="ppo-sv" data-a="save">⬇️ محفوظ کریں</button></div>
+      <div class="ppo-a"><div class="ppo-so">${Object.entries(SOCIAL).map(([k, o]) => `<button type="button" data-a="so" data-k="${k}" style="--c1:${o.c[0]};--c2:${o.c[1]}"><i>${o.i}</i>${o.n}</button>`).join('')}</div>
+        <div class="ppo-ab"><button type="button" class="ppo-go" data-a="share">📤 سب ایپس میں بھیجیں</button><button type="button" class="ppo-sv" data-a="save">⬇️ محفوظ کریں</button></div></div>
       <input type="file" accept="image/*" hidden id="ppoGal"><input type="file" accept="image/*" capture="user" hidden id="ppoCam"><input type="file" accept="image/*" hidden id="ppoAd"></div>`;
     document.body.appendChild(ov);
     const close = () => { ov.remove(); window.removeEventListener('hashchange', close); };
@@ -632,6 +645,24 @@
       if (a === 'x') return close();
       if (a === 'fonts') { const g = ov.querySelector('#ppoFg'); g.hidden = !g.hidden; e.target.closest('button').classList.toggle('on', !g.hidden); if (!g.hidden) g.scrollIntoView({ block: 'nearest' }); return; }
       if (a === 'pfreset') { ST.pf = {}; ST.tfont = DEF.tfont; ST.bfont = DEF.bfont; saveSt(); draw(); return; }
+      if (a === 'so') {   // ایک ایپ کے لیے: اسی کا سائز، پیغام کاپی (انسٹاگرام / اسٹیٹس تصویر کے ساتھ لکھا نہیں لیتے)
+        const S = SOCIAL[e.target.closest('[data-k]').dataset.k]; if (!S) return;
+        toast(`${S.n} کے سائز میں پوسٹر تیار ہو رہا ہے…`);
+        const c3 = await render(p, S.size), sb = await new Promise(r => c3.toBlob(r, 'image/png')), nm = `jalsa-${p.date}-${S.size}.png`;
+        const sf = new File([sb], nm, { type: 'image/png' }), tx = H && H.textOf ? H.textOf(p) : '';
+        let copied = false; if (tx && navigator.clipboard) { try { await navigator.clipboard.writeText(tx); copied = true; } catch (er) {} }
+        try {
+          if (navigator.canShare && navigator.canShare({ files: [sf] })) {
+            await navigator.share(S.noText ? { files: [sf] } : { files: [sf], text: tx });
+            if (copied && S.noText) toast('پروگرام کا پیغام کاپی ہو گیا — چاہیں تو ساتھ پیسٹ کر دیں');
+            return;
+          }
+        } catch (er) { if (er && er.name === 'AbortError') return; }
+        const l = document.createElement('a'); l.href = URL.createObjectURL(sb); l.download = nm; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(l.href), 4000);
+        if (S.web) window.open(S.web(tx), '_blank', 'noopener');
+        toast(`پوسٹر محفوظ ہو گیا — ${S.n} میں یہی تصویر لگائیں` + (copied ? '، پیغام بھی کاپی ہے' : ''));
+        return;
+      }
       if (!cv) return;
       const b = await blob(), file = new File([b], fname(), { type: 'image/png' });
       if (a === 'share') {
