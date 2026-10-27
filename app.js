@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU138) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU139) */
 (() => {
   'use strict';
 
@@ -222,7 +222,11 @@
   }
 
   // فن کا صفحہ: اس فن کی ساری کتب کارڈوں میں
+  // کئی کتابیں ایک ساتھ دوسرے فن میں: چننے کا موڈ (sel = چنی ہوئی کتابوں کی شناخت)
+  let sel = null, selCat = '';
+  const HADITH_RX = /حدیث|احادیث|صحیح|سنن|مسند|مشکو|بخاری|مسلم|ترمذی|داؤد|داود|نسائی|ماجہ|موطا|مؤطا|ریاض الصالحین|طحاوی|مستدرک|معجم|بلوغ المرام|فتح الباری|عمدۃ القاری|فیض الباری|معارف السنن|کنز العمال|مجمع الزوائد|ترغیب/;
   function pageCat(cat, q = '') {
+    if (selCat !== cat.id) { sel = null; selCat = cat.id; }
     const all = booksOf(cat.id);
     const qq = q.trim();
     const list = qq ? all.filter(b => [b.name, b.author, b.publisher].some(v => (v || '').includes(qq))) : all;
@@ -245,8 +249,14 @@
           </div>
           ${all.length ? `
             ${all.length > 6 ? `<input class="search" id="q" type="search" placeholder="نام، مصنف یا ناشر سے تلاش…" aria-label="تلاش" value="${esc(q)}">` : ''}
+            ${sel ? `<div class="sel-bar" id="selBar">
+              <b>${num(sel.size)} کتابیں چنی گئیں</b>
+              <span class="actions"><button type="button" class="btn ghost small" data-act="selall">${sel.size === list.length && list.length ? 'سب ہٹائیں' : 'سب چنیں'}</button>${cat.id !== 'hadith' && all.some(b => HADITH_RX.test(b.name)) ? `<button type="button" class="btn gold small" data-act="selhad">حدیث والی کتابیں چنیں</button>` : ''}<button type="button" class="btn ghost small" data-act="selx">✕ بند</button></span>
+              <p>${sel.size ? 'اب نیچے وہ فن دبائیں جس میں یہ کتابیں بھیجنی ہیں:' : 'کتابوں کو چھو کر چنیں، پھر فن دبائیں۔'}</p>
+              <div class="mv-list">${cats().filter(c => c.id !== cat.id).map(c => `<button type="button" data-mvto="${c.id}"${sel.size ? '' : ' disabled'}>${esc(c.name)}</button>`).join('')}</div>
+            </div>` : `<p class="sel-go"><button type="button" class="btn ghost small" data-act="selon">↔ کتابیں دوسرے فن میں بھیجیں</button></p>`}
             <div class="shelf books">
-              ${list.map(b => `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], `<span class="bkx-no">${num(all.indexOf(b) + 1)}</span>`, !!b.loan, b.cover)}${b.loan ? `<span class="cnt out-l">${esc(b.loan.name)}</span>` : `<span class="cnt vol-p" title="جلدیں"><b>${num(+b.parts || 1)}</b><small>${(+b.parts || 1) > 1 ? 'جلدیں' : 'جلد'}</small></span>`}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
+              ${list.map(b => sel ? `<button type="button" class="bk sel-bk${sel.has(b.id) ? ' on' : ''}" data-sel="${b.id}" title="${esc(b.name)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], `<span class="bkx-no">${num(all.indexOf(b) + 1)}</span>`, !!b.loan, b.cover)}<span class="sel-ck">${sel.has(b.id) ? '✓' : ''}</span><span class="cnt sel-nm">${esc(b.name)}</span></button>` : `<a class="bk" href="#/c/${cat.id}/b/${b.id}" title="${esc(b.author)}">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], `<span class="bkx-no">${num(all.indexOf(b) + 1)}</span>`, !!b.loan, b.cover)}${b.loan ? `<span class="cnt out-l">${esc(b.loan.name)}</span>` : `<span class="cnt vol-p" title="جلدیں"><b>${num(+b.parts || 1)}</b><small>${(+b.parts || 1) > 1 ? 'جلدیں' : 'جلد'}</small></span>`}</a>`).join('') || `<p class="crumb">تلاش سے کوئی کتاب نہیں ملی</p>`}
             </div>` : `
             <div class="empty"><b>اس فن میں ابھی کوئی کتاب درج نہیں</b>اوپر «ایڈ کتب» دبا کر پہلی کتاب شامل کریں۔
               ${(db.cats || []).some(c => c.id === cat.id) ? `<p><button class="btn ghost small" type="button" data-act="delcat">یہ فن حذف کریں</button></p>` : ''}</div>`}
@@ -260,6 +270,20 @@
     });
     view.querySelector('[data-act="rename"]').addEventListener('click', () => openCatForm(cat));
     $('catb').addEventListener('click', e => {
+      const sb = e.target.closest('[data-sel]');
+      if (sb && sel) { sel.has(sb.dataset.sel) ? sel.delete(sb.dataset.sel) : sel.add(sb.dataset.sel); pageCat(cat, q); return; }
+      const sa = e.target.closest('[data-act]')?.dataset.act;
+      if (sa === 'selon') { sel = new Set(); pageCat(cat, q); return; }
+      if (sa === 'selx') { sel = null; pageCat(cat, q); return; }
+      if (sa === 'selall') { sel = sel.size === list.length ? new Set() : new Set(list.map(b => b.id)); pageCat(cat, q); return; }
+      if (sa === 'selhad') { sel = new Set(all.filter(b => HADITH_RX.test(b.name)).map(b => b.id)); pageCat(cat, q); return; }
+      const mt = e.target.closest('[data-mvto]');
+      if (mt && sel && sel.size) {
+        const to = catById(mt.dataset.mvto); if (!to) return;
+        if (!confirm(`${num(sel.size)} کتابیں «${cat.name}» سے «${to.name}» میں بھیج دیں؟`)) return;
+        let n = 0; db.books.forEach(b => { if (sel.has(b.id) && b.cat === cat.id) { b.cat = to.id; n++; } });
+        sel = null; save(); refreshCounts(cat.id); toast(`✓ ${num(n)} کتابیں «${to.name}» میں چلی گئیں`); pageCat(cat, q); return;
+      }
       if (e.target.closest('[data-act="delcat"]')) {
         db.cats = (db.cats || []).filter(c => c.id !== cat.id); delete db.catNames[cat.id];
         save(); toast(`«${cat.name}» حذف ہو گیا`); location.hash = '#/'; return;
@@ -283,7 +307,8 @@
           <span class="crumb">کتاب نمبر ${num(all.indexOf(b) + 1)}</span>
         </div>
         <div class="panel-b detail" id="detb">
-          <a class="d-cat" href="#/c/${cat.id}"><span>فن</span><b>${esc(cat.name)}</b></a>
+          <div class="d-catrow"><a class="d-cat" href="#/c/${cat.id}"><span>فن</span><b>${esc(cat.name)}</b></a><button type="button" class="btn ghost small" data-act="mvcat">↔ فن بدلیں</button></div>
+          <div class="mv-list" id="mvList" hidden><p>یہ کتاب کس فن میں بھیجیں؟</p>${cats().filter(c => c.id !== cat.id).map(c => `<button type="button" data-mv="${c.id}">${esc(c.name)}</button>`).join('')}</div>
           <div class="d-cover"><a href="#" data-cover-edit="${b.id}" class="d-cv-bk">${book3d(esc(b.name), PAL[(all.indexOf(b) + catIndex(cat.id)) % PAL.length], '', false, b.cover)}</a><button type="button" class="btn ghost small" data-cover-edit="${b.id}">📷 ${b.cover ? 'ٹائٹل بدلیں' : 'کتاب کا ٹائٹل لگائیں'}</button></div>
           <h2 class="d-title">${esc(b.name)}</h2>
           <dl>
@@ -316,7 +341,10 @@
         </div>
       </section>`;
     $('detb').addEventListener('click', e => {
+      const mv = e.target.closest('[data-mv]');
+      if (mv) { const to = catById(mv.dataset.mv); if (!to) return; b.cat = to.id; save(); refreshCounts(to.id); toast(`✓ «${b.name}» فن «${to.name}» میں چلی گئی`); location.hash = `#/c/${to.id}/b/${b.id}`; return; }
       const t = e.target.closest('[data-act]'); if (!t) return;
+      if (t.dataset.act === 'mvcat') { const l = $('mvList'); l.hidden = !l.hidden; if (!l.hidden) l.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
       if (t.dataset.act === 'lend' || t.dataset.act === 'lendedit') { openLoanForm(b); return; }
       if (t.dataset.act === 'ret') { returnBook(b); pageBook(cat, id); return; }
       if (t.dataset.act === 'del') pageBook(cat, id, true);
@@ -430,7 +458,8 @@
       cpList.querySelectorAll('[data-c]').forEach(x => x.classList.toggle('on', x === t));
       cpOpen(false); $('f-name').focus();
     });
-    if (b) setTimeout(() => $('f-name').focus(), 50); else cpOpen(true);
+    // فن اسی صفحے سے پہلے سے چنا ہوا — فہرست خود نہیں کھلتی (غلطی سے انگلی لگ کر فن بدل جاتا تھا، MA2710TU139)
+    setTimeout(() => $('f-name').focus(), 50);
 
     $('addForm').addEventListener('submit', e => {
       e.preventDefault();
@@ -458,7 +487,7 @@
       } else {
         db.books.push({ id: newId(), added: new Date().toISOString(), ...rec });
         save(); toast(`✓ «${name}» محفوظ ہو گئی`);
-        err.textContent = ''; const ok = document.createElement('p'); ok.className = 'saved-ok'; ok.textContent = `✓ «${name}» محفوظ ہو گئی — اگلی کتاب لکھیں`; $('addForm').querySelector('.saved-ok')?.remove(); $('addForm').prepend(ok);
+        err.textContent = ''; const ok = document.createElement('p'); ok.className = 'saved-ok'; const cn = catById(newCat)?.name || ''; ok.textContent = newCat !== cat.id ? `✓ «${name}» فن «${cn}» میں محفوظ ہو گئی — اگلی کتاب لکھیں` : `✓ «${name}» محفوظ ہو گئی — اگلی کتاب لکھیں`; if (newCat !== cat.id) ok.classList.add('other'); $('addForm').querySelector('.saved-ok')?.remove(); $('addForm').prepend(ok);
         refreshCounts(cat.id); pageCat(cat);
         // اگلی کتاب کے لیے خانے خالی، مکتبہ باقی
         ['f-name', 'f-author', 'f-parts'].forEach(id => { $(id).value = ''; $(id).style.height = ''; });   // ناشر اور قیمت اگلی کتاب کے لیے رہیں، باقی خالی
@@ -898,7 +927,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA2710TU138',
+    version: 'MA2710TU139',
     toast,
     ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
