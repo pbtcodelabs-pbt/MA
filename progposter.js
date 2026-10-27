@@ -1,7 +1,7 @@
 /* میرا مکتبہ — پروگرام (جلسہ) کا پوسٹر
    اوپر: جلسے کا عنوان + مالک/مہتمم کی تصویر فریم (گول / چورس / محراب) میں، بڑی کر کے؛ ساتھ بڑا نام اور عہدہ
    بیچ: تاریخ، وقت، بمقام، شہر، میزبان، نمبر — ہر سطر اپنے رنگین موٹے کیپسول میں
-   نیچے: دائیں مکتبہ/مدرسہ کا مونوگرام (لوگو)، بیچ میں فون، بائیں جلسے کا چھوٹا اشتہار
+   اوپر دائیں جلسے کا اشتہار؛ عنوان بڑے کیپسول میں سب کیپسولوں کے اوپر؛ نیچے: دائیں مونوگرام (لوگو)، بیچ میں فون
    رنگ، بارڈر، کیپسول، لکھائی کا رنگ و موٹائی، فونٹ اور گول کونے — سب چن سکتے ہیں؛ سائز: واٹس ایپ، اسٹیٹس، فیس بک، انسٹاگرام */
 (function () {
   'use strict';
@@ -78,13 +78,6 @@
       if (best && best.m <= max) return { z, lines: [best.a, best.b] };
     }
     c.font = `${min}px ${f}`; return { z: min, lines: [s] };
-  }
-  // عنوان: پہلے ایک ہی سطر میں (کچھ چھوٹا کر کے)، نہ سمائے تو دو سطریں
-  function titleFit(c, s, max, size, one, min) {
-    const q = (ST.tsz || 100) / 100; size *= q; one *= q; min *= Math.min(1, q);
-    const f = PF('title'), z = fitFont(c, s, max, size, f, one);
-    c.font = `${z}px ${f}`; if (c.measureText(s).width <= max) return { z, lines: [s] };
-    return wrap2(c, s, max, size, f, min);
   }
   function headText(c, s, x, y, z, f, align = 'center') {
     c.save(); c.font = `${z}px ${f}`; c.textAlign = align; c.direction = 'rtl';
@@ -351,20 +344,35 @@
     return { x: x - 6, y: yy - 6, w: w + 12, h: h + 12 };
   }
   // نیچے کی پٹی: دائیں مونوگرام (لوگو)، بیچ میں فون، بائیں جلسے کا اشتہار
-  function bottomRow(c, I, A, x, y, w, h, preview, out) {
-    const cy = y + h / 2; let right = x + w, left = x;
+  // جلسے کا اشتہار: اوپر دائیں کونے میں پورا؛ نہ ہو تو (صرف دیکھنے میں) چھوٹا «➕ اشتہار» نشان، جگہ نہیں گھیرتا
+  function adSlot(c, A, x, y, w, h, preview, out) {
+    if (A.ad) { out.ad = adThumb(c, A.ad, x, y, w, h); return true; }
+    if (preview && ST.ad) {
+      const s = Math.min(w, h) * .62, bx = x + w - s, by = y; out.ad = { x: bx, y: by, w: s, h: s };
+      c.save(); c.setLineDash([8, 6]); c.strokeStyle = K().l; c.lineWidth = 2.5; rr(c, bx, by, s, s, 12); c.stroke(); c.restore();
+      text(c, '➕ اشتہار', bx + s / 2, by + s * .48, s * .17, K().t, BF(), 'center', s * .9);
+      text(c, 'لگائیں', bx + s / 2, by + s * .72, s * .15, K().l, BF(), 'center', s * .9);
+    }
+    return false;
+  }
+  // عنوان کا بڑا کیپسول: سب کیپسولوں کے اوپر بیچ میں، سنہری کنارہ، اندر عنوان
+  function titleCap(c, title, x, y, w, h) {
+    const r = h / 2;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = h * .3; c.shadowOffsetY = h * .08;
+    rr(c, x - h * .06, y - h * .06, w + h * .12, h * 1.12, r * 1.12); c.fillStyle = grad(c, y, y + h, B().c); c.fill(); c.restore();
+    c.save(); rr(c, x, y, w, h, r); c.fillStyle = grad(c, y, y + h, [shade(T().bg[0], -12), T().bg[1], T().bg[2]]); c.fill();
+    c.clip(); c.fillStyle = 'rgba(255,255,255,.12)'; rr(c, x + r * .5, y + h * .06, w - r, h * .36, h * .18); c.fill(); c.restore();
+    c.save(); rr(c, x + h * .07, y + h * .07, w - h * .14, h * .86, r * .86); c.strokeStyle = B().c[1]; c.globalAlpha = .55; c.lineWidth = Math.max(1.5, h * .02); c.stroke(); c.restore();
+    const f = PF('title'), z = fitFont(c, title, w - h * 1.1, h * .62, f, h * .25);
+    headText(c, title, x + w / 2, y + h / 2 + z * .3, z, f);
+  }
+  // نیچے کی پٹی: دائیں مونوگرام (لوگو)، بیچ میں فون
+  function bottomRow(c, I, A, x, y, w, h) {
+    const cy = y + h / 2; let right = x + w;
     if (A.logo) { const d = h * .9; roundLogo(c, A.logo, right - d / 2 - h * .03, cy, d); right -= d + h * .2; }
     else if (I.maktaba) { const mf = PF('mak'), mz = fitFont(c, I.maktaba, w * .4, h * .3, mf); headText(c, I.maktaba, right, cy + mz * .3, mz, mf, 'right'); right -= c.measureText(I.maktaba).width + h * .2; }
-    if (A.ad) { const b = adThumb(c, A.ad, x + 6, y, h * .8, h); out.ad = b; left = b.x + b.w + h * .2; }
-    else if (preview && ST.ad) {
-      const aw = h * .74; out.ad = { x, y, w: aw, h };
-      c.save(); c.setLineDash([10, 8]); c.strokeStyle = K().l; c.lineWidth = 3; rr(c, x, y, aw, h, 12); c.stroke(); c.restore();
-      text(c, '➕ اشتہار', x + aw / 2, cy - h * .02, h * .15, K().t, BF(), 'center', aw * .9);
-      text(c, 'لگائیں', x + aw / 2, cy + h * .2, h * .13, K().l, BF(), 'center', aw * .9);
-      left = x + aw + h * .2;
-    }
     if (I.ophone) {
-      const room = right - left; let z = h * .32; c.font = `700 ${z}px ${NF}`;
+      const left = x + (x + w - right), room = right - left; let z = h * .32; c.font = `700 ${z}px ${NF}`;
       while (c.measureText(I.ophone).width + z * 2.4 > room && z > h * .16) { z -= 2; c.font = `700 ${z}px ${NF}`; }
       const pw = c.measureText(I.ophone).width, bw = pw + z * 2.4, bh = z * 1.75, bx = left + (room - bw) / 2, by = cy - bh / 2;
       c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = bh * .3; rr(c, bx, by, bw, bh, bh / 2); c.fillStyle = 'rgba(0,0,0,.28)'; c.fill(); c.restore();
@@ -376,55 +384,58 @@
   }
 
   // ---------- ترتیب ----------
+  // اوپر: بائیں تصویر، بیچ میں پورا نام اور عہدہ، دائیں کونے میں اشتہار؛ پھر عنوان کا بڑا کیپسول؛ پھر معلومات کے کیپسول؛ نیچے فون اور مونوگرام
   function drawTall(c, W, H, I, A, key, preview, out) {
     const m = W, pad = m * .07, inner = W - 2 * pad, cx = W / 2, showPh = !!(A.photo || preview);
-    const P = { wa: { hero: .3, rh: .11, bh: .12, cols: 2 }, ig: { hero: .4, rh: .088, bh: .14, cols: 1 }, st: { rh: .1, bh: .15, cols: 1 } }[key] || {};
-    const creditY = H - m * .04, list = rowsOf(I);
-    let y = m * .055;
-    if (key === 'st') {   // اسٹیٹس: سب کچھ اوپر تلے، تصویر بڑی بیچ میں
-      crescent(c, cx, y + m * .03, m * .032); y += m * .075;
-      const Tt = titleFit(c, I.title || 'جلسہ', inner * .92, m * .15, m * .1, m * .07), lh = Tt.z * 1.15;
-      Tt.lines.forEach((ln, i) => headText(c, ln, cx, y + Tt.z * .8 + i * lh, Tt.z, PF('title')));
-      y += Tt.z * .8 + (Tt.lines.length - 1) * lh + m * .07;
-      if (showPh) { const d = m * .5; photoFrame(c, A, cx, y + d / 2, d, preview, out); y += d + m * .06; }
-      y = nameBlock(c, I, cx, y, inner * .92, m * .085) + m * .01;
-    } else {              // واٹس ایپ / انسٹاگرام: اوپر پورا عنوان؛ نیچے بائیں تصویر، دائیں بڑا نام اور عہدہ
-      y += m * .02;
-      const Tt = titleFit(c, I.title || 'جلسہ', inner * .95, m * (key === 'ig' ? .14 : .13), m * (key === 'ig' ? .09 : .085), m * .06), tlh = Tt.z * 1.1;
-      Tt.lines.forEach((ln, i) => headText(c, ln, cx, y + Tt.z * .8 + i * tlh, Tt.z, PF('title')));
-      y += Tt.z * .8 + (Tt.lines.length - 1) * tlh + Tt.z * .3;
-      const hh = m * P.hero, d = showPh ? Math.min(hh, inner * .42) : 0, gap = showPh ? m * .04 : 0;
-      const colW = inner - d - gap, colCx = W - pad - colW / 2, nz = m * (key === 'ig' ? .075 : .068);
+    const P = { wa: { hero: .3, rh: .1, bh: .11, cols: 2, th: .13 }, ig: { hero: .36, rh: .088, bh: .13, cols: 1, th: .14 }, st: { rh: .095, bh: .14, cols: 1, th: .15 } }[key] || {};
+    const creditY = H - m * .04, list = rowsOf(I), gap = m * .035, tq = (ST.tsz || 100) / 100;
+    let y = m * .06;
+    if (key === 'st') {   // اسٹیٹس: تصویر بڑی (اشتہار ہو تو اس کے ساتھ دائیں)، نیچے نام
+      const d = showPh ? m * .44 : 0, aw = A.ad ? inner * .3 : 0;
+      crescent(c, cx, y + m * .025, m * .03); y += m * .07;
+      const pcx = A.ad ? pad + (inner - aw - gap) / 2 : cx;
+      if (showPh) photoFrame(c, A, pcx, y + d / 2, d, preview, out);
+      adSlot(c, A, W - pad - (A.ad ? aw : inner * .22), y, A.ad ? aw : inner * .22, Math.max(d, m * .2), preview, out);
+      y += Math.max(d, A.ad ? d : 0) + m * .05;
+      y = nameBlock(c, I, cx, y, inner * .94, m * .085) + m * .03;
+    } else {              // واٹس ایپ / انسٹاگرام
+      const hh = m * P.hero, d = showPh ? Math.min(hh, inner * .33) : 0, aw = A.ad ? Math.min(inner * .24, hh * .8) : 0;
+      const nx0 = pad + d + (showPh ? gap : 0), nx1 = W - pad - (A.ad ? aw + gap : 0), nW = nx1 - nx0, ncx = (nx0 + nx1) / 2, nz = m * (key === 'ig' ? .075 : .068);
       if (showPh) photoFrame(c, A, pad + d / 2 + m * .01, y + hh / 2, d, preview, out);
-      const nH = nameBlock(c, I, colCx, 0, colW, nz, true), cr = m * .055, tot = cr + nH;
+      adSlot(c, A, W - pad - (A.ad ? aw : inner * .16), y, A.ad ? aw : inner * .16, A.ad ? hh : inner * .16, preview, out);
+      const nH = nameBlock(c, I, ncx, 0, nW, nz, true), cr = m * .055, tot = cr + nH;
       let yy = y + Math.max(0, (hh - tot) / 2);
-      crescent(c, colCx, yy + m * .022, m * .024); yy += cr;
-      nameBlock(c, I, colCx, yy, colW, nz);
-      y += Math.max(hh, tot) + m * .025;
+      crescent(c, ncx, yy + m * .022, m * .024); yy += cr;
+      nameBlock(c, I, ncx, yy, nW, nz);
+      y += Math.max(hh, tot) + m * .04;
     }
-    divider(c, cx, y, inner * .6); y += m * .025;
-    const bh = m * P.bh, bY = creditY - m * .035 - bh, free = bY - m * .025 - y;
+    const th = m * P.th * tq, tw = inner * .94;
+    titleCap(c, I.title || 'جلسہ', cx - tw / 2, y, tw, th); y += th + m * .035;
+    const bh = m * P.bh, bY = creditY - m * .03 - bh, free = bY - m * .02 - y;
     const cols = list.length > 3 ? P.cols : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * P.rh * (ST.csz || 100) / 100, free / nr);
     capsules(c, list, pad, y + (free - rh * nr) / 2, inner, rh, cols);
-    bottomRow(c, I, A, pad, bY, inner, bh, preview, out);
+    bottomRow(c, I, A, pad, bY, inner, bh);
     creditLine(c, W, creditY, m * .02);
   }
-  function drawWide(c, W, H, I, A, preview, out) {   // فیس بک: بائیں تصویر اور نام، دائیں عنوان، کیپسول اور نیچے کی پٹی
-    const m = H, pad = W * .045, showPh = !!(A.photo || preview);
+  function drawWide(c, W, H, I, A, preview, out) {   // فیس بک: بائیں تصویر اور نام؛ دائیں اوپر اشتہار کے ساتھ عنوان کا کیپسول، پھر کیپسول، نیچے فون اور مونوگرام
+    const m = H, pad = W * .045, showPh = !!(A.photo || preview), tq = (ST.tsz || 100) / 100;
     const lW = showPh ? W * .27 : 0, colX = pad + lW + (showPh ? W * .025 : 0), colW = W - pad - colX;
-    let top = m * .25;
     if (showPh) {
-      const d = Math.min(lW * .92, m * .52), pcx = pad + lW / 2;
+      const d = Math.min(lW * .92, m * .5), pcx = pad + lW / 2;
       photoFrame(c, A, pcx, m * .08 + d / 2, d, preview, out);
       nameBlock(c, I, pcx, m * .08 + d + m * .05, lW * 1.05, m * .075);
     }
-    const title = I.title || 'جلسہ', tz = fitFont(c, title, colW * .92, m * .13 * (ST.tsz || 100) / 100, PF('title'), m * .04);
-    headText(c, title, colX + colW / 2, m * .19, tz, PF('title'));
-    if (!showPh && (I.pname || I.prole)) top = nameBlock(c, I, colX + colW / 2, m * .22, colW * .9, m * .07) + m * .01;
-    const bh = m * .16, creditY = H - m * .035, bY = creditY - m * .03 - bh, free = bY - m * .02 - top;
+    const aw = A.ad ? m * .22 : 0, ah = m * .27;
+    adSlot(c, A, W - pad - (A.ad ? aw : m * .15), m * .07, A.ad ? aw : m * .15, A.ad ? ah : m * .15, preview, out);
+    let top = m * .08;
+    if (!showPh && (I.pname || I.prole)) top = nameBlock(c, I, colX + (colW - aw) / 2, top, colW - aw - 20, m * .07) + m * .02;
+    const th = m * .16 * tq, tW = colW - (A.ad ? aw + W * .02 : 0);
+    titleCap(c, I.title || 'جلسہ', colX + th * .1, Math.max(top, A.ad ? m * .07 + (ah - th) / 2 : top), tW - th * .2, th);
+    top = Math.max(top + th, A.ad ? m * .07 + ah : 0) + m * .04;
+    const bh = m * .15, creditY = H - m * .035, bY = creditY - m * .025 - bh, free = bY - m * .015 - top;
     const list = rowsOf(I), cols = list.length > 3 ? 2 : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * .13 * (ST.csz || 100) / 100, free / nr);
     capsules(c, list, colX, top + (free - rh * nr) / 2, colW, rh, cols);
-    bottomRow(c, I, A, colX, bY, colW, bh, preview, out);
+    bottomRow(c, I, A, colX, bY, colW, bh);
     creditLine(c, W, creditY, m * .026);
   }
   async function render(p, key, opts = {}) {
