@@ -43,7 +43,7 @@
   const CAPS = { multi: 'رنگین', gold: 'سنہری', glass: 'شیشہ', white: 'سفید' };
   const MULTI = [['#17a9ab', '#0b6466'], ['#d6485d', '#8a1d2e'], ['#3fa344', '#1f5e23'], ['#3a6fcc', '#1c3c7c'], ['#e58a2c', '#9a530b'], ['#9553c4', '#56287a']];
   const FRAMES = { circle: 'گول', square: 'چورس', arch: 'محراب' };
-  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, tsz: 85, nsz: 100, csz: 100, bstyle: 'classic', bgi: 0, capi: 0 };
+  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, tsz: 85, nsz: 100, rsz: 100, csz: 100, bstyle: 'classic', bgi: 0, capi: 0 };
   const SKEY = 'maktaba-aziz-pposter-style', KEY = 'maktaba-aziz-pposter-size';
   let ST = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; } })());
   const saveSt = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} };
@@ -295,7 +295,7 @@
   }
   // بڑا نام (سنہری) + عہدہ سنہری پٹی میں؛ dry = صرف ناپیں
   function nameBlock(c, I, cx, y, w, z, dry) {
-    z *= (ST.nsz || 100) / 100;
+    const z0 = z; z *= (ST.nsz || 100) / 100;
     let yy = y;
     if (I.pname) {
       const N = wrap2(c, I.pname, w, z, PF('name'), z * .5), lh = N.z * 1.22;
@@ -303,7 +303,7 @@
       yy += N.z * .85 + (N.lines.length - 1) * lh + N.z * .42;
     }
     if (I.prole) {
-      const rz = fitFont(c, I.prole, w * .85, z * .46, PF('role')), rw = Math.min(w, c.measureText(I.prole).width + rz * 1.8), rh = rz * 1.75;
+      const rz = fitFont(c, I.prole, w * .9, z0 * .46 * (ST.rsz || 100) / 100, PF('role')), rw = Math.min(w, c.measureText(I.prole).width + rz * 1.8), rh = rz * 1.75;
       if (!dry) {
         c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = rh * .25; rr(c, cx - rw / 2, yy, rw, rh, rh / 2); c.fillStyle = grad(c, yy, yy + rh, B().c); c.fill(); c.restore();
         bold(c, I.prole, cx, yy + rh / 2 + rz * .33, rz, T().light ? '#2a1a00' : T().bg[2], PF('role'), 'center');
@@ -326,10 +326,10 @@
   // ہر سطر اپنے کیپسول میں: دائیں نشان کا گول ڈبہ، پھر «عنوان: معلومات» موٹی لکھائی میں
   function capsules(c, list, x, y, w, rh, cols) {
     cols = cols || 1;
-    const gap = w * .025, cw = (w - gap * (cols - 1)) / cols, ch = rh * .8;
+    const gap = w * .025, cw = (w - gap * (cols - 1)) / cols, q = (ST.csz || 100) / 100, ch = rh * Math.min(.96, .8 * Math.max(q, 1));
     list.forEach(([ic, lab, val], i) => {
       const f = PF(ic), col = i % cols, row = Math.floor(i / cols), S = capStyle(i);
-      const cx0 = x + w - cw - col * (cw + gap), yy = y + row * rh + (rh - ch) / 2, r = ch / 2, z = Math.min(ch * .75, ch * (cols > 1 ? .48 : .52) * (ST.csz || 100) / 100);
+      const cx0 = x + w - cw - col * (cw + gap), yy = y + row * rh + (rh - ch) / 2, r = ch / 2, z = ch * (cols > 1 ? .48 : .52);   // لکھائی ہمیشہ کیپسول کے حساب سے — کیپسول ساتھ بڑا / چھوٹا
       c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = ch * .28; c.shadowOffsetY = ch * .08;
       rr(c, cx0, yy, cw, ch, r); c.fillStyle = grad(c, yy, yy + ch, S.fill); c.fill(); c.restore();
       c.save(); rr(c, cx0, yy, cw, ch, r); c.clip(); c.fillStyle = 'rgba(255,255,255,.16)'; rr(c, cx0 + r * .6, yy + ch * .07, cw - r * 1.2, ch * .38, ch * .19); c.fill(); c.restore();
@@ -404,7 +404,7 @@
     }
     divider(c, cx, y, inner * .6); y += m * .025;
     const bh = m * P.bh, bY = creditY - m * .035 - bh, free = bY - m * .025 - y;
-    const cols = list.length > 3 ? P.cols : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * P.rh, free / nr);
+    const cols = list.length > 3 ? P.cols : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * P.rh * (ST.csz || 100) / 100, free / nr);
     capsules(c, list, pad, y + (free - rh * nr) / 2, inner, rh, cols);
     bottomRow(c, I, A, pad, bY, inner, bh, preview, out);
     creditLine(c, W, creditY, m * .02);
@@ -422,7 +422,7 @@
     headText(c, title, colX + colW / 2, m * .19, tz, PF('title'));
     if (!showPh && (I.pname || I.prole)) top = nameBlock(c, I, colX + colW / 2, m * .22, colW * .9, m * .07) + m * .01;
     const bh = m * .16, creditY = H - m * .035, bY = creditY - m * .03 - bh, free = bY - m * .02 - top;
-    const list = rowsOf(I), cols = list.length > 3 ? 2 : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * .13, free / nr);
+    const list = rowsOf(I), cols = list.length > 3 ? 2 : 1, nr = Math.ceil(list.length / cols) || 1, rh = Math.min(m * .13 * (ST.csz || 100) / 100, free / nr);
     capsules(c, list, colX, top + (free - rh * nr) / 2, colW, rh, cols);
     bottomRow(c, I, A, colX, bY, colW, bh, preview, out);
     creditLine(c, W, creditY, m * .026);
@@ -457,7 +457,15 @@
   .ppo-r small{font:12px Arial,sans-serif;opacity:.75}
   .ppo-r input{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 12px;min-height:32px;background:#fff;color:#16244d;width:min(230px,58vw);flex:none}
   .ppo-r input[type=range]{width:min(200px,45vw);min-height:28px;padding:0;border:0;background:none;accent-color:#c8962f}
-  .ppo-sz b{font:700 12px Arial,sans-serif;color:#16244d;min-width:34px;flex:none}
+  .ppo-szb{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;padding:5px 8px;background:linear-gradient(180deg,#16244d,#0c1634);color:#f1d27a}
+  .ppo-szb>b{font-weight:400;font-size:14px}
+  .ppo-szb .rs{width:32px;height:32px;border-radius:50%;border:1px solid #c8962f;background:rgba(255,255,255,.1);color:#f1d27a;font-size:16px;cursor:pointer}
+  .ppo-sz{display:flex;align-items:center;gap:4px;flex:1 1 230px;min-width:0;font-size:12.5px}
+  .ppo-sz span{min-width:46px;flex:none;white-space:nowrap}
+  .ppo-sz input{flex:1;min-width:50px;accent-color:#e8c467;margin:0}
+  .ppo-sz button{flex:none;width:24px;height:24px;border-radius:50%;border:1px solid #c8962f;background:#fffaf0;color:#16244d;font:700 15px Arial,sans-serif;line-height:1;padding:0;cursor:pointer}
+  .ppo-sz b{font:700 11px Arial,sans-serif;color:#fff3c4;min-width:32px;flex:none;text-align:center}
+  @media (max-width:520px){.ppo-sz{flex-basis:44%}.ppo-szb>b,.ppo-szb .rs{display:none}}
   .ppo-r em{font-style:normal;font-size:12px;color:#7a5418;flex:none}
   .ppo-fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:5px 10px;padding:6px 8px;border:1.5px dashed #c8962f;border-radius:14px;background:#fffaf0}
   .ppo-fg[hidden]{display:none}
@@ -493,7 +501,6 @@
       <div class="ppo-h"><b>🖼️ جلسے کا پوسٹر</b><button type="button" class="x" data-a="x" aria-label="بند">✕</button></div>
       <div class="ppo-c">
         <div class="ppo-r"><span>سائز</span>${Object.entries(SIZES).map(([k, s]) => chip('size', k, `${s.n}<small dir="ltr">${s.w}×${s.h}</small>`)).join('')}</div>
-        ${[['tsz', 'عنوان کا سائز'], ['nsz', 'نام کا سائز'], ['csz', 'کیپسول لکھائی']].map(([k, n]) => `<div class="ppo-r ppo-sz"><span>${n}</span><em>چھوٹا</em><input type="range" min="50" max="140" step="5" data-s="${k}" aria-label="${n}"><em>بڑا</em><b data-sv="${k}"></b></div>`).join('')}
         <div class="ppo-r"><span>تصویر</span>${chip('photo', 'add', '📷 تصویر ایڈ کریں')}${chip('photo', 'cut', '✂️ پس منظر ہٹائیں')}${chip('photo', 'del', '🗑️ ہٹائیں')}</div>
         <div class="ppo-r"><span>فریم</span>${Object.entries(FRAMES).map(([k, n]) => chip('pframe', k, n)).join('')}${chip('pz', '+', '🔍 بڑی')}${chip('pz', '-', '🔍 چھوٹی')}${chip('pm', 'u', '⬆️ اوپر')}${chip('pm', 'd', '⬇️ نیچے')}</div>
         <div class="ppo-r ppo-in"><span>نام</span><input data-t="pname" placeholder="مثلاً مولانا مفتی محمد رضوان عزیز" aria-label="تصویر کے ساتھ نام"></div>
@@ -514,6 +521,7 @@
           <button type="button" data-a="pfreset">↺ سب پہلے جیسا</button>
         </div>
       </div>
+      <div class="ppo-szb"><b>📏 سائز</b>${[['tsz', 'عنوان'], ['nsz', 'نام'], ['rsz', 'عہدہ / ادارہ'], ['csz', 'کیپسول']].map(([k, n]) => `<label class="ppo-sz"><span>${n}</span><button type="button" data-z="${k}" data-d="-1" aria-label="${n} چھوٹا">−</button><input type="range" min="50" max="150" step="5" data-s="${k}" aria-label="${n}"><button type="button" data-z="${k}" data-d="1" aria-label="${n} بڑا">+</button><b data-sv="${k}"></b></label>`).join('')}<button type="button" class="rs" data-a="szreset">↺</button></div>
       <div class="ppo-v" id="ppoV"><p>تیار ہو رہا ہے…</p></div>
       <div class="ppo-a"><button type="button" class="ppo-go" data-a="share">📤 بھیجیں</button><button type="button" class="ppo-sv" data-a="save">⬇️ محفوظ کریں</button></div>
       <input type="file" accept="image/*" hidden id="ppoGal"><input type="file" accept="image/*" capture="user" hidden id="ppoCam"><input type="file" accept="image/*" hidden id="ppoAd"></div>`;
@@ -575,7 +583,10 @@
         else { ST[k] = k === 'bw' || k === 'tw' ? Number(v) : v; saveSt(); }
         draw(); return;
       }
+      const zb = e.target.closest('[data-z]');
+      if (zb) { const k = zb.dataset.z; ST[k] = Math.max(50, Math.min(150, (ST[k] || 100) + 5 * Number(zb.dataset.d))); saveSt(); draw(); return; }
       const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'szreset') { ['tsz', 'nsz', 'rsz', 'csz'].forEach(k => { ST[k] = DEF[k]; }); saveSt(); draw(); return; }
       if (a === 'x') return close();
       if (a === 'fonts') { const g = ov.querySelector('#ppoFg'); g.hidden = !g.hidden; e.target.closest('button').classList.toggle('on', !g.hidden); if (!g.hidden) g.scrollIntoView({ block: 'nearest' }); return; }
       if (a === 'pfreset') { ST.pf = {}; ST.tfont = DEF.tfont; ST.bfont = DEF.bfont; saveSt(); draw(); return; }
