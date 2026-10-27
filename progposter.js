@@ -42,8 +42,21 @@
   // معلومات کے کیپسول
   const CAPS = { multi: 'رنگین', gold: 'سنہری', glass: 'شیشہ', white: 'سفید' };
   const MULTI = [['#17a9ab', '#0b6466'], ['#d6485d', '#8a1d2e'], ['#3fa344', '#1f5e23'], ['#3a6fcc', '#1c3c7c'], ['#e58a2c', '#9a530b'], ['#9553c4', '#56287a']];
-  const FRAMES = { circle: 'گول', square: 'چورس', arch: 'محراب' };
-  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, tsz: 85, nsz: 100, rsz: 100, csz: 100, bstyle: 'classic', bgi: 0, capi: 0 };
+  const FRAMES = { circle: 'گول', square: 'چورس', oval: 'بیضوی', arch: 'محراب', octa: 'ہشت پہلو' };
+  // تصویر کے فریم کا بارڈر: رنگ (auto = پوسٹر کے بارڈر جیسا) اور موٹائی
+  const PFC = {
+    auto:   { n: 'بارڈر جیسا' },
+    gold:   { n: 'سنہری', c: ['#fff3c4', '#e8c467', '#a8741f'] },
+    silver: { n: 'چاندی', c: ['#ffffff', '#cfd6df', '#8b95a3'] },
+    white:  { n: 'سفید',  c: ['#ffffff', '#ffffff', '#e6e1d6'] },
+    maroon: { n: 'عنابی', c: ['#f0a8b2', '#b02a3e', '#5a0f1c'] },
+    green:  { n: 'سبز',   c: ['#b9f3d4', '#2fbf71', '#13714a'] },
+    blue:   { n: 'نیلا',  c: ['#c4dbff', '#3a78e0', '#173a80'] },
+    black:  { n: 'کالا',  c: ['#8a8a8a', '#2a2a2a', '#000000'] },
+    rose:   { n: 'گلابی', c: ['#ffd1e6', '#ff6fae', '#b02a6b'] }
+  };
+  const PFC_C = () => (PFC[ST.pfc] && PFC[ST.pfc].c) || B().c;
+  const DEF = { theme: 'navy', border: 'gold', ink: 'gold', bw: 2, round: 1, tfont: 'kasheeda', bfont: 'noori', ad: 1, cutbg: 0, cap: 'multi', tw: 2, pframe: 'circle', pzoom: 1, py: .18, pname: null, prole: null, pf: {}, tsz: 85, nsz: 100, rsz: 100, csz: 100, bstyle: 'classic', pfc: 'auto', pfw: 2, bgi: 0, capi: 0 };
   const SKEY = 'maktaba-aziz-pposter-style', KEY = 'maktaba-aziz-pposter-size';
   let ST = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; } })());
   const saveSt = () => { try { localStorage.setItem(SKEY, JSON.stringify(ST)); } catch (e) {} };
@@ -257,6 +270,8 @@
   function shapePath(c, cx, cy, d) {
     const r = d / 2;
     if (ST.pframe === 'square') rr(c, cx - r, cy - r, d, d, d * .12);
+    else if (ST.pframe === 'oval') { c.beginPath(); c.ellipse(cx, cy, r * .8, r, 0, 0, 7); c.closePath(); }
+    else if (ST.pframe === 'octa') { c.beginPath(); for (let i = 0; i < 8; i++) { const a = Math.PI / 8 + i * Math.PI / 4, q = r / Math.cos(Math.PI / 8) * .96; c.lineTo(cx + q * Math.cos(a), cy + q * Math.sin(a)); } c.closePath(); }
     else if (ST.pframe === 'arch') {
       c.beginPath(); c.moveTo(cx - r, cy + r); c.lineTo(cx - r, cy - r * .2);
       c.bezierCurveTo(cx - r, cy - r * .72, cx - r * .38, cy - r * .86, cx, cy - r);
@@ -267,9 +282,9 @@
   function photoFrame(c, A, cx, cy, d, preview, out) {
     out.ph = { x: cx - d / 2, y: cy - d / 2, w: d, h: d };
     if (!A.photo && !preview) return;
-    const ring = d * .045;
+    const ring = d * [0, .022, .045, .075][ST.pfw || 2];
     c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = d * .09; c.shadowOffsetY = d * .025;
-    shapePath(c, cx, cy, d + ring * 2); c.fillStyle = grad(c, cy - d / 2, cy + d / 2, B().c); c.fill(); c.restore();
+    shapePath(c, cx, cy, d + ring * 2); c.fillStyle = grad(c, cy - d / 2, cy + d / 2, PFC_C()); c.fill(); c.restore();
     c.save(); shapePath(c, cx, cy, d + ring * .55); c.fillStyle = T().bg[2]; c.fill(); c.restore();
     c.save(); shapePath(c, cx, cy, d); c.clip();
     c.fillStyle = T().bg[0]; c.fillRect(cx - d, cy - d, d * 2, d * 2);
@@ -458,8 +473,9 @@
   .ppo-h{display:flex;align-items:center;gap:8px;padding:6px 12px;background:linear-gradient(180deg,#16244d,#0c1634);color:#f1d27a}
   .ppo-h b{font-weight:400;font-size:19px}
   .ppo-h .x{margin-inline-start:auto;width:36px;height:36px;border-radius:50%;border:1px solid rgba(232,196,103,.5);background:rgba(255,255,255,.1);color:#f1d27a;font-size:16px;cursor:pointer}
-  .ppo-c{display:grid;gap:4px;padding:6px 8px;background:#fffdf6;border-bottom:1px solid #e3cf98;max-height:34svh;overflow-y:auto}
-  .ppo-r{display:flex;align-items:center;gap:5px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+  .ppo-c{display:flex;flex-direction:column;gap:4px;padding:6px 8px;background:#fffdf6;border-top:1px solid #e3cf98;flex:1 1 auto;min-height:90px;overflow-y:auto;order:3}
+  .ppo-c>*{flex:none}
+  .ppo-r{min-height:34px;display:flex;align-items:center;gap:5px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
   .ppo-r::-webkit-scrollbar{display:none}
   .ppo-r>span{font-size:13px;color:#7a5418;min-width:52px;flex:none}
   .ppo-r button{flex:none;border:1.5px solid #c8962f;border-radius:99px;padding:0 12px;min-height:32px;background:#fff;color:#16244d;font:inherit;font-size:14px;line-height:1.7;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
@@ -487,8 +503,20 @@
   .ppo-fg button{grid-column:1/-1;justify-self:center;border:1.5px solid #c8962f;border-radius:99px;padding:0 14px;min-height:32px;background:#fff;color:#16244d;font:inherit;font-size:14px;cursor:pointer}
   .ppo-in input{flex:1;width:auto;min-width:0;min-height:36px;font-size:15px}
   .ppo-r select{font:inherit;font-size:14px;border:1.5px solid #c8962f;border-radius:99px;padding:0 8px;min-height:32px;background:#fff;color:#16244d;max-width:150px}
-  .ppo-v{flex:1;overflow:auto;padding:10px;display:grid;place-items:center;background:#e9e1cc;min-height:200px}
-  .ppo-v img{max-width:100%;max-height:52svh;height:auto;cursor:pointer;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+  .ppo-v{flex:none;overflow:hidden;padding:8px;display:grid;place-items:center;background:#e9e1cc;min-height:160px;order:1}
+  .ppo-v canvas{display:block;max-width:100%;max-height:42svh;width:auto;height:auto;cursor:pointer;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+  .ppo-h{order:0}.ppo-szb{order:2}.ppo-a{order:4}
+  /* بڑی اسکرین: بائیں پوسٹر ہر وقت سامنے، دائیں سب اختیارات */
+  @media (min-width:900px){
+    .ppo{align-items:center}
+    .ppo-b{width:min(1180px,96vw);height:94svh;max-height:94svh;border-radius:22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,460px);grid-template-rows:auto auto minmax(0,1fr) auto}
+    .ppo-h{grid-column:1/-1}
+    .ppo-v{grid-column:1;grid-row:2/5;min-height:0;height:100%}
+    .ppo-v canvas{max-height:calc(94svh - 90px)}
+    .ppo-szb{grid-column:2;grid-row:2}
+    .ppo-c{grid-column:2;grid-row:3;min-height:0}
+    .ppo-a{grid-column:2;grid-row:4}
+  }
   .ppo-a{display:flex;gap:8px;padding:8px 12px calc(env(safe-area-inset-bottom,0px) + 10px);background:#fffdf6;border-top:1px solid #e3cf98}
   .ppo-a button{flex:1;min-height:46px;border-radius:99px;font:inherit;font-size:17px;cursor:pointer}
   .ppo-go{border:0;background:linear-gradient(180deg,#3fe07a,#16a34a 55%,#0f7a36);color:#fff;box-shadow:0 4px 0 #0b5e2a}
@@ -513,7 +541,10 @@
       <div class="ppo-c">
         <div class="ppo-r"><span>سائز</span>${Object.entries(SIZES).map(([k, s]) => chip('size', k, `${s.n}<small dir="ltr">${s.w}×${s.h}</small>`)).join('')}</div>
         <div class="ppo-r"><span>تصویر</span>${chip('photo', 'add', '📷 تصویر ایڈ کریں')}${chip('photo', 'cut', '✂️ پس منظر ہٹائیں')}${chip('photo', 'del', '🗑️ ہٹائیں')}</div>
-        <div class="ppo-r"><span>فریم</span>${Object.entries(FRAMES).map(([k, n]) => chip('pframe', k, n)).join('')}${chip('pz', '+', '🔍 بڑی')}${chip('pz', '-', '🔍 چھوٹی')}${chip('pm', 'u', '⬆️ اوپر')}${chip('pm', 'd', '⬇️ نیچے')}</div>
+        <div class="ppo-r"><span>فریم</span>${Object.entries(FRAMES).map(([k, n]) => chip('pframe', k, n)).join('')}</div>
+        <div class="ppo-r"><span>تصویر</span>${chip('pz', '+', '🔍 بڑی')}${chip('pz', '-', '🔍 چھوٹی')}${chip('pm', 'u', '⬆️ اوپر')}${chip('pm', 'd', '⬇️ نیچے')}</div>
+        <div class="ppo-r"><span>فریم بارڈر</span>${Object.entries(PFC).map(([k, t]) => chip('pfc', k, `${t.c ? `<i style="background:linear-gradient(180deg,${t.c[0]},${t.c[2]})"></i>` : ''}${t.n}`)).join('')}</div>
+        <div class="ppo-r"><span>بارڈر موٹائی</span>${Object.entries(WEIGHTS).map(([k, n]) => chip('pfw', k, n)).join('')}</div>
         <div class="ppo-r ppo-in"><span>نام</span><input data-t="pname" placeholder="مثلاً مولانا مفتی محمد رضوان عزیز" aria-label="تصویر کے ساتھ نام"></div>
         <div class="ppo-r ppo-in"><span>عہدہ</span><input data-t="prole" placeholder="مثلاً مدیر دارالعلوم …" aria-label="عہدہ"></div>
         <div class="ppo-r"><span>اشتہار</span><span id="ppoAdR"></span></div>
@@ -556,7 +587,7 @@
       const my = ++tok; mark();
       const v = ov.querySelector('#ppoV'); if (!cv) v.innerHTML = '<p>تیار ہو رہا ہے…</p>';
       const c2 = await render(p, key, { preview: true }); if (my !== tok) return; cv = c2;
-      v.innerHTML = ''; const im = new Image(); im.src = cv.toDataURL('image/png'); im.alt = 'پوسٹر'; im.id = 'ppoImg'; v.appendChild(im);
+      cv.id = 'ppoImg'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', 'پوسٹر'); v.replaceChildren(cv);   // تیار پوسٹر فوراً سامنے (تصویر بنائے بغیر — تیز)
     };
     const blob = async () => { const c3 = await render(p, key); return new Promise(r => c3.toBlob(r, 'image/png')); };
     const fname = () => `jalsa-${p.date}-${key}.png`;
@@ -591,7 +622,7 @@
         else if (k === 'adpick') return ov.querySelector('#ppoAd').click();
         else if (k === 'pz') { ST.pzoom = Math.max(1, Math.min(2.6, Math.round((ST.pzoom + (v === '+' ? .15 : -.15)) * 100) / 100)); saveSt(); }
         else if (k === 'pm') { ST.py = Math.max(0, Math.min(1, Math.round((ST.py + (v === 'u' ? -.08 : .08)) * 100) / 100)); saveSt(); }
-        else { ST[k] = k === 'bw' || k === 'tw' ? Number(v) : v; saveSt(); }
+        else { ST[k] = k === 'bw' || k === 'tw' || k === 'pfw' ? Number(v) : v; saveSt(); }
         draw(); return;
       }
       const zb = e.target.closest('[data-z]');
