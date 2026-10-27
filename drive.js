@@ -173,6 +173,7 @@
   async function backup(interactive, slot = 'manual', slotKey = null) {
     if (busy) return false;
     busy = true;
+    try { if (host().ready) await host().ready(); } catch (e) {}   // پروگراموں کی تصویریں IndexedDB سے آ جائیں
     const data = host().snapshot();
     const n = data.books.length;
     progress = `Drive پر ${n} کتب محفوظ ہو رہی ہیں…`; render();

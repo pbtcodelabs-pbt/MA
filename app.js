@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2610MO134) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA2710TU135) */
 (() => {
   'use strict';
 
@@ -43,10 +43,37 @@
     const raw = localStorage.getItem(KEY);
     if (raw) db = normDb(JSON.parse(raw));
   } catch (e) { console.warn(e); }
+  // پروگراموں کے اشتہار کی تصویریں localStorage میں نہیں (یہ جگہ اسی ویب سائٹ کی سب ایپس میں بٹی ہوئی اور چھوٹی ہے —
+  // بھر جائے تو کتابیں بھی محفوظ نہیں ہوتیں)؛ تصویریں IndexedDB (maktaba-aziz-img) میں، ڈیٹا میں صرف «idb:pp_<id>»
+  const PIMG = 'idb:';
+  let pdb = null, pOk = false;
+  const pStore = () => pdb || (pdb = new Promise((res, rej) => {
+    const r = indexedDB.open('maktaba-aziz-img', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('img');
+    r.onsuccess = () => { pOk = true; res(r.result); }; r.onerror = () => { pdb = null; rej(r.error); };
+  }));
+  const pTx = (mode, fn) => pStore().then(d => new Promise((res, rej) => { const t = d.transaction('img', mode), q = fn(t.objectStore('img')); t.oncomplete = () => res(q && q.result); t.onerror = t.onabort = () => rej(t.error); }));
+  const pSaved = {};
+  const posterReady = (async () => {
+    try {
+      await pStore();
+      const refs = (db.progs || []).filter(p => typeof p.poster === 'string' && p.poster.startsWith(PIMG));
+      for (const p of refs) { const k = p.poster.slice(PIMG.length), v = await pTx('readonly', st => st.get(k)); if (typeof v === 'string') { p.poster = v; pSaved[k] = v.length + v.slice(-24); } }
+      if ((db.progs || []).some(p => typeof p.poster === 'string' && p.poster.startsWith('data:'))) save();   // پرانا ڈیٹا: تصویریں باہر نکال کر جگہ خالی
+      if (refs.length && typeof route === 'function') try { route(); } catch (e) {}
+    } catch (e) { console.warn(e); }
+  })();
+  const dbJson = () => JSON.stringify(db, function (k, v) {
+    if (k !== 'poster' || !pOk || typeof v !== 'string' || !v.startsWith('data:') || !this || !this.id) return v;
+    const key = 'pp_' + this.id;
+    const sig = v.length + v.slice(-24);
+    if (pSaved[key] !== sig) { pSaved[key] = sig; pTx('readwrite', st => st.put(v, key)).catch(() => { delete pSaved[key]; }); }
+    return PIMG + key;
+  });
   function save() {
     try { window.dispatchEvent(new Event('ma-data-changed')); } catch (e) {}
-    try { localStorage.setItem(KEY, JSON.stringify(db)); }
-    catch (e) { toast('ڈیٹا محفوظ نہیں ہو سکا۔ براؤزر کی اسٹوریج بھری ہوئی ہو سکتی ہے۔'); }
+    try { localStorage.setItem(KEY, dbJson()); }
+    catch (e) { alert('⚠️ ڈیٹا محفوظ نہیں ہو سکا — فون میں اس ویب سائٹ کی جگہ بھر گئی ہے۔\nپہلے «بیک اپ» بنا لیں، پھر غیر ضروری پروگراموں کے اشتہار کی تصویریں ہٹائیں۔'); }
   }
   const booksOf = cat => db.books.filter(b => b.cat === cat);
   const loaned = () => db.books.filter(b => b.loan);
@@ -734,6 +761,7 @@
     return `MERA MAKTABA ${p(d.getDate())}${p(d.getMonth() + 1)}${String(d.getFullYear()).slice(-2)}${['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][d.getDay()]}${p(h % 12 || 12)}${p(d.getMinutes())}${h < 12 ? 'AM' : 'PM'}.json`;
   };
   $('btnExport').addEventListener('click', async () => {
+    await posterReady;
     let imgs; try { imgs = window.MA_NOTES ? await window.MA_NOTES.exportImgs() : undefined; } catch (e) {}
     const blob = new Blob([JSON.stringify(Object.assign({}, db, { lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get(), imgs }), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -859,8 +887,9 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA2610MO134',
+    version: 'MA2710TU135',
     toast,
+    ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
     replace: d => { db = normDb(d); save(); route(); if (d && d.lic && window.MA_LIC) window.MA_LIC.import(d.lic); if (d && d.brand && window.MA_BRAND) window.MA_BRAND.set(d.brand); if (d && d.diary) window.MA_DIARY.set(d.diary); if (d && d.imgs && window.MA_NOTES) window.MA_NOTES.importImgs(d.imgs); }
   };
