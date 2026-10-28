@@ -275,5 +275,7 @@ ${LINK}`;
     catch (err) { if (err && err.name === 'AbortError') return true; }
     return false;
   }
-  window.MA_PROMO = { open, render, quickShare, _st: st };
+  /* پوسٹر کی تصویر — یکساں «ایپ شیئر» کے لیے */
+  async function poster() { const cv = document.createElement('canvas'); cv.width = W; cv.height = H; await render(cv, 3); return cv; }
+  window.MA_PROMO = { open, render, quickShare, poster, _st: st };
 })();
