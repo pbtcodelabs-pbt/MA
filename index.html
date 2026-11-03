@@ -381,23 +381,22 @@ button.chip{cursor:pointer}
     </div>
   </nav>
 
-  <div class="dev">
-    <div class="dev-t"><b>ایپ ڈیولپر سے رابطہ</b><span dir="ltr">0320-6793793</span></div>
-    <a class="dev-i wa" href="https://wa.me/923206793793" target="_blank" rel="noopener" aria-label="واٹس ایپ"><svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#25d366" d="M8.6 7.3c.2-.4.4-.4.6-.4h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.5.9 1.2 1.7 2.1 2.3.3.2.5.1.6 0l.6-.7c.2-.2.3-.2.5-.1l1.8.9c.3.1.4.2.4.4 0 .7-.4 1.4-1 1.7-.7.3-1.5.4-3.2-.4a9 9 0 0 1-3.7-3.6c-.8-1.4-.7-2.6-.1-3.4z"/></svg></a>
-    <a class="dev-i ph" href="tel:03206793793" aria-label="فون"><svg viewBox="0 0 24 24" fill="none" stroke="#0b2e26" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></a>
+  <div class="dev" onclick="openHelpDesk()" style="cursor:pointer" role="button"><!-- MA311TU149 (ہیلپ ڈیسک #31، مالک کا حکم): واٹس ایپ / فون کی جگہ Help Desk -->
+    <div class="dev-t"><b>مسائل و تجاویز</b><small>اپنا مسئلہ یا مشورہ یہاں بتائیں</small></div>
+    <span>🆘</span>
   </div>
   <footer class="foot">
     <button type="button" class="share-ic" id="shareApp" aria-label="ایپ شیئر کریں" title="ایپ شیئر کریں"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="#0b2e26" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="#0b2e26"/><circle cx="6" cy="12" r="3.2" fill="#0b2e26"/><circle cx="18" cy="19" r="3.2" fill="#0b2e26"/></svg></button>
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip" id="homeVer">MA211MO148</span>
+    <span class="chip" id="homeVer">MA311TU149</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ نام اور لوگو بدلیں</span></button>
     <button type="button" class="chip link" data-look><span class="lbl">🎨 رنگ و فونٹ</span></button>
     <button type="button" class="chip link" onclick="openHelpDesk()" title="PBT Help Desk"><span class="lbl">🆘 مدد</span></button>
     <button type="button" class="chip link" data-exit><span class="lbl">⏻ ایپ بند</span></button>
   </footer>
 </main>
-<script src="look.js?v=MA211MO148"></script>
-<script src="brand.js?v=MA211MO148"></script>
+<script src="look.js?v=MA311TU149"></script>
+<script src="brand.js?v=MA311TU149"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
@@ -472,8 +471,8 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('storage', render);
 })();
 </script>
-<script src="appshare.js?v=MA211MO148"></script>
-<script src="promo.js?v=MA211MO148"></script>
+<script src="appshare.js?v=MA311TU149"></script>
+<script src="promo.js?v=MA311TU149"></script>
 <script>
 // ایپ شیئر: پہلے پوسٹر اور پیغام دکھائیں، پھر بھیجیں
 document.getElementById('shareApp').addEventListener('click', () => window.MA_PROMO && window.MA_PROMO.open());
@@ -498,13 +497,13 @@ document.getElementById('shareApp').addEventListener('click', () => window.MA_PR
   } catch (e) {}
 })();
 </script>
-<script src="guard.js?v=MA211MO148"></script>
-<script src="update.js?v=MA211MO148"></script>
+<script src="guard.js?v=MA311TU149"></script>
+<script src="update.js?v=MA311TU149"></script>
 <script>
 // ورژن پر 7 بار جلدی جلدی ٹیپ = ڈیولپر حصہ (پاسورڈ کے ساتھ)
 (function () { const v = document.getElementById('homeVer'); if (!v) return; let n = 0, t;
   v.addEventListener('click', () => { n++; clearTimeout(t); t = setTimeout(() => { n = 0; }, 2500); if (n >= 7) { n = 0; location.href = 'maktaba.html?dev=1'; } }); })();
 </script>
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MA" data-ver="MA211MO148" defer></script> <!-- 🆘 MA211MO148: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MA" data-ver="MA311TU149" defer></script> <!-- 🆘 MA311TU149: PBT Help Desk -->
 </body>
 </html>
