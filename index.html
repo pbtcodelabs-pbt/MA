@@ -381,21 +381,21 @@ button.chip{cursor:pointer}
     </div>
   </nav>
 
-  <div class="dev" onclick="openHelpDesk()" style="cursor:pointer" role="button"><!-- MA511TH150 (ہیلپ ڈیسک #31، مالک کا حکم): واٹس ایپ / فون کی جگہ Help Desk -->
+  <div class="dev" onclick="openHelpDesk()" style="cursor:pointer" role="button"><!-- MA511TH151 (ہیلپ ڈیسک #31، مالک کا حکم): واٹس ایپ / فون کی جگہ Help Desk -->
     <div class="dev-t"><b>مسائل و تجاویز</b><small>اپنا مسئلہ یا مشورہ یہاں بتائیں</small></div>
-    <span>🆘</span>
+    <span><span class="pbthd-sos" style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(#fde047,#facc15);color:#111;border-radius:999px;padding:2px 9px;font:800 12px/1.35 Arial,sans-serif;box-shadow:0 2px 0 #ca8a04;white-space:nowrap;vertical-align:middle;direction:ltr"><b style="background:#111;color:#facc15;border-radius:50%;width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;font-size:11px">?</b>Help Desk</span></span>
   </div>
   <footer class="foot">
     <button type="button" class="share-ic" id="shareApp" aria-label="ایپ شیئر کریں" title="ایپ شیئر کریں"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" stroke="#0b2e26" stroke-width="2.2" fill="none"/><circle cx="18" cy="5" r="3.2" fill="#0b2e26"/><circle cx="6" cy="12" r="3.2" fill="#0b2e26"/><circle cx="18" cy="19" r="3.2" fill="#0b2e26"/></svg></button>
     <span class="chip" id="netChip"><span class="dot"></span><span class="lbl" id="netLbl">آن لائن</span></span>
-    <span class="chip" id="homeVer">MA511TH150</span>
+    <span class="chip" id="homeVer">MA511TH151</span>
     <button type="button" class="chip link" data-b-edit data-b-filled><span class="lbl">✎ نام اور لوگو بدلیں</span></button>
     <button type="button" class="chip link" data-look><span class="lbl">🎨 رنگ و فونٹ</span></button>
     <button type="button" class="chip link" data-exit><span class="lbl">⏻ ایپ بند</span></button>
   </footer>
 </main>
-<script src="look.js?v=MA511TH150"></script>
-<script src="brand.js?v=MA511TH150"></script>
+<script src="look.js?v=MA511TH151"></script>
+<script src="brand.js?v=MA511TH151"></script>
 <script>
 (function () {
   const chip = document.getElementById('netChip'), lbl = document.getElementById('netLbl');
@@ -470,8 +470,8 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('storage', render);
 })();
 </script>
-<script src="appshare.js?v=MA511TH150"></script>
-<script src="promo.js?v=MA511TH150"></script>
+<script src="appshare.js?v=MA511TH151"></script>
+<script src="promo.js?v=MA511TH151"></script>
 <script>
 // ایپ شیئر: پہلے پوسٹر اور پیغام دکھائیں، پھر بھیجیں
 document.getElementById('shareApp').addEventListener('click', () => window.MA_PROMO && window.MA_PROMO.open());
@@ -496,13 +496,13 @@ document.getElementById('shareApp').addEventListener('click', () => window.MA_PR
   } catch (e) {}
 })();
 </script>
-<script src="guard.js?v=MA511TH150"></script>
-<script src="update.js?v=MA511TH150"></script>
+<script src="guard.js?v=MA511TH151"></script>
+<script src="update.js?v=MA511TH151"></script>
 <script>
 // ورژن پر 7 بار جلدی جلدی ٹیپ = ڈیولپر حصہ (پاسورڈ کے ساتھ)
 (function () { const v = document.getElementById('homeVer'); if (!v) return; let n = 0, t;
   v.addEventListener('click', () => { n++; clearTimeout(t); t = setTimeout(() => { n = 0; }, 2500); if (n >= 7) { n = 0; location.href = 'maktaba.html?dev=1'; } }); })();
 </script>
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MA" data-ver="MA511TH150" defer></script> <!-- 🆘 MA511TH150: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="MA" data-ver="MA511TH151" defer></script> <!-- 🆘 MA511TH151: PBT Help Desk -->
 </body>
 </html>
