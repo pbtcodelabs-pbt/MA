@@ -1501,7 +1501,7 @@
     <button type="button" onclick="refreshApp()" title="تازہ کریں" style="background:#111;border:1px solid #444;color:#f5d87a;font-size:0.85rem;border-radius:50%;width:26px;height:26px;cursor:pointer;line-height:1;flex-shrink:0;">🔄</button>
   </div>
   <div style="text-align:center;padding:0 0 4px;background:#0a1a0f;flex-shrink:0;">
-    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA511TH151</span>
+    <span id="appVersionDisplay" style="font-size:0.68rem;font-weight:700;color:#f5d87a;">ورژن: MA511TH152</span>
   </div>
 
   <!-- TOOLS BAR (always visible, compact) -->
@@ -1779,7 +1779,7 @@
 <script>
 
 // ===== APP VERSION =====
-const APP_VERSION = 'MA511TH151';
+const APP_VERSION = 'MA511TH152';
 
 // ===== PWA: SERVICE WORKER REGISTRATION (آف لائن سپورٹ) =====
 if ('serviceWorker' in navigator) {
@@ -2974,7 +2974,7 @@ async function doShare(type) {
   closeModal('shareOptionsModal');
 
   if (type === 'text') {
-    const text = `✍ ${e.title ? e.title + '\n' : ''}${e.date}\n\n${e.body}${e.ref ? '\n\n🔗 ' + e.ref : ''}` + '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: 0320-6793793 — PBT CodeLabs_';
+    const text = `✍ ${e.title ? e.title + '\n' : ''}${e.date}\n\n${e.body}${e.ref ? '\n\n🔗 ' + e.ref : ''}` ;
     _shareOrCopy(text);
 
   } else if (type === 'link') {
@@ -3223,6 +3223,7 @@ async function _shareAsPdf(e) {
 // ہر صفحے/تصویر کے نیچے بنانے والے کا سنہری بیج
 const DIARY_CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  \u20660320-6793793\u2069  ✦  \u2066PBT CodeLabs\u2069';
 function diaryCredit(c, W, cy) {
+  return;   // مالک کا حکم (5 نومبر): ڈویلپر کا بیج / نمبر نہیں
   c.save(); c.direction = 'rtl'; c.font = `18px 'JNN', 'Jameel Noori Nastaleeq', serif`;
   const tw = c.measureText(DIARY_CREDIT).width + 44, bh = 34, x = (W - tw) / 2, y = cy - bh / 2;
   const g = c.createLinearGradient(0, y, 0, y + bh); g.addColorStop(0, '#fff6d5'); g.addColorStop(.5, '#f1d27a'); g.addColorStop(1, '#c8962f');
@@ -3672,6 +3673,6 @@ function initWithReminder() {
   if (_origInit) _origInit();
   checkBackupReminder();
 }
-</script><script src="../guard.js?v=MA511TH151"></script><script src="../update.js?v=MA511TH151"></script>
+</script><script src="../guard.js?v=MA511TH152"></script><script src="../update.js?v=MA511TH152"></script>
 </body>
 </html>
