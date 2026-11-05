@@ -13,6 +13,11 @@
   const ltr = s => '⁦' + s + '⁩';
   const notes = () => { const d = H().db(); d.notes = d.notes || []; return d.notes; };
   const vols = b => Math.max(1, parseInt(b.parts, 10) || 1);
+  // 📁 موضوعات (ہیلپ ڈیسک #98): ایک عنوان کے حوالے — مختلف کتب / جلدوں سے — ایک فولڈر میں (n.topics = [موضوع کی شناخت])
+  const topics = () => { const d = H().db(); d.topics = d.topics || []; return d.topics; };
+  const bookOf = n => (H().db().books || []).find(x => x.id === n.book);
+  const inTopic = (n, tid) => Array.isArray(n.topics) && n.topics.includes(tid);
+  const topicNotes = tid => notes().filter(n => inTopic(n, tid)).sort((x, y) => (x.tord || x.ts || 0) - (y.tord || y.ts || 0));
   // فن کے مطابق اضافی کالم: تفسیر → سورہ، آیت؛ حدیث → رقم الحدیث
   const SURAS = 'الفاتحہ،البقرہ،آل عمران،النساء،المائدہ،الانعام،الاعراف،الانفال،التوبہ،یونس،ہود،یوسف،الرعد،ابراہیم،الحجر،النحل،بنی اسرائیل،الکہف،مریم،طٰہٰ،الانبیاء،الحج،المؤمنون،النور،الفرقان،الشعراء،النمل،القصص،العنکبوت،الروم،لقمان،السجدہ،الاحزاب،سبا،فاطر،یٰس،الصافات،ص،الزمر،المؤمن،حٰم السجدہ،الشوریٰ،الزخرف،الدخان،الجاثیہ،الاحقاف،محمد،الفتح،الحجرات،ق،الذاریات،الطور،النجم،القمر،الرحمٰن،الواقعہ،الحدید،المجادلہ،الحشر،الممتحنہ،الصف،الجمعہ،المنافقون،التغابن،الطلاق،التحریم،الملک،القلم،الحاقہ،المعارج،نوح،الجن،المزمل،المدثر،القیامہ،الدہر،المرسلات،النبا،النازعات،عبس،التکویر،الانفطار،المطففین،الانشقاق،البروج،الطارق،الاعلیٰ،الغاشیہ،الفجر،البلد،الشمس،اللیل،الضحیٰ،الانشراح،التین،العلق،القدر،البینہ،الزلزال،العادیات،القارعہ،التکاثر،العصر،الہمزہ،الفیل،قریش،الماعون،الکوثر،الکافرون،النصر،اللہب،الاخلاص،الفلق،الناس'.split('،');
   const isTafseer = b => b.cat === 'tafseer' || /^تفسیر/.test(((H().db().catNames || {})[b.cat]) || '');
@@ -160,6 +165,30 @@
   .nt-so .outs .btn{justify-content:center;font-size:18px;min-height:52px}
   .nt-so .outs .btn.wide{grid-column:1 / -1}
   .nt-so .lb{font-size:15px;color:var(--muted);text-align:center;margin:0}
+  /* 📁 موضوعات */
+  .tp-pick{display:grid;gap:6px;font-size:15px;color:var(--muted)}
+  .tp-pick small{font-size:12.5px}
+  .tp-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .tp-chips button{border:1.5px solid #8a5f16;background:#fff8e6;color:#6b4a1a;border-radius:99px;padding:0 12px;font:inherit;font-size:15px;line-height:2.1;cursor:pointer}
+  .tp-chips button.on{background:#14463a;border-color:#14463a;color:#f1d27a}
+  .tp-chips button.new{border-style:dashed;background:none}
+  .tp-list{display:grid;gap:8px}
+  .tp-f{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;text-decoration:none;color:var(--fg);background:#fffdf6;border:1.5px solid var(--gilt);border-radius:14px;padding:8px 12px;box-shadow:0 3px 0 #e4d6b0}
+  .tp-f .ic{font-size:30px;line-height:1}
+  .tp-f b{font-weight:400;font-size:19px;line-height:1.7;color:#14463a;display:block}
+  .tp-f small{color:var(--muted);font-size:13.5px}
+  .tp-f .c{background:#14463a;color:#f1d27a;border-radius:99px;padding:0 10px;font-size:15px;line-height:1.9}
+  .tp-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;border-top:1px solid #eadfc4;padding:6px 8px;background:#fffdf6}
+  .tp-row:nth-child(even){background:#fbf6e8}
+  .tp-row .n{color:var(--muted);text-align:center;font-size:14px}
+  .tp-row .t{font-size:16.5px;line-height:1.8;cursor:pointer;overflow-wrap:anywhere}
+  .tp-row .r{display:block;font-size:13.5px;color:#8a5f16;line-height:1.7}
+  .tp-row .cl{display:flex;gap:4px;align-items:center}
+  .tp-row .x{border:0;background:none;color:var(--danger);font-size:17px;cursor:pointer;padding:2px 4px}
+  .tp-pk{display:grid;gap:6px;max-height:55vh;overflow:auto}
+  .tp-pk label{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;align-items:start;border:1px solid #eadfc4;border-radius:10px;padding:6px 8px;background:#fff;font-size:16px;line-height:1.7}
+  .tp-pk label input{width:20px;height:20px;accent-color:#14463a;margin-top:6px}
+  .tp-pk small{display:block;color:#8a5f16;font-size:13px}
   `;
   document.head.appendChild(css);
 
@@ -203,6 +232,7 @@
   const fDesc = (b, f) => [vols(b) > 1 ? (f.vol ? `جلد ${f.vol}` : 'تمام جلدیں') : '', whenTxt(f)].filter(Boolean).join(' · ');
 
   let cur = null;   // { cat, b }
+  let presetTopic = '';   // موضوع کے فولڈر سے نیا حوالہ — وہی موضوع پہلے سے چنا
   function page(cat, b) {
     cur = { cat, b };
     const V = vols(b), f = fOf(b), XC = extraCols(b);
@@ -256,7 +286,7 @@
       else if (a === 'one' && n) openSend(b, { one: n });
     });
   }
-  const refresh = () => { if (cur && /\/notes$/.test(location.hash)) page(cur.cat, cur.b); };
+  const refresh = () => { if (cur && /\/notes$/.test(location.hash)) page(cur.cat, cur.b); else if (/^#\/topics/.test(location.hash)) topicsRoute(); };
 
   // ---------- نئی / ترمیم ----------
   function openForm(b, n, vol) {
@@ -272,6 +302,7 @@
           ${isTafseer(b) ? `<label>سورہ <small>(نام یا نمبر)</small><input id="ntSura" list="ntSuras" autocomplete="off" value="${esc(n?.sura || '')}" placeholder="البقرہ"></label><label>آیت نمبر<input id="ntAya" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.aya || '')}" placeholder="255"></label><datalist id="ntSuras">${SURAS.map((x, i) => `<option value="${x} (${i + 1})">`).join('')}</datalist>` : ''}
           ${isHadith(b) ? `<label>رقم الحدیث <small>(حدیث نمبر)</small><input id="ntHno" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.hno || '')}" placeholder="1234"></label>` : ''}
         </div>
+        <div class="tp-pick"><span>📁 موضوع / فولڈر <small>(اختیاری — ایک عنوان کے سب حوالے ایک جگہ)</small></span><div class="tp-chips" id="ntTops"></div></div>
         <button type="button" class="nt-attgo" id="ntAttGo" ${n && n.img ? 'hidden' : ''}>📎 کتاب کے صفحے کی تصویر لگائیں <small>(اختیاری)</small></button>
         <div class="nt-att" id="ntAtt" ${n && n.img ? '' : 'hidden'}>
           <div class="nt-prev" id="ntPrev"></div>
@@ -287,6 +318,14 @@
         ${n ? '<button class="btn ghost nt-del" type="button" id="ntDel">🗑️ یہ حوالہ حذف کریں</button>' : '<p class="hint center">محفوظ کرنے کے بعد اگلے حوالے کے لیے خانہ کھلا رہے گا</p>'}
       </form>`, () => { if (srcUrl) URL.revokeObjectURL(srcUrl); if (saved) refresh(); });
     const prev = $(wrap, '#ntPrev'), err = $(wrap, '#ntErr');
+    let tsel = new Set(n && Array.isArray(n.topics) ? n.topics : (presetTopic ? [presetTopic] : []));
+    const drawTops = () => { $(wrap, '#ntTops').innerHTML = topics().map(t => `<button type="button" class="${tsel.has(t.id) ? 'on' : ''}" data-tp="${t.id}">${tsel.has(t.id) ? '✓ ' : ''}${esc(t.name)}</button>`).join('') + '<button type="button" class="new" data-tp="+">＋ نیا موضوع</button>'; };
+    drawTops();
+    $(wrap, '#ntTops').addEventListener('click', e => {
+      const t = e.target.closest('[data-tp]'); if (!t) return;
+      if (t.dataset.tp === '+') { const nt = newTopic(); if (nt) { tsel.add(nt.id); drawTops(); } return; }
+      tsel.has(t.dataset.tp) ? tsel.delete(t.dataset.tp) : tsel.add(t.dataset.tp); drawTops();
+    });
     $(wrap, '#ntAttGo').onclick = () => { $(wrap, '#ntAtt').hidden = false; $(wrap, '#ntAttGo').hidden = true; };
     async function drawPrev() {
       if (fresh) {
@@ -335,11 +374,12 @@
       }
       const old = n && n.img && n.img !== imgId ? n.img : '';
       const xv = {}; [['sura', '#ntSura'], ['aya', '#ntAya'], ['hno', '#ntHno']].forEach(([kk, sel]) => { const el = $(wrap, sel); if (el) xv[kk] = String(el.value).trim(); });
+      xv.topics = [...tsel].filter(id => topics().some(t => t.id === id));
       if (n) Object.assign(n, { text, page: pg, vol: v, img: imgId, upd: Date.now() }, xv);
       else notes().push(Object.assign({ id: H().newId(), book: b.id, vol: v, text, page: pg, img: imgId, ts: Date.now() }, xv));
       if (old) await imgDel(old);
       H().save(); saved = true;
-      if (n) { close(); toast('تبدیلی محفوظ ہو گئی'); return; }
+      if (n) { close(); toast('تبدیلی محفوظ ہو گئی'); if (/^#\/topics/.test(location.hash)) topicsRoute(); return; }
       volOf[b.id] = v; saveVol();
       toast(`حوالہ محفوظ — کل ${num(countOf(b.id))} — اگلا لکھیں`);
       $(wrap, '#ntText').value = ''; $(wrap, '#ntPage').value = ''; ['#ntAya', '#ntHno'].forEach(sel => { const el = $(wrap, sel); if (el) el.value = ''; }); fresh = null; img = ''; if (srcUrl) { URL.revokeObjectURL(srcUrl); srcUrl = ''; } err.textContent = '';
@@ -398,17 +438,24 @@
   const bookLine = b => [b.name, b.author].filter(Boolean).join(' — ');
   function scopeList(b, o) {
     if (o.one) return [o.one];
+    if (o.list) return o.list;
     return filtered(b, o.f || { vol: 0, when: 'all' });
   }
   function scopeTitle(b, o) {
     if (o.one) return 'حوالہ';
+    if (b.topic) return `موضوع: ${b.name}`;
     const d = fDesc(b, o.f || { vol: 0, when: 'all' });
     return 'حوالہ جات / ضروری یادداشتیں' + (d && (o.f && (o.f.vol || o.f.when !== 'all')) ? ` — ${d}` : '');
   }
-  const refLine = (b, n) => [n.sura ? `سورہ ${suraTxt(n.sura)}` : '', n.aya ? `آیت ${n.aya}` : '', n.hno ? `رقم الحدیث ${n.hno}` : '', vols(b) > 1 ? `جلد ${n.vol || 1}` : '', n.page ? `صفحہ ${n.page}` : ''].filter(Boolean).join('، ');
+  const refLine = (b, n) => b.topic ? topicRef(n) : [n.sura ? `سورہ ${suraTxt(n.sura)}` : '', n.aya ? `آیت ${n.aya}` : '', n.hno ? `رقم الحدیث ${n.hno}` : '', vols(b) > 1 ? `جلد ${n.vol || 1}` : '', n.page ? `صفحہ ${n.page}` : ''].filter(Boolean).join('، ');
+  // موضوع کے فولڈر میں ہر حوالے کے ساتھ کتاب کا نام
+  function topicRef(n, noPage) {
+    const bk = bookOf(n); if (!bk) return '';
+    return [bk.name, n.sura ? `سورہ ${suraTxt(n.sura)}` : '', n.aya ? `آیت ${n.aya}` : '', n.hno ? `رقم الحدیث ${n.hno}` : '', vols(bk) > 1 ? `جلد ${n.vol || 1}` : '', !noPage && n.page ? `صفحہ ${n.page}` : ''].filter(Boolean).join('، ');
+  }
   function textOf(b, o) {
     const k = K(), L = scopeList(b, o);
-    let t = (k && k.brandText ? k.brandText() + '\n' : '') + `*${scopeTitle(b, o)}*\n📖 ${bookLine(b)}\n\n`;
+    let t = (k && k.brandText ? k.brandText() + '\n' : '') + `*${scopeTitle(b, o)}*\n${b.topic ? `📁 ${L.length} حوالے` : `📖 ${bookLine(b)}`}\n\n`;
     L.forEach((n, i) => { const r = refLine(b, n); t += `${o.one ? '' : (i + 1) + ') '}${n.text}${r ? ` — (${r})` : ''}\n`; });
     return t.trim();
   }
@@ -424,7 +471,7 @@
       const L = L0 || scopeList(b, o), withImg = L.filter(n => n.img).length;
       box.innerHTML = `
         <p class="lb">${o.one ? esc(o.one.text) : `${num(L.length)} حوالے${fDesc(b, o.f) ? ` — ${esc(fDesc(b, o.f))}` : ''}`}${withImg ? ` · ${num(withImg)} تصاویر` : ''}</p>
-        ${!o.one ? '<p class="lb" style="font-size:13px">جلد یا تاریخ کے حساب سے چھانٹنا ہو تو پچھلے صفحے پر اوپر سے فلٹر چنیں</p>' : ''}
+        ${!o.one && !b.topic ? '<p class="lb" style="font-size:13px">جلد یا تاریخ کے حساب سے چھانٹنا ہو تو پچھلے صفحے پر اوپر سے فلٹر چنیں</p>' : ''}
         ${withImg ? `<div class="seg" data-g="im"><button type="button" data-i="1" class="${o.imgs ? 'on' : ''}">تصاویر کے ساتھ</button><button type="button" data-i="0" class="${o.imgs ? '' : 'on'}">صرف فہرست</button></div>` : ''}
         <div class="outs">
           <button class="btn" type="button" data-o="wa">واٹس ایپ</button>
@@ -495,7 +542,7 @@
     const blocks = [];
     blocks.push({ h: k.letterH(), draw: (ctx, y) => k.letterDraw(ctx, y) });
     const ttl = blankRows ? 'حوالہ جات / ضروری یادداشتیں' : scopeTitle(b, o);
-    blocks.push({ h: 116, draw: (ctx, y) => k.titleDraw(ctx, y, ttl, `کتاب: ${k.fit(meas, b.name, 420)}`, blankRows ? (V > 1 ? `${V} جلدیں` : '') : `کل ${L.length} حوالے`) });
+    blocks.push({ h: 116, draw: (ctx, y) => k.titleDraw(ctx, y, ttl, b.topic ? `${new Set(L.map(n => n.book)).size} کتب سے` : `کتاب: ${k.fit(meas, b.name, 420)}`, blankRows ? (V > 1 ? `${V} جلدیں` : '') : `کل ${L.length} حوالے`) });
     const head = { h: 54, keep: 1, draw(ctx, y) {
       ctx.fillStyle = C.green; k.roundRect(ctx, M, y + 6, W - 2 * M, 46, 8); ctx.fill();
       ctx.fillStyle = C.gold2; ctx.font = `22px ${FONT}`; ctx.textAlign = 'center';
@@ -506,7 +553,8 @@
     const row = (i, n, alt) => {
       meas.font = `${FS}px ${FONT}`;
       const lines = n ? wrapLines(meas, n.text, tw) : [''];
-      const h = Math.max(52, lines.length * LH + 12);
+      const rl = n && b.topic ? wrapLines(meas, '📖 ' + topicRef(n, true), tw) : [];
+      const h = Math.max(52, (lines.length + rl.length) * LH + 12);
       return { h, tbl: true, draw(ctx, y) {
         ctx.fillStyle = alt ? C.alt : C.paper; ctx.fillRect(M, y, W - 2 * M, h);
         ctx.strokeStyle = C.line; ctx.lineWidth = 1.2;
@@ -526,6 +574,7 @@
         ctx.font = `${FS}px ${FONT}`;
         ctx.textAlign = 'right'; ctx.fillStyle = C.fg; ctx.font = `${FS}px ${FONT}`;
         lines.forEach((l, jj) => ctx.fillText(l, xT, by + jj * LH));
+        if (rl.length) { ctx.fillStyle = '#8a5f16'; ctx.font = `${FS - 3}px ${FONT}`; rl.forEach((l, jj) => ctx.fillText(l, xT, by + (lines.length + jj) * LH)); }
       } };
     };
     blocks.push(head);
@@ -615,7 +664,107 @@
     H().db().notes = L.filter(n => n.book !== bookId);
   }
 
-  window.MA_NOTES = { page, countOf, imgIds, imgGet, imgPut, imgHas, imgDel, imgUrl, exportImgs, importImgs, removeBook, _test: { render, textOf } };
+  // ===================== 📁 موضوعات — حوالہ جات کے فولڈر (ہیلپ ڈیسک #98) =====================
+  function newTopic(old) {
+    const name = (prompt(old ? 'موضوع کا نیا نام' : 'نئے موضوع / فولڈر کا نام لکھیں\nمثلاً: ختمِ نبوت، نماز کے مسائل، جنگِ آزادی', old ? old.name : '') || '').trim();
+    if (!name) return null;
+    if (old) { old.name = name; H().save(); return old; }
+    const dup = topics().find(t => t.name === name); if (dup) return dup;
+    const t = { id: H().newId(), name, ts: Date.now() }; topics().push(t); H().save(); return t;
+  }
+  function topicsRoute() {
+    const tid = decodeURIComponent((location.hash.split('/')[2]) || '');
+    const t = tid && topics().find(x => x.id === tid);
+    if (t) topicPage(t); else topicsList();
+  }
+  function topicsList() {
+    const view = H().view, T = topics().slice().sort((a, b) => topicNotes(b.id).length - topicNotes(a.id).length || a.name.localeCompare(b.name, 'ur'));
+    view.innerHTML = `
+      <section class="panel">
+        <div class="panel-h"><a class="back" href="#/">→ مکتبہ</a><h2>📁 موضوعات</h2></div>
+        <div class="panel-b" id="tpb">
+          <p class="nt-hint" style="margin:0 0 10px">ایک عنوان کے سب حوالے (مختلف کتب اور جلدوں سے) ایک فولڈر میں — پھر اصل صفحات کی تصاویر کے ساتھ PDF بھیجیں</p>
+          <button class="btn nt-add" type="button" data-a="new" style="width:100%;justify-content:center;margin-bottom:10px">＋ نیا موضوع / فولڈر</button>
+          <div class="tp-list">${T.map(t => { const L = topicNotes(t.id); return `<a class="tp-f" href="#/topics/${t.id}"><span class="ic">📁</span><span><b>${esc(t.name)}</b><small>${num(new Set(L.map(n => n.book)).size)} کتب · ${num(L.filter(n => n.img).length)} تصاویر</small></span><span class="c">${num(L.length)}</span></a>`; }).join('') || '<div class="nt-empty"><b>ابھی کوئی موضوع نہیں</b>«نیا موضوع» بنائیں، پھر کتابوں کے حوالے اس میں جوڑیں۔</div>'}</div>
+        </div>
+      </section>`;
+    $(view, '[data-a="new"]').onclick = () => { const t = newTopic(); if (t) location.hash = '#/topics/' + t.id; };
+  }
+  function topicPage(t) {
+    const view = H().view, L = topicNotes(t.id), pseudo = { id: 't_' + t.id, name: t.name, parts: 1, topic: true };
+    view.innerHTML = `
+      <section class="panel">
+        <div class="panel-h"><a class="back" href="#/topics">→ موضوعات</a><span class="crumb">📁 موضوع</span></div>
+        <div class="panel-b" id="tpb">
+          <div class="nt-book"><b>${esc(t.name)}</b><small>${num(L.length)} حوالے · ${num(new Set(L.map(n => n.book)).size)} کتب · ${num(L.filter(n => n.img).length)} تصاویر</small></div>
+          <div class="nt-acts">
+            <button class="btn nt-add" type="button" data-a="pick">＋ پہلے سے لکھے حوالے اس میں جوڑیں</button>
+            <button class="btn" type="button" data-a="write">✍️ نیا حوالہ لکھیں</button>
+            <button class="btn" type="button" data-a="send">${I_SHARE} بھیجیں / PDF</button>
+            <button class="btn ghost" type="button" data-a="ren">✏️ نام بدلیں</button>
+            <button class="btn ghost nt-del" type="button" data-a="del">🗑️ فولڈر حذف</button>
+          </div>
+          <div class="nt-sheet">${L.map((n, i) => { const bk = bookOf(n); return `<div class="tp-row" data-id="${n.id}"><span class="n">${num(i + 1)}</span><span class="t" data-a="edit">${esc(n.text)}<span class="r">📖 ${esc(topicRef(n))}</span></span><span class="cl">${n.img ? `<img class="nt-th" data-a="view" data-img="${n.img}" alt="تصویر">` : (bk ? `<button type="button" class="nt-clip" data-a="att" aria-label="تصویر لگائیں">${I_CLIP}</button>` : '')}<button type="button" class="x" data-a="rm" aria-label="فولڈر سے ہٹائیں">✕</button></span></div>`; }).join('') || '<div class="nt-empty"><b>اس فولڈر میں ابھی کوئی حوالہ نہیں</b>«حوالے جوڑیں» سے کسی بھی کتاب کے حوالے چنیں، یا «نیا حوالہ لکھیں»۔</div>'}</div>
+          <p class="nt-hint">✕ = صرف اس فولڈر سے ہٹائیں (حوالہ کتاب میں رہتا ہے)</p>
+        </div>
+      </section>`;
+    view.querySelectorAll('img[data-img]').forEach(async im => { const u = await imgUrl(im.dataset.img); if (u) im.src = u; else im.remove(); });
+    $(view, '#tpb').addEventListener('click', e => {
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      const row = a.closest('.tp-row'), n = row ? notes().find(x => x.id === row.dataset.id) : null, bk = n && bookOf(n);
+      const k = a.dataset.a;
+      if (k === 'pick') pickNotes(t);
+      else if (k === 'write') pickBook(bk2 => { presetTopic = t.id; openForm(bk2, null, volOf[bk2.id] || 1); presetTopic = ''; });
+      else if (k === 'send') openSend(pseudo, { list: topicNotes(t.id), imgs: true });
+      else if (k === 'ren') { newTopic(t); topicPage(t); }
+      else if (k === 'del') { if (!confirm(`«${t.name}» فولڈر حذف کریں؟\nحوالے اپنی کتابوں میں رہیں گے، صرف فولڈر ہٹے گا۔`)) return; const d = H().db(); d.topics = topics().filter(x => x.id !== t.id); notes().forEach(x => { if (inTopic(x, t.id)) x.topics = x.topics.filter(y => y !== t.id); }); H().save(); toast('فولڈر حذف ہو گیا'); location.hash = '#/topics'; }
+      else if (k === 'rm' && n) { n.topics = n.topics.filter(y => y !== t.id); n.upd = Date.now(); H().save(); toast('فولڈر سے ہٹ گیا'); topicPage(t); }
+      else if (k === 'edit' && n && bk) openForm(bk, n);
+      else if (k === 'view' && n && bk) viewImg(bk, n);
+      else if (k === 'att' && n && bk) quickAttach(bk, n);
+    });
+  }
+  // کسی بھی کتاب کے حوالے تلاش کر کے فولڈر میں
+  function pickNotes(t) {
+    const { wrap, close } = H().openSheet(`«${t.name}» میں حوالے جوڑیں`, `
+      <div class="sheet-b nt-so">
+        <input class="search" id="tpQ" type="search" placeholder="عبارت، کتاب، صفحہ… تلاش کریں" autocomplete="off">
+        <div class="tp-pk" id="tpPk"></div>
+        <button class="btn save" type="button" id="tpOk">✅ جوڑیں</button>
+      </div>`);
+    const chosen = new Set(topicNotes(t.id).map(n => n.id));
+    const draw = () => {
+      const w = String($(wrap, '#tpQ').value || '').trim().split(/\s+/).filter(Boolean);
+      const L = notes().filter(n => bookOf(n)).filter(n => !w.length || w.every(x => (n.text + ' ' + topicRef(n)).includes(x)));
+      $(wrap, '#tpPk').innerHTML = L.slice(0, 300).map(n => `<label><input type="checkbox" value="${n.id}" ${chosen.has(n.id) ? 'checked' : ''}><span>${esc(n.text)}<small>📖 ${esc(topicRef(n))}${n.img ? ' · 🖼️' : ''}</small></span></label>`).join('') || '<p class="sh-empty">کوئی حوالہ نہیں ملا — پہلے کسی کتاب کے «حوالہ جات» میں لکھیں</p>';
+    };
+    draw();
+    $(wrap, '#tpQ').addEventListener('input', draw);
+    $(wrap, '#tpPk').addEventListener('change', e => { const c = e.target; if (c.type === 'checkbox') c.checked ? chosen.add(c.value) : chosen.delete(c.value); });
+    $(wrap, '#tpOk').onclick = () => {
+      let add = 0;
+      notes().forEach(n => {
+        const has = inTopic(n, t.id);
+        if (chosen.has(n.id) && !has) { n.topics = (n.topics || []).concat(t.id); n.tord = Date.now() + add; add++; }
+        else if (!chosen.has(n.id) && has) n.topics = n.topics.filter(y => y !== t.id);
+      });
+      H().save(); close(); toast(`فولڈر میں ${num(topicNotes(t.id).length)} حوالے`); topicPage(t);
+    };
+  }
+  function pickBook(cb) {
+    const { wrap, close } = H().openSheet('کس کتاب کا حوالہ؟', `
+      <div class="sheet-b nt-so"><input class="search" id="tbQ" type="search" placeholder="کتاب یا مصنف…" autocomplete="off"><div class="tp-pk" id="tbL"></div></div>`);
+    const draw = () => {
+      const q = String($(wrap, '#tbQ').value || '').trim();
+      const B = (H().db().books || []).filter(b => !q || [b.name, b.author].some(v => (v || '').includes(q)));
+      $(wrap, '#tbL').innerHTML = B.slice(0, 200).map(b => `<button type="button" class="btn ghost" data-b="${b.id}" style="justify-content:flex-start">📖 ${esc(b.name)}${b.author ? ` <small>· ${esc(b.author)}</small>` : ''}</button>`).join('') || '<p class="sh-empty">کوئی کتاب نہیں ملی</p>';
+    };
+    draw(); $(wrap, '#tbQ').addEventListener('input', draw);
+    $(wrap, '#tbL').addEventListener('click', e => { const x = e.target.closest('[data-b]'); if (!x) return; const b = (H().db().books || []).find(y => y.id === x.dataset.b); close(); if (b) setTimeout(() => cb(b), 80); });
+  }
+  const topicCount = () => topics().length;
+
+  window.MA_NOTES = { page, topicsRoute, topicCount, countOf, imgIds, imgGet, imgPut, imgHas, imgDel, imgUrl, exportImgs, importImgs, removeBook, _test: { render, textOf } };
   // ایپ پہلے کھل چکی ہو تو صفحہ دوبارہ بنائیں (یادداشتوں کا صفحہ / گنتی)
-  if (window.MA_APP && /\/b\//.test(location.hash)) window.MA_APP.route();
+  if (window.MA_APP && /\/b\/|^#\/topics/.test(location.hash)) window.MA_APP.route();
 })();

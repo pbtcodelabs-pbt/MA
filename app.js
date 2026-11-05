@@ -1,4 +1,4 @@
-/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA511TH152) */
+/* میرا مکتبہ — ایپ کا کوڈ (ورژن MA511TH153) */
 (() => {
   'use strict';
 
@@ -27,15 +27,16 @@
 
   // ---------- ڈیٹا ----------
   const KEY = 'maktaba-aziz-data-v1';
-  let db = { books: [], cats: [], catNames: {}, loanLog: [], progs: [], notes: [] };
+  let db = { books: [], cats: [], catNames: {}, loanLog: [], progs: [], notes: [], topics: [] };
   function normDb(d) {
-    const o = { books: [], cats: [], catNames: {}, loanLog: [], progs: [], notes: [] };
+    const o = { books: [], cats: [], catNames: {}, loanLog: [], progs: [], notes: [], topics: [] };
     if (d && Array.isArray(d.cats)) o.cats = d.cats.filter(c => c && c.id && c.name);
     if (d && d.catNames && typeof d.catNames === 'object') o.catNames = d.catNames;
     if (d && Array.isArray(d.loanLog)) o.loanLog = d.loanLog;
     if (d && Array.isArray(d.progs)) o.progs = d.progs.filter(p => p && p.id && p.date);
     const ids = new Set([...DEFAULT_CATS, ...o.cats].map(c => c.id));
     if (d && Array.isArray(d.books)) o.books = d.books.filter(b => b && b.name && ids.has(b.cat));
+    if (d && Array.isArray(d.topics)) o.topics = d.topics.filter(t => t && t.id && t.name);   // 📁 موضوعات (ہیلپ ڈیسک #98)
     if (d && Array.isArray(d.notes)) { const bk = new Set(o.books.map(b => b.id)); o.notes = d.notes.filter(n => n && n.id && bk.has(n.book) && n.text); }
     return o;
   }
@@ -196,6 +197,7 @@
   const badge = pill;
   const SP = (color, svg) => `<span class="bkx sp" style="--c:${color}"><span class="bkx-top"></span><span class="bkx-cover"><span class="bkx-label sp-ico">${svg}</span></span><span class="bkx-spine"></span></span>`;
   const IC_PLUS = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  const IC_FOLDER = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8"/></svg>';
   const IC_REP = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
   const IC_MIC = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>';
   const IC_LOAN = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 20c.7-3.5 3-5.5 6-5.5s5.3 2 6 5.5"/><path d="M16 8h6M19 5l3 3-3 3"/></svg>';
@@ -213,6 +215,7 @@
           <div class="shelf">
             ${cats().map((c, i) => `<a class="bk" href="#/c/${c.id}">${book3d(esc(c.name), PAL[i % PAL.length])}${pill(booksOf(c.id).length, booksOf(c.id).filter(b => b.loan).length)}</a>`).join('')}
             <a class="bk special" href="#/reports">${SP('#1f6a54', IC_REP)}<span class="cnt lbl">رپورٹس</span></a>
+            <a class="bk special" href="#/topics">${SP('#8a5f16', IC_FOLDER)}<span class="cnt lbl">موضوعات${(() => { const n = window.MA_NOTES && window.MA_NOTES.topicCount ? window.MA_NOTES.topicCount() : 0; return n ? ` <i class="gr">${num(n)}</i>` : ''; })()}</span></a>
             <a class="bk special" href="#/loans">${SP('#8e2f2a', IC_LOAN)}<span class="cnt lbl">اجراء${out ? ` <i>${num(out)}</i>` : ''}</span></a>
             <a class="bk special prog" href="#/prog">${SP('#5a3b7a', IC_MIC)}<span class="cnt lbl">شیڈیول${(() => { const n = window.MA_PROG ? window.MA_PROG.soon() : 0; return n ? ` <i class="gr">${num(n)}</i>` : ''; })()}</span></a>
           </div>
@@ -458,7 +461,7 @@
       cpList.querySelectorAll('[data-c]').forEach(x => x.classList.toggle('on', x === t));
       cpOpen(false); $('f-name').focus();
     });
-    // فن اسی صفحے سے پہلے سے چنا ہوا — فہرست خود نہیں کھلتی (غلطی سے انگلی لگ کر فن بدل جاتا تھا، MA511TH152)
+    // فن اسی صفحے سے پہلے سے چنا ہوا — فہرست خود نہیں کھلتی (غلطی سے انگلی لگ کر فن بدل جاتا تھا، MA511TH153)
     setTimeout(() => $('f-name').focus(), 50);
 
     $('addForm').addEventListener('submit', e => {
@@ -767,6 +770,8 @@
     } else if (parts[0] === 'prog') {
       renderBar(null);
       if (window.MA_PROG) window.MA_PROG.route(parts.slice(1)); else view.innerHTML = '';
+    } else if (parts[0] === 'topics' && window.MA_NOTES && window.MA_NOTES.topicsRoute) {
+      renderBar(null); window.MA_NOTES.topicsRoute();
     } else if (parts[0] === 'loans') {
       renderBar(null); pageLoans();
     } else if (parts[0] === 'newcat') {
@@ -927,7 +932,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA511TH152',
+    version: 'MA511TH153',
     toast,
     ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
