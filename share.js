@@ -149,7 +149,7 @@
   const today = () => new Date().toLocaleDateString('en-GB');
 
   // ---------- واٹس ایپ / کاپی کا متن ----------
-  const CREDIT_TXT = '\n\n━━━━━━━━━━━━\n_اس طرح کے بہترین سافٹ ویئر کے لیے: 0320-6793793 — PBT CodeLabs_';
+  const CREDIT_TXT = '';   // مالک کا حکم (5 نومبر): «PBT CodeLabs 0320…» کی تشہیر نہیں
   function buildText() {
     const t = TH(), g = grouped(), all = g.flatMap(x => x.list);
     let o = `${brandText()}\n*${headLine()}*\n📅 تاریخ: ${today()}\n`;
@@ -402,6 +402,7 @@
   // ترتیب: دائیں عبارت، بیچ میں نمبر، بائیں PBT CodeLabs
   const CREDIT = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  \u20660320-6793793\u2069  ✦  \u2066PBT CodeLabs\u2069';
   function creditDraw(ctx, w, h, bw) {
+    return;   // مالک کا حکم: نیچے ڈویلپر کا بیج / نمبر نہیں
     ctx.save(); ctx.direction = 'rtl'; ctx.font = `18px ${FONT}`;
     const tw = ctx.measureText(CREDIT).width + 44, bh = 34, x = (w - tw) / 2, y = h - 34 - bh / 2;
     if (bw) { ctx.fillStyle = '#fff'; roundRect(ctx, x, y, tw, bh, bh / 2); ctx.fill(); ctx.strokeStyle = '#111'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#111'; }

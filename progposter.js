@@ -220,6 +220,7 @@
     c.restore();
   }
   function creditLine(c, W, y, z) {
+    return;   // مالک کا حکم (5 نومبر): ڈویلپر کا نمبر / PBT CodeLabs نہیں
     const s = 'اس طرح کے بہترین سافٹ ویئر کے لیے  ✦  ⁦0320-6793793⁩  ✦  ⁦PBT CodeLabs⁩';
     c.save(); c.globalAlpha = .8; text(c, s, W / 2, y, z, K().t, BF(), 'center', W * .6); c.restore();
   }
