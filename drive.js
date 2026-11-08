@@ -176,6 +176,7 @@
     try { if (host().ready) await host().ready(); } catch (e) {}   // پروگراموں کی تصویریں IndexedDB سے آ جائیں
     const data = host().snapshot();
     const n = data.books.length;
+    if (!n && (meta.lastBooks || 0) > 0 && !(interactive && confirm(`⚠️ فون میں ابھی کوئی کتاب نہیں — Drive کا پچھلا بیک اپ (${meta.lastBooks} کتب) خالی سے بدل جائے گا۔\n\nریکارڈ غائب ہے تو «Drive سے واپس لائیں» کریں۔ پھر بھی خالی بیک اپ بنانا ہے؟`))) { busy = false; return false; }
     progress = `Drive پر ${n} کتب محفوظ ہو رہی ہیں…`; render();
     try {
       await getToken(interactive);
@@ -330,6 +331,8 @@
     if (!hasToken && meta.email) getToken(true).catch(() => {});
     clearTimeout(autoTimer);
     autoTimer = setTimeout(() => {
+      // ہیلپ ڈیسک #149: ریکارڈ اچانک صفر ہو (مٹ گیا ہو) تو خالی بیک اپ اچھے «تازہ ترین» کے اوپر نہ لکھیں
+      if (!host().snapshot().books.length && (meta.lastBooks || 0) > 0) return;
       if (token && Date.now() < tokenExp - 60000 && navigator.onLine) backup(false);
     }, AUTO_DELAY);
   }
