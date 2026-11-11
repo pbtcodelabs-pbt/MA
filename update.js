@@ -113,10 +113,10 @@ window.APP_UPD_LANG = 'ur';
    نیا ورژن اترنا شروع ہو تو اوپر پٹی: «نئی اپڈیٹ آ رہی ہے…»
    اپڈیٹ مکمل ہو کر صفحہ تازہ ہو تو پیغام: پرانا ورژن → نیا ورژن */
 (function () {
-  const V = 'MA911MO156'; window.APP_UPD_OLD = V;
+  const V = 'MA1111WE157'; window.APP_UPD_OLD = V;
   const KEY = 'maktaba-aziz-seen-version';
   /* MA1810SU123: سب ایپس والا یکساں انداز (AppUpd، اسی فائل کے اوپر) */
-  const UPDATE_NOTE = '🧭 مکتبہ میں Help Desk الگ قطار میں — بیک اپ اور لاگ آؤٹ کے بٹن صاف نظر آئیں'; // ہر ورژن پر ایک چھوٹی لائن
+  const UPDATE_NOTE = '🎬 لاگ اِن صفحے پر میرا مکتبہ کی تعارفی ویڈیو — دیکھیں، ڈاؤن لوڈ اور شیئر کریں'; // ہر ورژن پر ایک چھوٹی لائن
   function showBar() { if (!document.body || AppUpd.isWaiting()) return; AppUpd.waiting(); }
   function showDone(oldV) { AppUpd.done(oldV, V, UPDATE_NOTE); }
   function checkSeen() {
