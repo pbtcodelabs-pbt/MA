@@ -932,7 +932,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA911MO156',
+    version: 'MA1111WE157',
     toast,
     ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, topics: db.topics, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),

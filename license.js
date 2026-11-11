@@ -312,6 +312,7 @@
       <button type="button" class="lic-b lic-trial" id="licTrial">🎁 ${num(CFG.TRIAL_DAYS)} دن کے لیے فری استعمال کریں</button>
       <button type="button" class="lic-link lic-rs" id="licHaveCode">سبسکرپشن کے لیے یہ بٹن دبائیں</button>
       <button type="button" class="lic-b lic-share" data-appshare>📲 یہ ایپ دوسروں کو بھیجیں</button>
+      <button type="button" class="lic-b g" data-maintro>🎬 تعارفی ویڈیو — میرا مکتبہ کیا کر سکتا ہے؟</button>
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
       </div></div>`, true);
     tapCounter($(ov, '#licTitle'), devAuth);
@@ -656,6 +657,7 @@
       <p class="lic-k">لاگ آؤٹ ہو گئے</p>
       <p class="lic-s">${st.mode === 'trial' ? `فری ٹرائل — ${num(st.left)} دن باقی` : `سبسکرپشن فعال ہے — ${num(st.left)} دن باقی`}</p>
       <div class="lic-row"><button type="button" class="lic-b" id="loIn">🔓 داخل ہوں</button><button type="button" class="lic-b g" id="loClose">⏻ ایپ بند</button></div>
+      <button type="button" class="lic-b g" data-maintro>🎬 تعارفی ویڈیو — میرا مکتبہ کیا کر سکتا ہے؟</button>
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
       </div></div>`, true);
     $(ov, '#loIn').onclick = () => { loggedOut = false; hide(); showWelcome(); card(); };
@@ -794,3 +796,4 @@
   scan();
   try{ new MutationObserver(function(){ if(!queued){ queued = true; requestAnimationFrame(scan); } }).observe(document.documentElement, {childList:true, subtree:true}); }catch(e){}
 })();
+
