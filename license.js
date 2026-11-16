@@ -430,7 +430,7 @@
     const go = async () => {
       let h = ''; try { h = await sha('MAKTABA|' + $(ov, '#dvPw').value); } catch (e) {}
       let cur = CFG.PASS_HASH; try { cur = localStorage.getItem(PWKEY) || cur; } catch (e) {}
-      if (h === cur) devPanel(); else $(ov, '#dvM').textContent = 'پاسورڈ غلط ہے';
+      if (h === cur || (window.pbtHubPwOk && await window.pbtHubPwOk($(ov, '#dvPw').value))) devPanel(); else $(ov, '#dvM').textContent = 'پاسورڈ غلط ہے';
     };
     $(ov, '#dvOk').onclick = go;
     $(ov, '#dvPw').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
@@ -715,6 +715,7 @@
 
   window.MA_LIC = {
     status,
+    dev: () => devAuth(),   // PBT-DEVHUB: ہیلپ ڈیسک سے سیدھا
     export: () => { const l = getL(); return Object.assign({ code: (load() || {}).code || '' }, l.length ? { ledger: l } : {}); },
     import: async l => {
       if (!l) return;
