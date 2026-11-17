@@ -274,7 +274,7 @@
   }
   function hide() { if (ov) { ov.remove(); ov = null; } blocking = false; devOpen = false; document.documentElement.style.overflow = ''; }
   function toast(m) { try { window.MA_APP && window.MA_APP.toast(m); } catch (e) {} }
-  function tapCounter(el, fn) { return; /* 🔐 مالک کا حکم (16 نومبر): 7 بار دبانے سے ڈویلپر پینل ختم — صرف ہیلپ ڈیسک «🔐 ڈویلپر پینل» سے (?devpanel=1) */ let n = 0, t; el.addEventListener('click', () => { n++; clearTimeout(t); t = setTimeout(() => { n = 0; }, 2500); if (n >= 7) { n = 0; fn(); } }); }
+  function tapCounter(el, fn) { /* 🔐 مالک کا حکم (16 نومبر): 7 بار دبانے سے ڈویلپر پینل ختم تھا — MCS/سب ایپس 17 نومبر: مالک کے حکم سے واپس — صرف ہیلپ ڈیسک «🔐 ڈویلپر پینل» سے (?devpanel=1) */ let n = 0, t; el.addEventListener('click', () => { n++; clearTimeout(t); t = setTimeout(() => { n = 0; }, 2500); if (n >= 7) { n = 0; fn(); } }); }
 
   // ----- گھومتا ہوا نشان + روشنیاں -----
   const LOGO_MASK = 'url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cGF0aCBkPSJNNjAgMGw0IDguNiA5LjIuOS02LjkgNi4yIDIgOS4yTDYwIDIwLjFsLTguMyA0LjggMi05LjItNi45LTYuMiA5LjItLjl6Ii8+PHBhdGggZD0iTTYwIDQyQzQ1IDMyIDIyIDMwIDYgMzR2NjJjMTYtNCAzOS0yIDU0IDggMTUtMTAgMzgtMTIgNTQtOFYzNGMtMTYtNC0zOS0yLTU0IDh6IE01NyA0NnY1M2MtMTMtNy0zMS04LTQ1LTZWMzljMTQtMiAzMi0xIDQ1IDd6IE02MyA0NmMxMy04IDMxLTkgNDUtN3Y1NGMtMTQtMi0zMi0xLTQ1IDZ6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=)';
