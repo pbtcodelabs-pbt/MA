@@ -1853,3 +1853,21 @@ button.bk.sel-bk{border:0;background:none;padding:0;font:inherit;cursor:pointer;
 
 /* MA1911TH162: موضوع کی فہرست میں 📤 */
 .tp-f .tp-snd{flex:0 0 auto;margin-inline-start:6px;border:1.5px solid #c8962f;background:#fffdf6;border-radius:12px;padding:4px 9px;font-size:18px;cursor:pointer;line-height:1.2}
+
+/* MA1911TH163: موضوع کے سب حوالے — ایک صفحے پر ۱–۴، ✓ سے چن کر بھیجیں */
+.tpg-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px;font-size:15px}
+.tpg-bar button{border:1.5px solid #c8962f;background:#fffdf6;border-radius:12px;min-width:42px;padding:5px 10px;font:inherit;font-size:17px;cursor:pointer}
+.tpg-bar .tpg-n.on{background:#14532d;color:#fde68a;border-color:#14532d}
+.tpg-bar .tpg-all{margin-inline-start:auto}
+.tpg-pg{background:#fffdf6;border:2px solid #c8962f;border-radius:14px;padding:8px;margin:0 0 12px;display:grid;gap:8px}
+.tpg-pg.p4{grid-template-columns:1fr 1fr}
+.tpg-h{grid-column:1/-1;text-align:center;font-size:13px;color:#8a5f16}
+.tpg-it{background:#fff;border:1px solid #e7d7ad;border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0;transition:opacity .2s}
+.tpg-it.off{opacity:.45}.tpg-it.hl{box-shadow:0 0 0 3px #16a34a}
+.tpg-ck{display:flex;align-items:center;gap:6px;cursor:pointer}.tpg-ck input{width:22px;height:22px;accent-color:#16a34a}
+.tpg-tx{font-size:15px;line-height:1.9;overflow-wrap:anywhere}.tpg-tx small{display:block;color:#8a5f16;font-size:13px}
+.tpg-im{width:100%;object-fit:contain;background:#f3ead2;border-radius:8px;cursor:zoom-in}
+.p1 .tpg-im{max-height:75vh}.p2 .tpg-im{max-height:42vh}.p3 .tpg-im{max-height:28vh}.p4 .tpg-im{max-height:30vh}
+.p4 .tpg-tx{font-size:13px}
+.tpg-noim{font-size:12px;color:#9ca3af;text-align:center;padding:8px;border:1px dashed #e7d7ad;border-radius:8px}
+.tpg-send{position:sticky;top:6px;display:flex;gap:8px;z-index:5;margin:0 0 10px;padding:6px;background:rgba(255,253,246,.96);border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.15)}.tpg-send .save{flex:1;justify-content:center}
