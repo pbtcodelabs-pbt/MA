@@ -156,7 +156,7 @@ window.APP_UPD_LANG = 'ur';
   const V = 'MA1911TH163'; window.APP_UPD_OLD = V;
   const KEY = 'maktaba-aziz-seen-version';
   /* MA1810SU123: سب ایپس والا یکساں انداز (AppUpd، اسی فائل کے اوپر) */
-  const UPDATE_NOTE = '🖼️ موضوع کے سب حوالے اوپر سے نیچے — ایک صفحے پر ۱، ۲، ۳ یا ۴ حوالے؛ ✓ لگا کر چنے ہوئے اکٹھے بھیجیں (تصاویر یا PDF)'
+  const UPDATE_NOTE = '📁 حوالہ جات میں موضوع کا ڈراپ ڈاؤن اور ترتیب (جلد وار / نئے پہلے / پرانے پہلے)؛ حوالے کے فارم میں موضوع سب سے اوپر، محفوظ کا بٹن ہمیشہ سامنے'
   function showBar() { if (!document.body || AppUpd.isWaiting()) return; AppUpd.waiting(); }
   function showDone(oldV) { AppUpd.done(oldV, V, UPDATE_NOTE); }
   function checkSeen() {

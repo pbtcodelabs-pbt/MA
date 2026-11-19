@@ -167,6 +167,10 @@
   .nt-so .lb{font-size:15px;color:var(--muted);text-align:center;margin:0}
   /* 📁 موضوعات */
   .tp-pick{display:grid;gap:6px;font-size:15px;color:var(--muted)}
+  /* MA1911TH163 (مالک کا حکم): موضوع سب سے اوپر — چنے ہوئے سامنے؛ تصویر چھوٹی؛ «محفوظ کریں» نیچے ہمیشہ نظر میں */
+  .tp-pick.tp-top{background:#f3ead2;border:1.5px solid #c8962f;border-radius:14px;padding:8px 10px}
+  .nt-form .nt-prev img{max-height:min(34vh,240px)}
+  .nt-form > .btn.save{position:sticky;bottom:0;z-index:3;box-shadow:0 -6px 14px rgba(246,237,214,.95)}
   .tp-pick small{font-size:12.5px}
   .tp-chips{display:flex;flex-wrap:wrap;gap:6px}
   .tp-chips button{border:1.5px solid #8a5f16;background:#fff8e6;color:#6b4a1a;border-radius:99px;padding:0 12px;font:inherit;font-size:15px;line-height:2.1;cursor:pointer}
@@ -207,7 +211,7 @@
   const countOf = bookId => notes().filter(n => n.book === bookId).length;
   // فلٹر: جلد اور تاریخ (ہر کتاب کا الگ)
   const FL = {};
-  const fOf = b => FL[b.id] || (FL[b.id] = { vol: 0, when: 'all', from: '', to: '' });
+  const fOf = b => FL[b.id] || (FL[b.id] = { vol: 0, when: 'all', from: '', to: '', tp: '', sort: 'vol' });   // MA1911TH163: موضوع + ترتیب
   const pad2 = x => String(x).padStart(2, '0');
   const isoD = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const MONTHS = ['جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون', 'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'];
@@ -220,7 +224,8 @@
     if (f.when === 'rng') { const t = isoD(d); return (!f.from || t >= f.from) && (!f.to || t <= f.to); }
     return true;
   }
-  const filtered = (b, f) => allOf(b).filter(n => (!f.vol || (n.vol || 1) === f.vol) && inWhen(n, f));
+  const SORTS = { vol: sortN, new: (x, y) => (y.ts || y.upd || 0) - (x.ts || x.upd || 0), old: (x, y) => (x.ts || x.upd || 0) - (y.ts || y.upd || 0) };
+  const filtered = (b, f) => allOf(b).filter(n => (!f.vol || (n.vol || 1) === f.vol) && inWhen(n, f) && (!f.tp || (f.tp === '-' ? !(n.topics || []).length : inTopic(n, f.tp)))).sort(SORTS[f.sort] || sortN);
   function whenTxt(f) {
     const now = new Date();
     if (f.when === 'm0') return `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
@@ -229,7 +234,7 @@
     if (f.when === 'rng') { const dm = t => t ? t.split('-').reverse().join('/') : '…'; return `${dm(f.from)} سے ${dm(f.to)} تک`; }
     return '';
   }
-  const fDesc = (b, f) => [vols(b) > 1 ? (f.vol ? `جلد ${f.vol}` : 'تمام جلدیں') : '', whenTxt(f)].filter(Boolean).join(' · ');
+  const fDesc = (b, f) => [vols(b) > 1 ? (f.vol ? `جلد ${f.vol}` : 'تمام جلدیں') : '', whenTxt(f), f.tp ? (f.tp === '-' ? 'بغیر موضوع' : '📁 ' + ((topics().find(t => t.id === f.tp) || {}).name || '')) : ''].filter(Boolean).join(' · ');
 
   let cur = null;   // { cat, b }
   let presetTopic = '';   // موضوع کے فولڈر سے نیا حوالہ — وہی موضوع پہلے سے چنا
@@ -247,6 +252,9 @@
           <div class="nt-flt">
             ${V > 1 ? `<label><span>جلد</span><select id="fVol"><option value="0">تمام جلدیں</option>${Array.from({ length: V }, (_, i) => `<option value="${i + 1}" ${f.vol === i + 1 ? 'selected' : ''}>جلد ${num(i + 1)}</option>`).join('')}</select></label>` : ''}
             <label><span>تاریخ</span><select id="fWhen">${[['all', 'سب'], ['m0', 'اس مہینے'], ['m1', 'پچھلے مہینے'], ['y0', 'اس سال'], ['rng', 'تاریخ سے تاریخ']].map(([k2, t]) => `<option value="${k2}" ${f.when === k2 ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            ${(() => { const T = topics().filter(t => allOf(b).some(n => inTopic(n, t.id))); if (f.tp && f.tp !== '-' && !T.some(t => t.id === f.tp)) f.tp = '';
+              return T.length ? `<label><span>📁 موضوع</span><select id="fTp"><option value="">سب موضوع</option>${T.map(t => `<option value="${t.id}" ${f.tp === t.id ? 'selected' : ''}>${esc(t.name)} (${num(allOf(b).filter(n => inTopic(n, t.id)).length)})</option>`).join('')}<option value="-" ${f.tp === '-' ? 'selected' : ''}>بغیر موضوع</option></select></label>` : ''; })()}
+            <label><span>ترتیب</span><select id="fSort">${[['vol', V > 1 ? 'جلد و صفحہ وار' : 'صفحہ وار'], ['new', 'سب سے نئے پہلے'], ['old', 'سب سے پرانے پہلے']].map(([k2, t]) => `<option value="${k2}" ${f.sort === k2 ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
             ${f.when === 'rng' ? `<div class="nt-rng"><input type="date" id="fFrom" value="${f.from}"><span>تک</span><input type="date" id="fTo" value="${f.to}"></div>` : ''}
           </div>
           <div class="nt-acts">
@@ -254,7 +262,7 @@
             <button class="btn ghost" type="button" data-a="send">${I_SHARE} بھیجیں / PDF</button>
             <button class="btn ghost" type="button" data-a="blank">🖨️ خالی صفحہ</button>
           </div>
-          ${(f.vol || f.when !== 'all') ? `<p class="nt-fnote">دکھائے جا رہے ہیں: ${num(list.length)} حوالے — ${esc(fDesc(b, f))}</p>` : ''}
+          ${(f.vol || f.when !== 'all' || f.tp) ? `<p class="nt-fnote">دکھائے جا رہے ہیں: ${num(list.length)} حوالے — ${esc(fDesc(b, f))}</p>` : ''}
           <div class="nt-sheet${V > 1 ? ' mv' : ''}"${XC.length ? ` style="--ntc:28px minmax(0,1fr) ${XC.map(c => c.w + 'px').join(' ')}${V > 1 ? ' 32px' : ''} 42px 36px"` : ''}>
             <div class="nt-hd"><span>نمبر</span><span>حوالہ / عبارت</span>${XC.map(c => `<span class="xh">${c.t}</span>`).join('')}${V > 1 ? '<span>جلد</span>' : ''}<span>صفحہ</span><span></span></div>
             ${list.length ? list.map((n, i) => `<div class="nt-row" data-id="${n.id}">
@@ -274,6 +282,8 @@
     $(view, '#fVol')?.addEventListener('change', e => { f.vol = +e.target.value; re(); });
     $(view, '#fWhen').addEventListener('change', e => { f.when = e.target.value; if (f.when === 'rng' && !f.from) { const d = new Date(); f.to = isoD(d); d.setDate(1); f.from = isoD(d); } re(); });
     $(view, '#fFrom')?.addEventListener('change', e => { f.from = e.target.value; re(); });
+    $(view, '#fTp')?.addEventListener('change', e => { f.tp = e.target.value; re(); });
+    $(view, '#fSort')?.addEventListener('change', e => { f.sort = e.target.value; re(); });
     $(view, '#fTo')?.addEventListener('change', e => { f.to = e.target.value; re(); });
     $(view, '#ntb').addEventListener('click', e => {
       const t = e.target.closest('[data-a]'); if (!t) return;
@@ -294,6 +304,7 @@
     let img = n ? (n.img || '') : '', fresh = null, rot = 0, clean = true, saved = false, srcUrl = '';
     const { wrap, close } = H().openSheet(n ? 'حوالے میں ترمیم' : 'نیا حوالہ', `
       <form class="sheet-b nt-form" id="ntForm" novalidate>
+        <div class="tp-pick tp-top"><span>📁 موضوع / فولڈر <small>(اختیاری — ایک عنوان کے سب حوالے ایک جگہ)</small></span><div class="tp-chips" id="ntTops"></div></div>
         <label class="nt-lb">حوالہ / عبارت
           <textarea id="ntText" placeholder="مثلاً: جنگِ آزادی میں علمائے کرام کا کردار">${esc(n?.text || '')}</textarea></label>
         <div class="nt-f2">
@@ -302,7 +313,6 @@
           ${isTafseer(b) ? `<label>سورہ <small>(نام یا نمبر)</small><input id="ntSura" list="ntSuras" autocomplete="off" value="${esc(n?.sura || '')}" placeholder="البقرہ"></label><label>آیت نمبر<input id="ntAya" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.aya || '')}" placeholder="255"></label><datalist id="ntSuras">${SURAS.map((x, i) => `<option value="${x} (${i + 1})">`).join('')}</datalist>` : ''}
           ${isHadith(b) ? `<label>رقم الحدیث <small>(حدیث نمبر)</small><input id="ntHno" inputmode="numeric" autocomplete="off" dir="ltr" value="${esc(n?.hno || '')}" placeholder="1234"></label>` : ''}
         </div>
-        <div class="tp-pick"><span>📁 موضوع / فولڈر <small>(اختیاری — ایک عنوان کے سب حوالے ایک جگہ)</small></span><div class="tp-chips" id="ntTops"></div></div>
         <button type="button" class="nt-attgo" id="ntAttGo" ${n && n.img ? 'hidden' : ''}>📎 کتاب کے صفحے کی تصویر لگائیں <small>(اختیاری)</small></button>
         <div class="nt-att" id="ntAtt" ${n && n.img ? '' : 'hidden'}>
           <div class="nt-prev" id="ntPrev"></div>
@@ -497,7 +507,7 @@
             const blob = await imgGet(o.one.img);
             if (blob) { const f = new File([blob], `safha-${o.one.page || 'x'}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text: txt }); return; } catch (x) { if (x.name === 'AbortError') return; } } }
           }
-          // MA1911TH162 (مالک کا حکم): پورا موضوع / فہرست — سب اصل صفحات کی تصاویر + متن ایک ساتھ واٹس ایپ پر
+          // MA1911TH163 (مالک کا حکم): پورا موضوع / فہرست — سب اصل صفحات کی تصاویر + متن ایک ساتھ واٹس ایپ پر
           if (!o.one && o.imgs && navigator.canShare) {
             const LL = scopeList(b, o).filter(n => n.img).slice(0, 40), files = [];
             out.disabled = true; out.textContent = 'تصاویر تیار…';
@@ -698,7 +708,7 @@
         </div>
       </section>`;
     $(view, '[data-a="new"]').onclick = () => { const t = newTopic(); if (t) location.hash = '#/topics/' + t.id; };
-    // MA1911TH162: فہرست سے ہی پورا موضوع بھیجیں (ہر حوالہ، اصل صفحہ، کتاب، جلد، صفحہ نمبر)
+    // MA1911TH163: فہرست سے ہی پورا موضوع بھیجیں (ہر حوالہ، اصل صفحہ، کتاب، جلد، صفحہ نمبر)
     $(view, '#tpb').addEventListener('click', e => { const s = e.target.closest('[data-snd]'); if (!s) return; e.preventDefault(); e.stopPropagation();
       const t = topics().find(x => x.id === s.dataset.snd); if (!t) return; openSend({ id: 't_' + t.id, name: t.name, parts: 1, topic: true }, { list: topicNotes(t.id), imgs: true }); }, true);
   }
