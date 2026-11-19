@@ -683,7 +683,8 @@
   function topicsRoute() {
     const tid = decodeURIComponent((location.hash.split('/')[2]) || '');
     const t = tid && topics().find(x => x.id === tid);
-    if (t) topicPage(t); else topicsList();
+    if (t && location.hash.split('/')[3] === 'g') topicGallery(t, decodeURIComponent(location.hash.split('/')[4] || ''));
+    else if (t) topicPage(t); else topicsList();
   }
   function topicsList() {
     const view = H().view, T = topics().slice().sort((a, b) => topicNotes(b.id).length - topicNotes(a.id).length || a.name.localeCompare(b.name, 'ur'));
@@ -711,6 +712,7 @@
           <div class="nt-acts">
             <button class="btn nt-add" type="button" data-a="pick">＋ پہلے سے لکھے حوالے اس میں جوڑیں</button>
             <button class="btn" type="button" data-a="write">✍️ نیا حوالہ لکھیں</button>
+            <a class="btn nt-add" href="#/topics/${t.id}/g" style="text-decoration:none">🖼️ سب حوالے دیکھیں / چن کر بھیجیں</a>
             <button class="btn" type="button" data-a="send">${I_SHARE} بھیجیں / PDF</button>
             <button class="btn ghost" type="button" data-a="ren">✏️ نام بدلیں</button>
             <button class="btn ghost nt-del" type="button" data-a="del">🗑️ فولڈر حذف</button>
@@ -731,9 +733,93 @@
       else if (k === 'del') { if (!confirm(`«${t.name}» فولڈر حذف کریں؟\nحوالے اپنی کتابوں میں رہیں گے، صرف فولڈر ہٹے گا۔`)) return; const d = H().db(); d.topics = topics().filter(x => x.id !== t.id); notes().forEach(x => { if (inTopic(x, t.id)) x.topics = x.topics.filter(y => y !== t.id); }); H().save(); toast('فولڈر حذف ہو گیا'); location.hash = '#/topics'; }
       else if (k === 'rm' && n) { n.topics = n.topics.filter(y => y !== t.id); n.upd = Date.now(); H().save(); toast('فولڈر سے ہٹ گیا'); topicPage(t); }
       else if (k === 'edit' && n && bk) openForm(bk, n);
-      else if (k === 'view' && n && bk) viewImg(bk, n);
+      else if (k === 'view' && n) location.hash = '#/topics/' + t.id + '/g/' + n.id;   // MA1911TH163: ایک تصویر نہیں — سب حوالے، اسی پر
       else if (k === 'att' && n && bk) quickAttach(bk, n);
     });
+  }
+
+  // ===== MA1911TH163 (مالک کا حکم): موضوع کے سب حوالے اوپر سے نیچے — ایک صفحے پر ۱ / ۲ / ۳ / ۴ حوالے؛ ✓ لگا کر چنے ہوئے اکٹھے بھیجیں (تصویر صفحات یا PDF) =====
+  const GKEY = 'maktaba-aziz-tpg';
+  let gSel = null, gTid = '';
+  const gPer = () => { try { return Math.min(4, Math.max(1, parseInt(localStorage.getItem(GKEY), 10) || 2)); } catch (_) { return 2; } };
+  function topicGallery(t, startId) {
+    const view = H().view, L = topicNotes(t.id);
+    if (gTid !== t.id || !gSel) { gSel = new Set(L.map(n => n.id)); gTid = t.id; }
+    const per = gPer(), pages = [];
+    for (let i = 0; i < L.length; i += per) pages.push(L.slice(i, i + per));
+    const nSel = () => L.filter(n => gSel.has(n.id)).length;
+    view.innerHTML = `
+      <section class="panel">
+        <div class="panel-h"><a class="back" href="#/topics/${t.id}">→ ${esc(t.name)}</a><span class="crumb">🖼️ سب حوالے</span></div>
+        <div class="panel-b" id="tpg">
+          <div class="nt-book"><b>${esc(t.name)}</b><small>${num(L.length)} حوالے · ${num(L.filter(n => n.img).length)} تصاویر</small></div>
+          <div class="tpg-bar"><span>ایک صفحے پر:</span>${[1, 2, 3, 4].map(k => `<button type="button" class="tpg-n${k === per ? ' on' : ''}" data-per="${k}">${num(k)}</button>`).join('')}
+            <button type="button" class="tpg-all" data-a="all">${nSel() === L.length ? '☐ کوئی نہیں' : '☑️ سب چنیں'}</button></div>
+          <div class="tpg-send"><button class="btn save" type="button" data-a="go">📤 چنے ہوئے بھیجیں (<span id="tpgN">${num(nSel())}</span>)</button><button class="btn" type="button" data-a="pdf">📄 PDF</button></div>
+          ${pages.map((P, pi) => `<div class="tpg-pg p${per}"><div class="tpg-h">صفحہ ${num(pi + 1)} / ${num(pages.length)}</div>${P.map(n => { const i = L.indexOf(n) + 1, on = gSel.has(n.id);
+            return `<div class="tpg-it${on ? '' : ' off'}" id="g_${n.id}" data-id="${n.id}"><label class="tpg-ck"><input type="checkbox" ${on ? 'checked' : ''}><b>${num(i)}</b></label>
+              <div class="tpg-tx">${esc(n.text)}<small>📖 ${esc(topicRef(n))}</small></div>
+              ${n.img ? `<img class="tpg-im" data-img="${n.img}" alt="اصل صفحہ">` : '<div class="tpg-noim">تصویر نہیں لگی</div>'}</div>`; }).join('')}</div>`).join('') || '<div class="nt-empty"><b>اس فولڈر میں ابھی کوئی حوالہ نہیں</b></div>'}
+        </div>
+      </section>`;
+    view.querySelectorAll('img[data-img]').forEach(async im => { const u = await imgUrl(im.dataset.img); if (u) im.src = u; else im.replaceWith(Object.assign(document.createElement('div'), { className: 'tpg-noim', textContent: 'تصویر نہیں ملی' })); });
+    if (startId) setTimeout(() => { const el = document.getElementById('g_' + startId); if (el) { el.scrollIntoView({ block: 'center' }); el.classList.add('hl'); } }, 120);
+    const box = $(view, '#tpg');
+    box.addEventListener('change', e => { const c = e.target; if (c.type !== 'checkbox') return; const it = c.closest('.tpg-it'); c.checked ? gSel.add(it.dataset.id) : gSel.delete(it.dataset.id); it.classList.toggle('off', !c.checked); $(box, '#tpgN').textContent = num(nSel()); $(box, '[data-a="all"]').textContent = nSel() === L.length ? '☐ کوئی نہیں' : '☑️ سب چنیں'; });
+    box.addEventListener('click', e => {
+      const pb = e.target.closest('[data-per]'); if (pb) { try { localStorage.setItem(GKEY, pb.dataset.per); } catch (_) {} topicGallery(t); return; }
+      const im = e.target.closest('.tpg-im'); if (im) { const n = notes().find(x => x.id === im.closest('.tpg-it').dataset.id), bk = n && bookOf(n); if (n && bk) viewImg(bk, n); return; }
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (a.dataset.a === 'all') { if (nSel() === L.length) gSel.clear(); else L.forEach(n => gSel.add(n.id)); topicGallery(t); }
+      else if (a.dataset.a === 'go' || a.dataset.a === 'pdf') galSend(t, L.filter(n => gSel.has(n.id)), per, a.dataset.a === 'pdf', a);
+    });
+  }
+  // تصویر صفحات: فون جتنا صفحہ (1080×1920)، ہر صفحے پر ۱–۴ حوالے (۴ ہوں تو ۲×۲)، ہر حوالے کی عبارت، کتاب / جلد / صفحہ اور اصل صفحے کی تصویر
+  async function galPages(t, LL, per) {
+    const k = K(); if (k) await k.ready();
+    const FONT = (k && k.FONT) || 'serif', W = 1080, PH = 1920, M = 36, TOPH = 120, FOOT = 60;
+    const meas = document.createElement('canvas').getContext('2d');
+    const out = [], all = topicNotes(t.id);
+    for (let p = 0; p < LL.length; p += per) {
+      const P = LL.slice(p, p + per), cv = document.createElement('canvas'); cv.width = W; cv.height = PH;
+      const ctx = cv.getContext('2d'); ctx.direction = 'rtl';
+      ctx.fillStyle = '#fffaf0'; ctx.fillRect(0, 0, W, PH);
+      ctx.fillStyle = '#14532d'; ctx.fillRect(0, 0, W, TOPH);
+      ctx.fillStyle = '#fde68a'; ctx.textAlign = 'center'; ctx.font = `48px ${FONT}`; ctx.fillText(k ? k.fit(ctx, '📁 ' + t.name, W - 80) : t.name, W / 2, 74);
+      ctx.fillStyle = '#f3e6c2'; ctx.font = `22px ${FONT}`; ctx.fillText(`صفحہ ${p / per + 1} / ${Math.ceil(LL.length / per)}`, W / 2, 108);
+      const cols = per === 4 ? 2 : 1, rows = per === 4 ? 2 : per, gap = 16;
+      const cw = (W - 2 * M - (cols - 1) * gap) / cols, ch = (PH - TOPH - FOOT - 2 * gap - (rows - 1) * gap) / rows;
+      for (let j = 0; j < P.length; j++) {
+        const n = P[j], cx = W - M - (j % cols + 1) * cw - (j % cols) * gap, cy = TOPH + gap + Math.floor(j / cols) * (ch + gap);
+        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#c8962f'; ctx.lineWidth = 3; if (k && k.roundRect) { k.roundRect(ctx, cx, cy, cw, ch, 18); ctx.fill(); ctx.stroke(); } else { ctx.fillRect(cx, cy, cw, ch); ctx.strokeRect(cx, cy, cw, ch); }
+        const fs = per === 1 ? 34 : per === 2 ? 30 : 26, lh = fs * 1.55, tw = cw - 40;
+        meas.font = `${fs}px ${FONT}`;
+        let lines = wrapLines(meas, `${all.indexOf(n) + 1}۔ ${n.text}`, tw); const maxL = per === 1 ? 6 : per === 2 ? 4 : 3;
+        if (lines.length > maxL) { lines = lines.slice(0, maxL); lines[maxL - 1] += ' …'; }
+        meas.font = `${fs - 4}px ${FONT}`; const rl = wrapLines(meas, '📖 ' + topicRef(n), tw).slice(0, 2);
+        let y = cy + 14 + fs * 1.2; ctx.textAlign = 'right';
+        ctx.fillStyle = '#1f2937'; ctx.font = `${fs}px ${FONT}`; lines.forEach(l => { ctx.fillText(l, cx + cw - 20, y); y += lh; });
+        ctx.fillStyle = '#8a5f16'; ctx.font = `${fs - 4}px ${FONT}`; rl.forEach(l => { ctx.fillText(l, cx + cw - 20, y); y += lh * .9; });
+        const iy = y - fs * .4, ih = cy + ch - 14 - iy, iw = cw - 28;
+        if (n.img && ih > 60) { try { const u = await imgUrl(n.img); if (u) { const im = await loadImg(u), r = Math.min(iw / im.width, ih / im.height), w = im.width * r, h = im.height * r; ctx.drawImage(im, cx + 14 + (iw - w) / 2, iy + (ih - h) / 2, w, h); } } catch (_) {} }
+      }
+      ctx.fillStyle = '#14532d'; ctx.fillRect(0, PH - FOOT, W, FOOT); ctx.fillStyle = '#fde68a'; ctx.textAlign = 'center'; ctx.font = `26px ${FONT}`;
+      try { ctx.fillText(k && k.brandName ? k.brandName() : 'میرا مکتبہ', W / 2, PH - 20); } catch (_) {}
+      out.push(cv.toDataURL('image/jpeg', 0.88));
+    }
+    return out;
+  }
+  async function galSend(t, LL, per, pdf, btn) {
+    if (!LL.length) { toast('پہلے ✓ لگا کر حوالے چنیں'); return; }
+    const old = btn.innerHTML; btn.disabled = true; btn.textContent = 'تیار ہو رہا ہے…';
+    try {
+      const urls = await galPages(t, LL, per), k = K(), nm = String(t.name).replace(/[^\w؀-ۿ]+/g, '-').slice(0, 30) || 'mozoo';
+      if (pdf && k) { await k.deliver(k.makePdf(urls, 1080, 1920), `${nm}.pdf`, t.name); return; }
+      const files = urls.map((u, i) => new File([dataToBlob(u)], `${nm}-${i + 1}.jpg`, { type: 'image/jpeg' }));
+      if (navigator.canShare && navigator.canShare({ files })) { try { await navigator.share({ files, text: `📁 ${t.name}` }); return; } catch (x) { if (x && x.name === 'AbortError') return; } }
+      for (const f of files) { if (k) await k.deliver(f, f.name, t.name); }
+    } catch (e) { toast('بھیجنے میں مسئلہ — دوبارہ کوشش کریں'); }
+    finally { btn.disabled = false; btn.innerHTML = old; }
   }
   // کسی بھی کتاب کے حوالے تلاش کر کے فولڈر میں
   function pickNotes(t) {
