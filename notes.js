@@ -497,6 +497,14 @@
             const blob = await imgGet(o.one.img);
             if (blob) { const f = new File([blob], `safha-${o.one.page || 'x'}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text: txt }); return; } catch (x) { if (x.name === 'AbortError') return; } } }
           }
+          // MA1911TH162 (مالک کا حکم): پورا موضوع / فہرست — سب اصل صفحات کی تصاویر + متن ایک ساتھ واٹس ایپ پر
+          if (!o.one && o.imgs && navigator.canShare) {
+            const LL = scopeList(b, o).filter(n => n.img).slice(0, 40), files = [];
+            out.disabled = true; out.textContent = 'تصاویر تیار…';
+            for (let i = 0; i < LL.length; i++) { const n = LL[i]; try { const blob = await imgGet(n.img); if (blob) { const bk = bookOf(n); files.push(new File([blob], `${i + 1}-${String((bk && bk.name) || 'kitab').replace(/[^\w\u0600-\u06FF]+/g, '-').slice(0, 30)}-j${n.vol || 1}-s${n.page || 'x'}.jpg`, { type: blob.type || 'image/jpeg' })); } } catch (_) {} }
+            out.disabled = false; out.innerHTML = old;
+            if (files.length && navigator.canShare({ files })) { try { await navigator.share({ files, text: txt }); return; } catch (x) { if (x && x.name === 'AbortError') return; } }
+          }
           if (txt.length <= 3500) location.href = 'https://wa.me/?text=' + encodeURIComponent(txt);
           else if (navigator.share) navigator.share({ text: txt }).catch(() => {});
           else { await k.copyText(txt); toast('کاپی ہو گئی — واٹس ایپ میں پیسٹ کریں'); }
@@ -685,10 +693,13 @@
         <div class="panel-b" id="tpb">
           <p class="nt-hint" style="margin:0 0 10px">ایک عنوان کے سب حوالے (مختلف کتب اور جلدوں سے) ایک فولڈر میں — پھر اصل صفحات کی تصاویر کے ساتھ PDF بھیجیں</p>
           <button class="btn nt-add" type="button" data-a="new" style="width:100%;justify-content:center;margin-bottom:10px">＋ نیا موضوع / فولڈر</button>
-          <div class="tp-list">${T.map(t => { const L = topicNotes(t.id); return `<a class="tp-f" href="#/topics/${t.id}"><span class="ic">📁</span><span><b>${esc(t.name)}</b><small>${num(new Set(L.map(n => n.book)).size)} کتب · ${num(L.filter(n => n.img).length)} تصاویر</small></span><span class="c">${num(L.length)}</span></a>`; }).join('') || '<div class="nt-empty"><b>ابھی کوئی موضوع نہیں</b>«نیا موضوع» بنائیں، پھر کتابوں کے حوالے اس میں جوڑیں۔</div>'}</div>
+          <div class="tp-list">${T.map(t => { const L = topicNotes(t.id); return `<a class="tp-f" href="#/topics/${t.id}"><span class="ic">📁</span><span><b>${esc(t.name)}</b><small>${num(new Set(L.map(n => n.book)).size)} کتب · ${num(L.filter(n => n.img).length)} تصاویر</small></span><span class="c">${num(L.length)}</span><button type="button" class="tp-snd" data-snd="${t.id}" title="پورا موضوع بھیجیں">📤</button></a>`; }).join('') || '<div class="nt-empty"><b>ابھی کوئی موضوع نہیں</b>«نیا موضوع» بنائیں، پھر کتابوں کے حوالے اس میں جوڑیں۔</div>'}</div>
         </div>
       </section>`;
     $(view, '[data-a="new"]').onclick = () => { const t = newTopic(); if (t) location.hash = '#/topics/' + t.id; };
+    // MA1911TH162: فہرست سے ہی پورا موضوع بھیجیں (ہر حوالہ، اصل صفحہ، کتاب، جلد، صفحہ نمبر)
+    $(view, '#tpb').addEventListener('click', e => { const s = e.target.closest('[data-snd]'); if (!s) return; e.preventDefault(); e.stopPropagation();
+      const t = topics().find(x => x.id === s.dataset.snd); if (!t) return; openSend({ id: 't_' + t.id, name: t.name, parts: 1, topic: true }, { list: topicNotes(t.id), imgs: true }); }, true);
   }
   function topicPage(t) {
     const view = H().view, L = topicNotes(t.id), pseudo = { id: 't_' + t.id, name: t.name, parts: 1, topic: true };
