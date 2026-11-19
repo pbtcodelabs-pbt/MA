@@ -167,7 +167,7 @@
   .nt-so .lb{font-size:15px;color:var(--muted);text-align:center;margin:0}
   /* 📁 موضوعات */
   .tp-pick{display:grid;gap:6px;font-size:15px;color:var(--muted)}
-  /* MA1911TH163 (مالک کا حکم): موضوع سب سے اوپر — چنے ہوئے سامنے؛ تصویر چھوٹی؛ «محفوظ کریں» نیچے ہمیشہ نظر میں */
+  /* MA1911TH164 (مالک کا حکم): موضوع سب سے اوپر — چنے ہوئے سامنے؛ تصویر چھوٹی؛ «محفوظ کریں» نیچے ہمیشہ نظر میں */
   .tp-pick.tp-top{background:#f3ead2;border:1.5px solid #c8962f;border-radius:14px;padding:8px 10px}
   .nt-form .nt-prev img{max-height:min(34vh,240px)}
   .nt-form > .btn.save{position:sticky;bottom:0;z-index:3;box-shadow:0 -6px 14px rgba(246,237,214,.95)}
@@ -211,7 +211,7 @@
   const countOf = bookId => notes().filter(n => n.book === bookId).length;
   // فلٹر: جلد اور تاریخ (ہر کتاب کا الگ)
   const FL = {};
-  const fOf = b => FL[b.id] || (FL[b.id] = { vol: 0, when: 'all', from: '', to: '', tp: '', sort: 'vol' });   // MA1911TH163: موضوع + ترتیب
+  const fOf = b => FL[b.id] || (FL[b.id] = { vol: 0, when: 'all', from: '', to: '', tp: '', sort: 'vol' });   // MA1911TH164: موضوع + ترتیب
   const pad2 = x => String(x).padStart(2, '0');
   const isoD = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const MONTHS = ['جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون', 'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'];
@@ -507,7 +507,7 @@
             const blob = await imgGet(o.one.img);
             if (blob) { const f = new File([blob], `safha-${o.one.page || 'x'}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text: txt }); return; } catch (x) { if (x.name === 'AbortError') return; } } }
           }
-          // MA1911TH163 (مالک کا حکم): پورا موضوع / فہرست — سب اصل صفحات کی تصاویر + متن ایک ساتھ واٹس ایپ پر
+          // MA1911TH164 (مالک کا حکم): پورا موضوع / فہرست — سب اصل صفحات کی تصاویر + متن ایک ساتھ واٹس ایپ پر
           if (!o.one && o.imgs && navigator.canShare) {
             const LL = scopeList(b, o).filter(n => n.img).slice(0, 40), files = [];
             out.disabled = true; out.textContent = 'تصاویر تیار…';
@@ -708,7 +708,7 @@
         </div>
       </section>`;
     $(view, '[data-a="new"]').onclick = () => { const t = newTopic(); if (t) location.hash = '#/topics/' + t.id; };
-    // MA1911TH163: فہرست سے ہی پورا موضوع بھیجیں (ہر حوالہ، اصل صفحہ، کتاب، جلد، صفحہ نمبر)
+    // MA1911TH164: فہرست سے ہی پورا موضوع بھیجیں (ہر حوالہ، اصل صفحہ، کتاب، جلد، صفحہ نمبر)
     $(view, '#tpb').addEventListener('click', e => { const s = e.target.closest('[data-snd]'); if (!s) return; e.preventDefault(); e.stopPropagation();
       const t = topics().find(x => x.id === s.dataset.snd); if (!t) return; openSend({ id: 't_' + t.id, name: t.name, parts: 1, topic: true }, { list: topicNotes(t.id), imgs: true }); }, true);
   }
@@ -743,12 +743,12 @@
       else if (k === 'del') { if (!confirm(`«${t.name}» فولڈر حذف کریں؟\nحوالے اپنی کتابوں میں رہیں گے، صرف فولڈر ہٹے گا۔`)) return; const d = H().db(); d.topics = topics().filter(x => x.id !== t.id); notes().forEach(x => { if (inTopic(x, t.id)) x.topics = x.topics.filter(y => y !== t.id); }); H().save(); toast('فولڈر حذف ہو گیا'); location.hash = '#/topics'; }
       else if (k === 'rm' && n) { n.topics = n.topics.filter(y => y !== t.id); n.upd = Date.now(); H().save(); toast('فولڈر سے ہٹ گیا'); topicPage(t); }
       else if (k === 'edit' && n && bk) openForm(bk, n);
-      else if (k === 'view' && n) location.hash = '#/topics/' + t.id + '/g/' + n.id;   // MA1911TH163: ایک تصویر نہیں — سب حوالے، اسی پر
+      else if (k === 'view' && n) location.hash = '#/topics/' + t.id + '/g/' + n.id;   // MA1911TH164: ایک تصویر نہیں — سب حوالے، اسی پر
       else if (k === 'att' && n && bk) quickAttach(bk, n);
     });
   }
 
-  // ===== MA1911TH163 (مالک کا حکم): موضوع کے سب حوالے اوپر سے نیچے — ایک صفحے پر ۱ / ۲ / ۳ / ۴ حوالے؛ ✓ لگا کر چنے ہوئے اکٹھے بھیجیں (تصویر صفحات یا PDF) =====
+  // ===== MA1911TH164 (مالک کا حکم): موضوع کے سب حوالے اوپر سے نیچے — ایک صفحے پر ۱ / ۲ / ۳ / ۴ حوالے؛ ✓ لگا کر چنے ہوئے اکٹھے بھیجیں (تصویر صفحات یا PDF) =====
   const GKEY = 'maktaba-aziz-tpg';
   let gSel = null, gTid = '';
   const gPer = () => { try { return Math.min(4, Math.max(1, parseInt(localStorage.getItem(GKEY), 10) || 2)); } catch (_) { return 2; } };
