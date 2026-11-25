@@ -321,6 +321,7 @@
             ${row('اجزاء (جلدیں)', num(b.parts))}
             ${row('قیمت', b.price ? money(b.price) : '<span class="muted-x">— (ترمیم میں لکھ سکتے ہیں)</span>')}
           </dl>
+          ${b.link ? `<a class="btn" href="${esc(b.link)}" target="_blank" rel="noopener noreferrer" dir="rtl">📂 پوری کتاب کھولیں (ڈرائیو / PDF)</a>` : `<a class="btn ghost small" href="#/c/${cat.id}/edit/${b.id}">🔗 ڈرائیو کا لنک لگائیں</a>`}
           <a class="btn nt-go" href="#/c/${cat.id}/b/${b.id}/notes">📝 ${(+b.parts || 1) > 1 ? 'حوالہ جات (انڈیکس)' : 'ضروری یادداشتیں'} <b>${num(window.MA_NOTES ? window.MA_NOTES.countOf(b.id) : 0)}</b></a>
           ${b.loan ? `<div class="loan-card">
             <div class="lc-h"><span class="lc-tag">پڑھنے کے لیے گئی ہوئی ہے</span><span class="lc-days">${num(daysSince(b.loan.date))} دن</span></div>
@@ -404,6 +405,7 @@
             <div class="cap"><label class="cap-l" for="f-parts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>اجزاء <b class="req">*</b></label><input id="f-parts" class="numin" inputmode="numeric" autocomplete="off" value="${b ? (b.parts ?? '') : ''}" placeholder="4"></div>
             <div class="cap"><label class="cap-l" for="f-price"><b class="rs" aria-hidden="true">Rs</b>قیمت</label><input id="f-price" class="numin" inputmode="decimal" autocomplete="off" value="${b ? (b.price || '') : (last.price || '')}" placeholder="اختیاری"></div>
           </div>
+          <div class="cap tall" style="--i:4"><label class="cap-l" for="f-link">🔗 ڈرائیو / PDF کا لنک <small style="opacity:.7">(اختیاری)</small></label><textarea id="f-link" class="cap-ta" rows="1" dir="ltr" autocomplete="off" spellcheck="false" inputmode="url" placeholder="https://drive.google.com/…">${esc(b && b.link ? b.link : '')}</textarea></div>
           <datalist id="dl-author">${uniq('author').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
           <datalist id="dl-pub">${uniq('publisher').map(v => `<option value="${esc(v)}">`).join('')}</datalist>
           <p class="err" id="f-err" role="alert"></p>
@@ -480,20 +482,24 @@
       const parts = loose($('f-parts').value);
       const price = loose($('f-price').value);
       if (!parts) { err.textContent = 'اجزاء (جلدیں) کتنی ہیں؟ ہندسہ لکھیں'; $('f-parts').focus(); return; }
-      const rec = { name, cat: newCat, author, publisher: $('f-publisher').value.trim(), parts: parts ?? 1, price: price ?? 0 };
+      // MA2611TH165 (ہیلپ ڈیسک #424): کتاب کا اختیاری ڈرائیو / PDF لنک — صرف http/https، خالی ہو تو ہٹ جائے
+      let link = $('f-link').value.trim().replace(/\s+/g, '');
+      if (link && !/^https?:\/\//i.test(link)) { if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(link)) link = 'https://' + link; else { err.textContent = 'لنک درست نہیں — https:// سے شروع ہونے والا ڈرائیو کا لنک پیسٹ کریں'; $('f-link').focus(); return; } }
+      const rec = { name, cat: newCat, author, publisher: $('f-publisher').value.trim(), parts: parts ?? 1, price: price ?? 0, link };
       lsSet(LAST_KEY, JSON.stringify({ publisher: rec.publisher, price: rec.price || '' }));   // نئی کتاب پر ناشر اور قیمت پچھلی کتاب والی
       if (b) {
-        Object.assign(b, rec); save();
+        Object.assign(b, rec); if (!b.link) delete b.link; save();
         wrap.remove(); document.body.classList.remove('noscroll'); document.removeEventListener('keydown', onKey);
         toast('تبدیلی محفوظ ہو گئی');
         location.hash = `#/c/${newCat}/b/${b.id}`;
       } else {
+        if (!rec.link) delete rec.link;
         db.books.push({ id: newId(), added: new Date().toISOString(), ...rec });
         save(); toast(`✓ «${name}» محفوظ ہو گئی`);
         err.textContent = ''; const ok = document.createElement('p'); ok.className = 'saved-ok'; const cn = catById(newCat)?.name || ''; ok.textContent = newCat !== cat.id ? `✓ «${name}» فن «${cn}» میں محفوظ ہو گئی — اگلی کتاب لکھیں` : `✓ «${name}» محفوظ ہو گئی — اگلی کتاب لکھیں`; if (newCat !== cat.id) ok.classList.add('other'); $('addForm').querySelector('.saved-ok')?.remove(); $('addForm').prepend(ok);
         refreshCounts(cat.id); pageCat(cat);
         // اگلی کتاب کے لیے خانے خالی، مکتبہ باقی
-        ['f-name', 'f-author', 'f-parts'].forEach(id => { $(id).value = ''; $(id).style.height = ''; });   // ناشر اور قیمت اگلی کتاب کے لیے رہیں، باقی خالی
+        ['f-name', 'f-author', 'f-parts', 'f-link'].forEach(id => { $(id).value = ''; $(id).style.height = ''; });   // ناشر اور قیمت اگلی کتاب کے لیے رہیں، باقی خالی
         err.textContent = '';
         const opt = $('dl-pub');
         if (rec.publisher && ![...opt.options].some(o => o.value === rec.publisher)) opt.insertAdjacentHTML('beforeend', `<option value="${esc(rec.publisher)}">`);
@@ -932,7 +938,7 @@
     sig() { let s = ''; try { s = localStorage.getItem('jsm_diary_data') || ''; } catch (e) {} let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
   };
   window.MA_DRIVE_HOST = {
-    version: 'MA1911TH164',
+    version: 'MA2611TH165',
     toast,
     ready: () => posterReady,
     snapshot: () => ({ books: db.books, cats: db.cats, catNames: db.catNames, loanLog: db.loanLog, progs: db.progs, notes: db.notes, topics: db.topics, lic: window.MA_LIC ? window.MA_LIC.export() : undefined, brand: window.MA_BRAND ? window.MA_BRAND.get() : undefined, diary: window.MA_DIARY.get() }),
