@@ -153,10 +153,10 @@ window.APP_UPD_LANG = 'ur';
    نیا ورژن اترنا شروع ہو تو اوپر پٹی: «نئی اپڈیٹ آ رہی ہے…»
    اپڈیٹ مکمل ہو کر صفحہ تازہ ہو تو پیغام: پرانا ورژن → نیا ورژن */
 (function () {
-  const V = 'MA2611TH167'; window.APP_UPD_OLD = V;
+  const V = 'MA2611TH168'; window.APP_UPD_OLD = V;
   const KEY = 'maktaba-aziz-seen-version';
   /* MA1810SU123: سب ایپس والا یکساں انداز (AppUpd، اسی فائل کے اوپر) */
-  const UPDATE_NOTE = '🆕 نیا اکاؤنٹ: پہلی بار نام، موبائل اور ضلع کے ساتھ سائن اپ، پن کوڈ اور فنگر پرنٹ؛ MA ID اور «پیکج منگوائیں» کا بٹن — منظوری ہوتے ہی پیکج خود چالو';
+  const UPDATE_NOTE = '⏻ لاگ آؤٹ اب گول سرخ پاور بٹن سے — پہلے «Logout / Yes / Cancel» پوچھتا ہے (سب ایپس میں ایک جیسا)';
   function showBar() { if (!document.body || AppUpd.isWaiting()) return; AppUpd.waiting(); }
   function showDone(oldV) { AppUpd.done(oldV, V, UPDATE_NOTE); }
   function checkSeen() {
