@@ -94,6 +94,8 @@
   .maa-in{width:100%;border-radius:12px;border:1.5px solid #e9c97a;background:#fff;color:#14463a;padding:9px 11px;font:400 18px/1.6 inherit;font-family:inherit;min-height:46px}
   .maa-in.n{direction:ltr;text-align:center;font:700 20px/1.5 ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px}
   .maa-in.need{border-color:#ff8a7a;box-shadow:0 0 0 3px rgba(255,120,100,.35)}
+  .maa-dd{width:auto;min-width:0;max-width:250px;justify-self:center;direction:ltr;text-align:start;font-size:16px;padding:8px 8px}
+  .maa-dd option{direction:ltr;text-align:start;font-size:15px}
   .maa-tg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
   .maa-tg button{border:1.5px solid #e9c97a;background:rgba(255,255,255,.1);color:#fff1c1;border-radius:99px;padding:1px 12px;font:inherit;font-size:14px;line-height:2;cursor:pointer}
   .maa-tg button.on{background:linear-gradient(180deg,#fff6d5,#f1d27a 40%,#c8962f);color:#0b2e26;border-color:#8a5f16}
@@ -163,29 +165,24 @@
 
   // ---------- ضلع کی فہرست (زبان + A→Z / Z→A) ----------
   function districtBlock(root, selEn) {
-    let lang = lget(LK) === 'en' ? 'en' : 'ur', ord = lget(OK) === 'za' ? 'za' : 'az';
+    let ord = lget(OK) === 'za' ? 'za' : 'az';
     const sel = $(root, '#maD');
     const fill = () => {
       const cur = sel.value || selEn || '';
-      const col = lang === 'en' ? 'en' : 'ur';
-      const L = DIST.map(d => ({ en: d[0], ur: d[1] })).sort((a, b) => String(a[col]).localeCompare(String(b[col]), lang === 'en' ? 'en' : 'ur'));
+      const L = DIST.map(d => ({ en: d[0], ur: d[1] })).sort((a, b) => a.en.localeCompare(b.en, 'en'));
       if (ord === 'za') L.reverse();
-      sel.innerHTML = `<option value="">${lang === 'en' ? '— Select district —' : '— ضلع چنیں —'}</option>` +
-        L.map(d => `<option value="${esc(d.en)}">${esc(d[col])}</option>`).join('') +
-        `<option value="${OTHER[0]}">${lang === 'en' ? OTHER[0] : OTHER[1]}</option>`;
+      sel.innerHTML = '<option value="">— Select / ضلع چنیں —</option>' +
+        L.map(d => `<option value="${esc(d.en)}">${esc(d.en)} — ${esc(d.ur)}</option>`).join('') +
+        `<option value="${OTHER[0]}">${OTHER[0]} — ${OTHER[1]}</option>`;
       sel.value = cur; if (sel.value !== cur) sel.value = '';
-      sel.style.direction = lang === 'en' ? 'ltr' : 'rtl';
-      root.querySelectorAll('[data-lg]').forEach(b => b.classList.toggle('on', b.dataset.lg === lang));
       root.querySelectorAll('[data-od]').forEach(b => b.classList.toggle('on', b.dataset.od === ord));
     };
-    root.querySelectorAll('[data-lg]').forEach(b => b.onclick = () => { lang = b.dataset.lg; lset(LK, lang); fill(); });
     root.querySelectorAll('[data-od]').forEach(b => b.onclick = () => { ord = b.dataset.od; lset(OK, ord); fill(); });
     fill();
   }
   const districtHtml = `<div class="maa-l"><span>ضلع</span>
-      <div class="maa-tg"><button type="button" data-lg="ur">اردو</button><button type="button" data-lg="en">English</button>
-      <button type="button" data-od="az">A → Z</button><button type="button" data-od="za">Z → A</button></div>
-      <select class="maa-in" id="maD"></select></div>`;
+      <div class="maa-tg"><button type="button" data-od="az">A → Z</button><button type="button" data-od="za">Z → A</button></div>
+      <select class="maa-in maa-dd" id="maD"></select></div>`;
   function districtLabel(en) {
     if (!en) return '';
     if (en === OTHER[0]) return OTHER[1] + ' (Other)';

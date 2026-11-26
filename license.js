@@ -114,7 +114,7 @@
     return { ok: true, exp: s.exp };
   }
 
-  // ---------- MA2611TH166: سرور (MA ID) سے ملا پیکج — account.js بلاتی ہے؛ کوڈ والا نظام ویسا ہی ----------
+  // ---------- MA2611TH167: سرور (MA ID) سے ملا پیکج — account.js بلاتی ہے؛ کوڈ والا نظام ویسا ہی ----------
   // کوڈ کی مدت زیادہ ہو تو وہی رہے؛ سرور کی مدت زیادہ ہو (یا پچھلا پیکج بھی سرور کا تھا) تو سرور والی۔ code='SRV' = سرور سے
   function srvGrant(exp) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(exp || ''))) return false;
@@ -739,7 +739,7 @@
 
   window.MA_LIC = {
     status,
-    refresh: () => refresh(true),   // MA2611TH166: account.js کے لیے
+    refresh: () => refresh(true),   // MA2611TH167: account.js کے لیے
     gate: () => showGate(false, true),
     srvGrant, srvRevoke,
     dev: () => devAuth(),   // PBT-DEVHUB: ہیلپ ڈیسک سے سیدھا
