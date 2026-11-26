@@ -114,6 +114,25 @@
     return { ok: true, exp: s.exp };
   }
 
+  // ---------- MA2611TH166: سرور (MA ID) سے ملا پیکج — account.js بلاتی ہے؛ کوڈ والا نظام ویسا ہی ----------
+  // کوڈ کی مدت زیادہ ہو تو وہی رہے؛ سرور کی مدت زیادہ ہو (یا پچھلا پیکج بھی سرور کا تھا) تو سرور والی۔ code='SRV' = سرور سے
+  function srvGrant(exp) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(exp || ''))) return false;
+    const s = ensure(); let ch = false;
+    if (s.code === 'SRV' || !s.exp || exp > s.exp) {
+      if (s.exp !== exp || s.code !== 'SRV') { const wasSrv = s.code === 'SRV'; s.exp = exp; s.iss = (wasSrv && s.iss) ? s.iss : today(); s.code = 'SRV'; ch = true; }
+    }
+    s.chk = today(); save(s);
+    if (ch) refresh(true);
+    return ch;
+  }
+  // ہیلپ ڈیسک سے معطل: صرف وہ پیکج بند جو سرور سے آیا تھا
+  function srvRevoke() {
+    const s = ensure();
+    if (s.code === 'SRV' && s.exp && s.exp >= today()) { s.exp = addDays(today(), -1); save(s); refresh(true); return true; }
+    return false;
+  }
+
   // ---------- ڈیولپر کا ریکارڈ (کس کو کون سا کوڈ دیا) ----------
   const getL = () => { try { const l = JSON.parse(localStorage.getItem(LKEY)); return Array.isArray(l) ? l : []; } catch (e) { return []; } };
   // کوڈ کا ریکارڈ بدلے تو Drive بیک اپ بھی خود ہو جائے
@@ -309,6 +328,7 @@
     show(`<div class="lic-box">${emblem(true)}
       <div class="lic-fade" style="display:grid;gap:14px">
       <p class="lic-k" id="licTitle">${esc(bn)}</p>
+      <div id="maIdSlot"></div>
       <button type="button" class="lic-b lic-trial" id="licTrial">🎁 ${num(CFG.TRIAL_DAYS)} دن کے لیے فری استعمال کریں</button>
       <button type="button" class="lic-link lic-rs" id="licHaveCode">سبسکرپشن کے لیے یہ بٹن دبائیں</button>
       <button type="button" class="lic-b lic-share" data-appshare>📲 یہ ایپ دوسروں کو بھیجیں</button>
@@ -317,6 +337,7 @@
       </div></div>`, true);
     tapCounter($(ov, '#licTitle'), devAuth);
     tapCounter($(ov, '#licVer'), devAuth);
+    try { window.MA_ACC && window.MA_ACC.mount(ov); } catch (e) {}
     $(ov, '#licTrial').onclick = () => { startTrial(); if (goNext()) return; hide(); showWelcome(); refresh(); };
     $(ov, '#licHaveCode').onclick = () => showGate(true, true);
   }
@@ -333,7 +354,9 @@
       <div class="${block ? 'lic-fade' : ''}" style="display:grid;gap:10px">
       <p class="lic-k" id="licTitle">${block ? 'سبسکرپشن درکار ہے' : 'سبسکرپشن'}</p>
       <p class="lic-p">${line}</p>
-      <p class="lic-step">1) اپنا نام لکھ کر واٹس ایپ کریں</p>
+      <div id="maIdSlot"></div>
+      <div id="maPkgSlot"></div>
+      <p class="lic-step">یا پرانے طریقے سے: 1) اپنا نام لکھ کر واٹس ایپ کریں</p>
       <input class="lic-in t" id="licName" placeholder="اپنا نام لکھیں (ضروری)" autocomplete="off" value="${esc(s.name || '')}">
       <a class="lic-b lic-big" id="licWa" target="_blank" rel="noopener" href="#">📲 واٹس ایپ پر کوڈ منگوائیں</a>
       <p class="lic-small">آپ کی UID: <b dir="ltr" id="licUid">${st.uid}</b> · <button type="button" class="lic-link" id="licCopyMsg">یا میسج کاپی کریں</button></p>
@@ -353,6 +376,7 @@
       <div class="lic-ver" id="licVer">${(document.getElementById('verChip') || {}).textContent || ''}</div>
       </div>
     </div>`, block);
+    try { window.MA_ACC && window.MA_ACC.mount(ov); } catch (e) {}
     const m = $(ov, '#licMsg'), inp = $(ov, '#licIn'), nm = $(ov, '#licName'), wa = $(ov, '#licWa');
     const setWa = () => { const u = ensure(); u.name = nm.value.trim(); save(u); wa.href = `https://wa.me/${CFG.DEV_PHONE}?text=${encodeURIComponent(waMsg(status(), u.name))}`; };
     setWa(); nm.addEventListener('input', () => { setWa(); nm.classList.remove('need'); });
@@ -715,8 +739,11 @@
 
   window.MA_LIC = {
     status,
+    refresh: () => refresh(true),   // MA2611TH166: account.js کے لیے
+    gate: () => showGate(false, true),
+    srvGrant, srvRevoke,
     dev: () => devAuth(),   // PBT-DEVHUB: ہیلپ ڈیسک سے سیدھا
-    export: () => { const l = getL(); return Object.assign({ code: (load() || {}).code || '' }, l.length ? { ledger: l } : {}); },
+    export: () => { const l = getL(), c = (load() || {}).code || ''; return Object.assign({ code: c === 'SRV' ? '' : c }, l.length ? { ledger: l } : {}); },
     import: async l => {
       if (!l) return;
       if (Array.isArray(l.ledger)) { const L = getL(); l.ledger.forEach(r => { if (r && r.code && r.uid && !L.some(x => x.code === r.code)) L.push(r); }); L.sort((a, b) => (b.ts || 0) - (a.ts || 0)); putL(L); }
